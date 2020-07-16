@@ -10,9 +10,6 @@ permalink: /links/
 
 > 团队成员
 
-- [hiszm](http://github.com/hiszm)
-
-
 
 
 
