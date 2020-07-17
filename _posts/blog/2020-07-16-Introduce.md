@@ -112,6 +112,7 @@ erDiagram
 ## 上传图片
 上传图片到本项目文件夹/assets/images下，建议为自己的文章使用单独目录。
 
+![jekyll_exec](/assets/images/jekyll_exec.png)
 ```
 ![jekyll_exec](/assets/images/jekyll_exec.png)
 ```
