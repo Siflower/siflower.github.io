@@ -56,12 +56,10 @@ graph TB
 E[Qin]
 E-.-E1[Uboot移植开发手册]
 E-.-E3[新的版型引入指南]
-E-.-E4[SiWiFi定制OpenWRT系统用户手册]
 E-.-E5[FLASH分区开发手册]
 
 click E1 "https://open.siflower.cn/#/console/documents?id=6e43a77b59080100011ecdd4" "Uboot移植开发手册"
 click E3 "https://open.siflower.cn/#/console/documents?id=5e43b6a059080100011ecde2" "新的版型引入指南"
-click E4 "https://open.siflower.cn/#/console/documents?id=5e43c00b59080100011ecde6" "SiWiFi定制OpenWRT系统用户手册"
 click E5 "https://open.siflower.cn/#/console/documents?id=5e44015259080100011ecde8" "FLASH分区开发手册"
 E-.-E6[中继器模式切换配置修改手册]
 click E6 "https://open.siflower.cn/#/console/documents?id=5d229e37d1606300013a8247" "中继器模式切换配置修改手册"
@@ -78,6 +76,7 @@ F-.-F1[路由器管理网页客制化功能使用手册]
 F-.-F2[管理网页客制化使用手册]
 F-.-F3[OTA升级系统开发手册]
 F-.-F4[led-button package使用手册]
+F-.-F5[SiWiFi定制OpenWRT系统用户手册]
 
 click F1 "https://open.siflower.cn/#/console/documents?id=5e439ecb59080100011ecdcc" "路由器管理网页客制化功能使用手册"
 click F2 "https://open.siflower.cn/#/console/documents?id=5e43a0ed59080100011ecdce" "管理网页客制化使用手册"
@@ -85,6 +84,7 @@ click F3 "https://open.siflower.cn/#/console/documents?id=5e46071259080100011ece
 
 click F4 "https://open.siflower.cn/#/console/documents?id=5e56195459080100011ecf38" "led-button package使用手册"
 
+click F5 "https://open.siflower.cn/#/console/documents?id=5e43c00b59080100011ecde6" "SiWiFi定制OpenWRT系统用户手册"
 ```
 
 ```mermaid
