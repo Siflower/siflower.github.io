@@ -4,6 +4,7 @@ title: 通过github pull request 提交代码
 categories: github
 description: 如何提交文档
 keywords: github
+mermaid: true
 ---
 
 # 通过github pull request 提交代码
