@@ -67,7 +67,7 @@ feat: 添加github pull request 文档
 介绍了如何通过github pull request 进行代码提交​
 ​
 Issue #3
-Closes #3:w
+Closes #3
 RM#7168
 ```
 第一行为type用于说明 commit 的类别，可以使用如下类别：
