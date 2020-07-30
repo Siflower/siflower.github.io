@@ -93,7 +93,9 @@ enum {
 	LED_ACTION_MAX,
 };
 ```
+
 - 在led.c中根据版型和led行为编号添加判断判和调用plat_led.c中哪一个功能函数
+
 ```
 switch (action << 16 | board) {
 	case mACTION(LED, 1, 1):
@@ -122,15 +124,17 @@ switch (action << 16 | board) {
 		ret = plat_set_led_rep_3();
         ......
         .........
-
 ```
+
 - mACTION(x,y,z)在action.h中定义如下，新版型需要在plat.c和plat.h进行添加并保存
+
 ```
 #define mACTION(x, y, z) (x##_ACTION_##y << 16 | BOARD_##z)
 X代表：led/btn
 Y代表：enum中的行为编号，
 Z代表：版型编号
 ```
+
 ```
 plat.h
 
@@ -153,8 +157,11 @@ struct board_name bd_name[] = {
 	{ BOARD_MAX, "none" }, /* Ending flags. */
 };
 ```
+
 - 在plat_led.c中，已经统一将led基本操作写成了代码封装成了函数，根据版型名称和dts中led设备节点进行设置。  
   实际功能函数根据需求在plat_led.c中自行实现，参考其它已有版型的实现函数即可，这样就可以完成对版型led的控制。
+
+
 ```
 * All leds in arg "name" must be available! */
 static int led_set_trigger(const char *trig, int cnt, char **name)
@@ -177,9 +184,11 @@ int plat_set_led_on(void)
 {
 	return led_set_trigger("default-on", bd_info.ledcnt, bd_info.bd_leds);
 }
+```
 
-EVB led实现功能函数示例：
+- EVB led实现功能函数示例：
 
+```
 /*
  * evb led action definition
  *
@@ -223,6 +232,7 @@ int plat_set_led_evb(void)
 	return ret;
 }
 ```
+
 注：这些函数生效，首先确定在/sys/class/leds存在，并且leds/下存在与dts中名称相对应的节点，才可以对led进行控制操作
 
 - 完成上述修改后，在menuconfig选中led-button，进行编译即可
@@ -230,11 +240,13 @@ int plat_set_led_evb(void)
   Utilities
     --->led-button
 ```  
+
 ![led_button_menuconfig](/assets/images/gpio_image/gpio_led_button_menuconfig.png)
 
 **不使用led-button package进行管理**
 siflower使用linux标准的led子系统，故不使用led-button，按照标准流程自行实现led控制功能也是可以的
 - 按照上述方式完成kernel中相应版型dts添加
+
 ```
 &leds {
     status = "okay";
@@ -245,32 +257,44 @@ siflower使用linux标准的led子系统，故不使用led-button，按照标准
     };
 };
 ```
+
 - 确认在/sys/class/leds存在，并且leds/下存在与dts中名称相对应的节点，然后可以自行编写代码实现对led控制操作。
+
 - 控制led打开/关闭(以test-gpio为例，下同)
+
+
 ```
 echo default-on > sys/class/leds/test-led/trigger //打开
 
 echo none > sys/class/leds/test-led/trigger       //关闭
 ```
+
 - 控制LED闪烁，默认500ms闪烁
+
 ```
 echo timer > sys/class/leds/test-led/trigger //打开闪烁
 
 echo none > sys/class/leds/test-led/trigger  //停止闪烁
 ```
+
 - 自定义LED闪烁，设置亮灭时常：200ms  亮/灭
+
 ```
 echo timer > sys/class/leds/test-led/trigger //打开闪烁 
 
 echo 200 > sys/class/leds/test-led/delay_on  //设置200ms亮
 
 echo 200 > sys/class/leds/test-led/delay_off //设置200ms灭
-
 ```
+
 以上为直接在串口操作kernel生成的LED节点，实际使用可以按照标准的方式在编写应用程序实现功能，或者在脚本中实现然后调用脚本实现控制
+
 ### 3.2.2 BUTTON实现
+
 #### 3.2.2.1 kernel button 配置
+
 - linux-4.14.90/linux-4.14.90/arch/mips/boot/dts/siflower/版型.dts中添加key节点配置
+
 ```
 &gpio_keys {
     status = "okay";
@@ -282,24 +306,31 @@ echo 200 > sys/class/leds/test-led/delay_off //设置200ms灭
         };
 };
 ```
+
 - kernel_menuconfig 配置
   siflower按键检测依赖input子系统，并且解析dts的节点是由input/keyboard/gpio_keys.c这个驱动解析的，所以kernel config中需要配置  
+
 ```
 CONFIG_INPUT_EVDEV=y
 CONFIG_KEYBOARD_GPIO=y
 ```
+
 ```
 Device Drivers
     --->Input device support
         --->Keyboards
             --->GPIO Buttons
 ```
+
 ![gpio_button_kernel_menuconfig](/assets/images/gpio_image/gpio_button_kernel_setting.png)  
 
 #### 3.2.2.2 openwrt button 配置
+
 **使用led-button package进行管理**   
 以实现reset按键为例，介绍siflower硬件版型在SDK下实现流程  
+
 - 在plat.h/plat.c中添加或者修改版型名称并保存
+
 ```
 plat.h
 
@@ -324,7 +355,9 @@ struct board_name bd_name[] = {
 	{ BOARD_MAX, "none" }, /* Ending flags. */
 };
 ```
+
 - 复制参考版型base-files-版型/etc/config/btn_ctrl_cfg文件到自己新增的版型目录下，按键实现主要在这里配置
+
 ```
 btn_ctrl_cfg的内容如下：
 
@@ -362,9 +395,11 @@ config btn_config
         option btn_action '2' 
         option btn_cmd 'reboot'
 ```
+
 > btn_code：必须是0x开头的十六进制表示形式(x应该用小写), 在dts中的linux,code的值用来和这里进行匹配,建议两边都使用十六进制(0x)的表示形式,如果dts中没有使用十六进制,那么一定要做好对应的转换,再次强调,在button的config文件里面必须使用十六进制表示形式。  
 
 > btn_action：按键动作，主要用来匹配按键动作  
+
 ```
 在action.h中
 enum {
@@ -378,6 +413,8 @@ enum {
 	BTN_ACTION_MAX,
 };
 ```
+
+
 | 编号 | 按键类型 | 说明 | 
 | - | - | - |  
 | 1 | BTN_ACTION_LPRESS | 长按 (4s <= press time < 12s) |
@@ -418,6 +455,7 @@ enum {
 #### 3.3.1 led配置关键
 - dts中led节点配置
 - kernel config相关配置选中，这个是生成led节点的关键
+
 	```
   	CONFIG_LEDS_GPIO=y
   	文件路径在target/linux/siflower/sf19a28/-fullmask/config-4.14_xx
@@ -425,6 +463,7 @@ enum {
 - led功能实现主要是在led-button/src/plat_led.c，却在其中按照示例修改  
   
 #### 3.3.2 button配置关键
+
 - dts中key节点设置  
 - kernel config相关配置选中，这个是按键检测的关键  
 	```
