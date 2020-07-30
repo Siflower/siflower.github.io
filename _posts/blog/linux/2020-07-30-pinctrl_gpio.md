@@ -26,7 +26,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 **目录**
 
-*TOC
+* TOC
 {:toc}
 
 # 1. 介绍
@@ -38,9 +38,11 @@ Siflower的芯片提供一些PAD脚，这些PAD脚可以配置为不同的功能
 - 熟悉C语言
 - 熟悉linux Device Tree的使用
 - 熟悉Linux Device Driver开发
+- 
 ## 1.2. 开发环境
 - 可以正常编译通过的Siflower SDK环境
 TODO: 该环境的搭建请参考[快速入门]()
+
 # 2. Pinctrl和GPIO配置简介
 Siflower的芯片提供一些PAD脚, 在PAD模式下, 这些PAD脚处于默认状态, 用户必须要配置才能正常使用. 这些PAD脚可以配置成不同的模式,从而实现不同的功能. 以下图中的两个PAD脚为例
 
