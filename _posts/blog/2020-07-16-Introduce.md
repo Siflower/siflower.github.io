@@ -139,3 +139,26 @@ graph LR
   click B "https://open.siflower.cn/#/console/documents?id=5e03007c4b8ddc0001b46134" "SF16A18 Brief Date Sheet"
 ```
 每篇文档中关联文档必须使用插入链接的方式进行引用。
+
+## 注意事项
+
+- 不同块内容请用空行隔开，比如标题和正文等. 如果连续使用标签后，使用\``` 注释，请空开两行,  结束\``` 前不要有无意义空行。
+
+```
+# title
+
+正文
+
+- tag 
+
+正文
+
+- tag1
+
+- tag2
+
+
+\```
+
+\```
+```

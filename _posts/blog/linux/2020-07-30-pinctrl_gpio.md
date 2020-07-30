@@ -44,7 +44,8 @@ TODO: 该环境的搭建请参考[快速入门]()
 # 2. Pinctrl和GPIO配置简介
 Siflower的芯片提供一些PAD脚, 在PAD模式下, 这些PAD脚处于默认状态, 用户必须要配置才能正常使用. 这些PAD脚可以配置成不同的模式,从而实现不同的功能. 以下图中的两个PAD脚为例
 
-![iomux](./../../../assets/images/bsp/iomux.png)
+![iomux](/assets/images/bsp/iomux.png)
+
 *note: 上面的截图来自Siflower的IOMUX表格, 不对外提供, 如有需求请联系Siflower获取*
 
 从上图可以看出, I2C_DAT(GPIO11)和I2C_CLK(GPIO12), 在配置成不同的模式的时候会有不同的功能,总共有GPIO_MODE, FUNC_MODE0,FUNC_MODE1,FUNC_MODE2,FUNC_MODE3五种模式可选,上面的两个PAD脚配置为不同的模式的时候,各自的功能见下表
@@ -138,6 +139,7 @@ pcfg_pull_up | bias-pull-up
 pcfg_pull_down | bias-pull-down
 pcfg_pull_none | bias-disable
 pcfg_pull_pin_default | bias-pull-pin-default
+
 我们使用pcfg_pull_pin_default即可, 也就是说上下拉参数使用系统默认的(上拉)
 
 ### 3.1.2. Pinctrl的使用
@@ -244,11 +246,13 @@ gpio_keys: gpio-keys {
 
 其中gpios, gpio-leds, cs-gpios是不同的模块的驱动中从dts中获取gpio相关信息所使用的字符串,这个是根据实际的情况自定义的. 
 用户主要使用的是第一种形式
+
 > gpios = <&gpio 60 0> 
 
 gpios | &gpio | 60 | 0
 -|-|-|-
 固定,驱动中用来获取参数的字符串 | 固定, Siflower GPIO的描述| GPIO号 | 可以使用0和1,代表active high和active low,主要用于GPIO按键,其他时候默认为0即可
+
 使用的例子如下:
 ```
 代码参考:linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_ac28.dts
