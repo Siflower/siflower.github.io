@@ -26,7 +26,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 **目录**
 
-*TOC
+* TOC
 {:toc}
 
 # 1. 介绍
@@ -38,9 +38,11 @@ Siflower的芯片提供一些PAD脚，这些PAD脚可以配置为不同的功能
 - 熟悉C语言
 - 熟悉linux Device Tree的使用
 - 熟悉Linux Device Driver开发
+
 ## 1.2. 开发环境
 - 可以正常编译通过的Siflower SDK环境
-TODO: 该环境的搭建请参考[快速入门]()
+  该环境的搭建请参考[快速入门](TODO)
+
 # 2. Pinctrl和GPIO配置简介
 Siflower的芯片提供一些PAD脚, 在PAD模式下, 这些PAD脚处于默认状态, 用户必须要配置才能正常使用. 这些PAD脚可以配置成不同的模式,从而实现不同的功能. 以下图中的两个PAD脚为例
 
@@ -113,32 +115,36 @@ pinctrl: pinctrl {
 };
 ```
 其中对PAD的配置体现如下形式:
+
 ```
 sfax8,pins = <0  9 0 &pcfg_pull_pin_default>
 ```
-sfax8, pins候的四个参数从左到右分别代表的意义如下:
-| 0 | 9 | 0 | &pcfg_pull_pin_default|
-|:-:|:-:|:-:|:-:| 
-| group(固定为0) | pin脚号（即GPIO号）| func（function参数）|上下拉参数|
-  
 
+sfax8, pins候的四个参数从左到右分别代表的意义如下:
+
+|   0  | 9    | 0    | &pcfg_pull_pin_default|
+| :--: | :--: | :--: | :--: | 
+| group(固定为0)  | pin脚号（即GPIO号） | func（function参数）| 上下拉参数 |
+  
 **function参数**
-参数 | 模式
--|-
-0 | FUNC_MODE0
-1 | FUNC_MODE1
-2 | FUNC_MODE2
-3 | FUNC_MODE3
-4 | GPIO INPUT
-5 | GPIO OUTPUT
+
+| 参数 | 模式 |
+| -- | -- |
+| 0 | FUNC_MODE0 | 
+| 1 | FUNC_MODE1 |
+| 2 | FUNC_MODE2 |
+| 3 | FUNC_MODE3 |
+| 4 | GPIO INPUT |
+| 5 | GPIO OUTPUT |
 
 **上下拉参数**
-参数 | 意义
--|-
-pcfg_pull_up | bias-pull-up
-pcfg_pull_down | bias-pull-down
-pcfg_pull_none | bias-disable
-pcfg_pull_pin_default | bias-pull-pin-default
+
+| 参数 | 意义 |
+| -- |-- |
+| pcfg_pull_up | bias-pull-up |
+| pcfg_pull_down | bias-pull-down |
+| pcfg_pull_none | bias-disable |
+| pcfg_pull_pin_default | bias-pull-pin-default |
 
 我们使用pcfg_pull_pin_default即可, 也就是说上下拉参数使用系统默认的(上拉)
 
