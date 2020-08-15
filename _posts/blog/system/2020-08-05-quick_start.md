@@ -2,7 +2,7 @@
 layout: post
 title: siflower快速入门
 categories: system 
-description: 介绍siflower平台开发e快速入门的方法
+description: 介绍siflower平台开发快速入门的方法
 keywords:  快速入门
 mermaid: true
 ---
