@@ -90,7 +90,7 @@ Network--->hostapd-common
 Utilities--->iwinfo  
 Base system--->dnsmasq
 ```
-修改完成之后保存，在openwrt-18.06目录下使用```make -j V=s```即可编译，镜像在```bin/siflower/openwrt-siflower-sf16a18-mpw0-squashfs-sysupgrade.bin```。
+修改完成之后保存，在openwrt-18.06目录下使用```make -j V=s```即可编译，镜像位于```bin/siflower/openwrt-siflower-sf16a18-mpw0-squashfs-sysupgrade.bin```。
 
 ### 2.2 wifi上层配置说明
 
@@ -137,7 +137,8 @@ config wifi-iface 'default_radio0'
 
 配置中的同一个config段的```option ***** '*****'```先后顺序不影响配置。
 
-注：默认值为"/"时表示该选项不一定会出现，只有在进行了某些设置的情况下才会出现；默认值为"-"时表示2.4G和5G有差异，将在描述里进行说明。
+注：默认值为“/”时表示该选项不一定会出现，只有在进行了某些设置的情况下才会出现；默认值为“-”时表示2.4G和5G有差异，将在描述里进行说明。
+
   | 选项 |值类型|默认值|描述 |  
   | :---: |:---:|:---:| :---: |
   |wifi-device|string|radio0|驱动设备名称|
@@ -171,6 +172,7 @@ config wifi-iface 'default_radio0'
   |isolate|boolean|0|连接此wifi的各设备之间是否隔离，1表示隔离，0表示不隔离。|
   |group|int|-|bridge中的分组，各个不同的group之间在bridge中是不能互相访问的。默认2.4G为0，5G为1。|
   |netisolate|boolean|0|如果配置为1，则从该bssid下的设备无法访问同一bridge中其它bssid的设备。|
+
   其他更多选项可参考[openwrt官方配置介绍](https://oldwiki.archive.openwrt.org/doc/uci/wireless)  。
 
 #### 2.2.3 htmode和hwmode对应关系  
@@ -236,6 +238,7 @@ config wifi-iface 'default_radio0'
   |Singapore|新加坡|SG|
   |United Kingdom|英国|GB|
   |United States of America|美国|US|
+
 更多代码参见[国家代号与区号](http://www1.jctrans.com/tool/dm.htm)。
 
 ### 2.3 wifi配置方法
@@ -289,6 +292,7 @@ etc/config/wireless
 #### 2.3.3 查看wifi信息
 
 使用"iw"指令可查看wifi相关信息，下面列出常见的iw指令。
+
 |指令|参数|描述|示例
 |:----:|:---:|:---:|:---:|
 |iwinfo|/|列出所有无线网络信息|iwinfo|
@@ -397,6 +401,7 @@ config wifi-iface
 
 
 配置说明
+
 | 选项 |值类型|默认值|描述 |
   | :---: |:---:|:---:| :---: |
   |ssid|string|/|所需连接的目标热点名称，可通过iw \<ifname\> scan的指令得到|
@@ -410,7 +415,7 @@ config wifi-iface
 
 ### 2.4 wifi配置生效流程
 
-##### 2.4.1 如何修改默认配置？
+#### 2.4.1 如何修改默认配置？
 
 在板子上生成默认配置的脚本为lib/wifi/mac80211.sh，其在源码中位于package/kernel/mac80211/files/lib/wifi/mac80211.sh。
 
@@ -435,13 +440,13 @@ index 81e6ac7..fd33cfe 100644
 ```
 
 
-##### 2.4.2 默认配置生成后被应用到哪里？
+#### 2.4.2 默认配置生成后被应用到哪里？
 
 /etc/config/wirelesss会被netifd和hostapd使用。  
 对于netifd，将直接读取wireless的配置；  
 对于hostapd，会由脚本/lib/netifd/wireless/mac80211.sh读取配置，生成配置文件/var/run/hostapd-phy*.conf以供hostapd使用，该脚本在源码中位于package/kernel/mac80211/files/lib/netifd/wireless/mac80211.sh。
 
-##### 2.4.3 wifi配置流程图
+#### 2.4.3 wifi配置流程图
 
 ```mermaid
 graph LR
@@ -457,6 +462,7 @@ C-.->F[hostapd]
 #### 2.5.1 wifi是否正常启动
 
 检测wifi是否正常启动的一般流程：
+
 ```mermaid
 graph TD
   A[iwinfo或ifconfig是否有wifi相关信息]-->|没有|B1[进程hostapd是否存在]
@@ -742,10 +748,13 @@ root@OpenWrt:/# [  212.598173] lmac[0] vif_mgmt_register, vif_type : 2
 
 如果想开机时不自动加载wifi驱动，可用如下方法：  
 - 第一步，在package/kernel/sf_smac/config/99_rf_misc注释掉下面这一行
+
 ```
 #boot_hook_add preinit_main insmod_rf
 ```
+
 - 第二步，在package/kernel/sf_smac/Makefile注释掉以下部分
+
 ```
 #ifndef CONFIG_PACKAGE_SFSMAC_HB_LA_ENABLE
 #   echo 'boot_hook_add preinit_main insmod_$(SF_UMAC_TYPE)_lb' >> $(1)/lib/preinit/99_rf_misc
@@ -757,7 +766,7 @@ root@OpenWrt:/# [  212.598173] lmac[0] vif_mgmt_register, vif_type : 2
 ```
 
 
-- 需要时可以使用sfwifi reset来加载驱动，启用wifi。
+- 需要时可以使用```sfwifi reset```来加载驱动，启用wifi。
 
 #### 2.5.3 wifi信号优化
 
@@ -806,7 +815,8 @@ root@OpenWrt:/#
 #### 3.2.1 wifi_onoff测试
 
 **测试方法**
-在板子起来后，运行wifi_onoff.sh 'band'，可进行wifi-device的不停重载。'band'可选择2或者5，其他参数则会随机重载，例如```wifi_onoff.sh 2```。
+
+在板子起来后，运行wifi_onoff.sh 'band'，可进行wifi-device的不停重载。'band'可选择2或者5，使用其他参数则会随机重载，例如```wifi_onoff.sh 2```。
 
 **示例**
 
@@ -872,18 +882,26 @@ start time is 2020-07-18T14:25:44+0800
 ```
 
 **测试结果分析**
+
 测试不中断则为正常;
 测试失败时会持续打印（根目录下有日志文件on_off.log）：
+
 ```====cycle is $x===radio1 turn on failed,continue $y times=======```
+
 （\$x: 压力测试的次数 $y: check测试结果的次数）
+
 若最后出现
+
 ```=======after retest radio0 turn off success=======```
+
 也是正常情况,这是由于检测信道造成的。
 
 #### 3.2.2 sfwifi reset测试
 
 **测试方法**
+
 板子起来后使用指令```sfwifi stress```，该指令会不停的重启wifi驱动（sfwifi reset）。
+
 **示例**
 
 ```
@@ -1120,12 +1138,14 @@ device=
 ```
 
 **测试结果分析**
+
 测试不中断则为正常;
 若中断，出错信息在/tmp/sfwifi.log。
 
 #### 3.2.3 双band iperf测试
 
 **测试方法**
+
 两台机器，一台作为master，一台作为slave
 进入串口，执行顺序如下：
 master:setup-wifi.sh master 456     // 455是可变序号，不同组测试用不同序号
@@ -1391,14 +1411,15 @@ TCP window size: 43.8 KByte (default)
 ```
 
 **测试结果分析**
+
 测试未中断即为正常。
 
 ## FAQ
 
-### Q1、为什么手机连接wifi时拿不到IP地址?
+#### Q1、为什么手机连接wifi时拿不到IP地址?
 
  A：检测dhcp服务是否开启（查看进程里是否有dnsmasq），尝试使用```/etc/init.d/dnsmasq restart```重启dhcp服务；检测dhcp服务池是否已满。
 
-### Q2、为什么wifi-iface里设置了key，但是手机不需要密码就能连接？
+#### Q2、为什么wifi-iface里设置了key，但是手机不需要密码就能连接？
 
  A：检查encryption后的字符串是否和[2.2.4节](#2.2.4\ encryption加密方式)列表一致，错误的字符串会导致wifi设置成开放模式。
