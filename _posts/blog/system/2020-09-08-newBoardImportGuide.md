@@ -109,7 +109,7 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
   修改所有相应的名称为指定型号，需要和文件名统一，注意大小写。
   ![evb-v5-mk](/assets/images/new_board_guide/evb-v5-mk.png)
 
-- 根据需要，决定是否建立target/linux/siflower/sf16a18-fullmask/base-files-SF16A18-EVB-V5 目录，放置额外文件,注意文件夹名称统一。
+- 根据需要，决定是否建立target/linux/siflower/sf16a18-fullmask/base-files-SF16A18-EVB-V5 目录，放置额外文件,注意文件夹名称统一。  
   ![evb-v5-basefile](/assets/images/new_board_guide/evb-v5-basefile.png)
 
 - 在target/linux/siflower/sf16a18-fullmask/目录下复制其他版型的kernel config文件作为新板型的kernel config文件，后续在kernel部分会进行修改。  
@@ -137,7 +137,7 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
   ![evb-v5-menuconfig](/assets/images/new_board_guide/evb-v5-menuconfig.png)
   保存配置后并退出。
 
-- 保存最终配置
+- 保存最终配置  
   ![evb-v5-copy2](/assets/images/new_board_guide/evb-v5-copy2.png)
   将生成的config文件覆盖回target目录下的文件，使配置永久保存。
 
@@ -203,7 +203,7 @@ linux需要增加相应的dts文件和Kconfig选项。
 
 #### 编译新版型镜像
 
-保存相关文件，回到openwrt根目录，这个时候可以通过
+保存相关文件，回到openwrt根目录，这个时候可以通过执行
 ![evb-v5-compile](/assets/images/new_board_guide/evb-v5-compile.png)
 可以编译出对应新配置版型的镜像。
 
@@ -262,7 +262,7 @@ Makefile组织
 
 ### 测试环境配置
 
-编译好对应板型镜像后，烧录测试即可，烧录方法见：[快速入门](https://developers.siflower.cn/#/documentDisplay?docId=167)
+编译好对应板型镜像后，烧录测试即可，烧录方法见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
 
 ### 测试流程和测试结果
 

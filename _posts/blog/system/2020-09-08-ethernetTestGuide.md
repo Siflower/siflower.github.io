@@ -64,6 +64,10 @@ Linux/Windows PC，开发板测试环境。
 
 LAN口接PC，检测LAN口PC是否能获取到IP，是否能Ping通；WAN口接外网，检测网口是否能获取到IP，是否能Ping通外网；
 
+#### 百米网线测试
+
+PC通过100米网线连接路由器，检测PC是否能正常link，数据收发是否正常。
+
 #### LED测试
 
 检测网线Link/数据收发时，LED状态是否正常；
@@ -99,12 +103,22 @@ LAN口接PC，检测LAN口PC是否能获取到IP，是否能Ping通；WAN口接�
 - 如果发现双向测试-d参数无法使用时，可以起2个server和client，手动跑2条流；
 - 跑多条流时可以加上-p参数指定端口号；
 
+以百兆口Iperf host tx tcp测试为例，提供截图如下：
+![iperf_tcp](/assets/images/ethernet_test/host_tx_tcp_iperf.png)
+
+
 #### IxChariot性能测试
 
 Windows系统下可以通过IxChariot进行以太网性能测试，IxChariot为控制台，客户端程序为endpoint，其中endpoint支持windows、linux、Openwrt、Android等多种设备；详细使用方法可以通过其官网查看：[IxChariot官网](https://www.ixiacom.com/zh/products/ixchariot)
 
+以千兆口IxChariot host tx tcp测试为例，提供截图如下：
+![ixChariot_tcp](/assets/images/ethernet_test/host_tx_tcp_IxChariot.png)
+
 #### 思博伦综测仪性能测试
 思博伦综测仪测试需要使用到思博伦综测仪，目前只能去东方有线实验室测试或者借一台综测仪设备在公司测试，使用方法可以询问东方有线测试人员，可以参考网上提供的使用方法：[思博伦综测仪使用方法-百度](https://wenku.baidu.com/view/efeb861ffad6195f312ba624.html)
+
+以百兆思博伦1518报文lan-->wan测试为例，提供截图如下：
+![sbl_test](/assets/images/ethernet_test/1518-up-SBL.png)
 
 ### 压力测试
 
@@ -112,11 +126,11 @@ Windows系统下可以通过IxChariot进行以太网性能测试，IxChariot为�
 
 #### 断连Iperf压力测试
 
-在进行Iperf压力测试时，通过切换连接PC的速度双工模式，可以模拟以太网在高吞吐的情况下插拔网线是否会出现问题，用于测试以太网在极端情况下的稳定性。测试通过测试脚本实现，测试脚本见[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
+在进行Iperf压力测试时，通过切换连接PC的速度双工模式，可以模拟以太网在高吞吐的情况下插拔网线是否会出现问题，用于测试以太网在极端情况下的稳定性。测试通过测试脚本实现，测试脚本见内部redmine：[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
 
 #### insmod/rmmod驱动压力测试
 
-通过编写驱动的insmod/rmmod压力测试脚本，进行驱动ko的rmmod/insmod循环压力测试，用于测试驱动的稳定性，检测是否会出现内存泄漏/panic等，可以有效的检测驱动稳定性，测试脚本见[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
+通过编写驱动的insmod/rmmod压力测试脚本，进行驱动ko的rmmod/insmod循环压力测试，用于测试驱动的稳定性，检测是否会出现内存泄漏/panic等，可以有效的检测驱动稳定性，测试脚本见内部redmine：[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
 
 ### 测试环境配置
 

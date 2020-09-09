@@ -79,7 +79,7 @@ SPL与uboot相同，引导的镜像需要包含一个uimage的header，其中会
 
 Uboot的启动分为两个阶段：stage1和stage2。stage1可以认为是uboot认定的rom阶段，stage2是ram阶段。Stage1向stage2转换的主要标志就是代码段的relocation，即将代码段从“rom”复制到“ram”。  
 Uboot的流程图如下：
-![figure1](https://developers.siflower.cn/document/picture_download?pictureId=5afc1b5bd76d650001c98a73)
+![uboot_flow](/assets/images/uboot_development_manual/uboot_flow.png)
 
 每个stage都有一个主要执行的函数序列，即init_sequence_f和init_sequence_r。由于SPL的存在，uboot的stage1其实并没有什么实质性的功能，整个uboot都是运行在ddr上的。在进入stage2前，uboot会进行一个代码段的重定向，由于uboot本身是位置无关的，因此只需要同时更新堆栈信息，全局变量表等即可，重定向后的代码依旧可以正常执行。按照uboot的思想，这个stage2是运行在ram中的，因此速度要比stage1要快。  
 init_sequence_r中主要是进行了各个模块驱动的初始化，网络的初始化和一些其他准备工作，比如环境变量的初始化等。在准备结束后，uboot最终会进入一个main_loop，进行控制台的初始化。此时uboot提供了一个3s的倒计时，如果不在时间内从控制台（默认串口）进行输入，则会进入自动启动流程，根据预设的环境变量参数，进行引导启动；如果有输入，就可以停下来进入控制台，与uboot进行交互。此时uboot会根据输入的命令情况进行解析并执行，目前支持的命令如下：  
@@ -288,7 +288,7 @@ sf16a18/sf19a28 evb、p10开发板。
 #### 烧录步骤
 
 ①板子接串口，重启进入uboot，回车进入command模式，输入命令httpd 192.168.1.1 （或者其它和PC同网段的ip），回车，界面如下：  
-![figure1](https://developers.siflower.cn/document/picture_download?pictureId=5afc2305d76d650001c98a75  )
+![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)
 ②电脑网线接板子上的第一个网口，最左侧的网口，在evb和p10上都是lan口的第一个网口。  
 ③浏览器地址根据不同的需求输入不同的网址，如下表，以192.168.1.1为例：
 
@@ -298,7 +298,7 @@ sf16a18/sf19a28 evb、p10开发板。
 | 192.168.1.1/uboot.html | 烧录纯uboot | 	uboot_full.img (慎用) |
 
 正常的烧录界面如下：
-![figure1](https://developers.siflower.cn/document/picture_download?pictureId=5afc23f9d76d650001c98a77    )
+![uboot_html](/assets/images/uboot_development_manual/uboot_html.png)
 ④烧录完毕会自动重启  
 备注： p10的板子一般情况下不要随意更新uboot，因为如果烧录的uboot中spl编译有问题，则只能把 flash摘掉，重新贴片烧录  
 
@@ -356,5 +356,6 @@ Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细�
 
 
 ## FAQ
-Q：uboot烧录失败怎么处理
+
+**Q：uboot烧录失败怎么处理**  
 A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)

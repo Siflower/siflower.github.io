@@ -91,6 +91,8 @@ Siflower 目前Flash系统分区如下：
 #### spl  
 
 spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。
+**注意：**
+一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](待添加)。
 
 #### uboot  
 
