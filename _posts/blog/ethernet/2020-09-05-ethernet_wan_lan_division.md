@@ -26,6 +26,7 @@ mermaid: true
 
 - WAN-LAN划分
 在以太网驱动中通过对以太网端口进行WAN-LAN划分，用以区分端口功能和服务配置。Siflower采用不同的network配置文件来对WAN-LAN进行划分。
+
 ## 2 项目引用
 
 - 配置参数说明中vlan划分WAN-LAN部分可以参考[外围switch芯片对接和使用手册，链接待插入]
@@ -112,11 +113,15 @@ openwrt-18.06/package/network/config/netifd/files/etc/init.d/network
 ## 4 测试用例
 
 - 验证方法
- 配置对应板型base-file中的01_network划分wan-lan，如下划分（AC28）
+
+配置对应板型base-file中的01_network划分wan-lan，如下划分（AC28）
+
 ```
 "1:lan:1" "2:lan:1" "0:lan:1" "3:wan:2" "5t@eth0"
 ```
+
 编译镜像并烧录，使用ifconfig命令查看参数，从eth0中划分出了eth0.1(vlan1)和eth0.2(vlan2)，做为wan的eth0.2接上级设备后能自动获取上一级分配的ip（192.168.14.152），lan口eth0.1连接pc，pc能ping通br-lan的ip192.168.4.1视为配置成功
+
 ```
 root@OpenWrt:/# ifconfig
 br-lan    Link encap:Ethernet  HWaddr 10:16:88:B0:E0:0C  
@@ -155,11 +160,15 @@ eth0.2    Link encap:Ethernet  HWaddr 10:16:88:B0:E0:0D
           RX bytes:8181 (7.9 KiB)  TX bytes:111356 (108.7 KiB)
 
 ```
+
 - 配置双wan情况
+
 Siflower可以划分多个wan，以AC28为例，默认port3为wan，port 0、1、2为lan，如果要修改port 0、1为lan，port 2、3为wan，只需要修改01_network如下即可
+
 ```
 "0:lan:1" "1:lan:1" "2:wan:2" "3:wan:2" "5t@eth0"
 ```
+
 当编译并启动镜像之后，port 2、3分别接上级设备能自动获取ip，如上一节所示，视为配置成功。
 
 ## 5 FAQ
@@ -167,6 +176,7 @@ Siflower可以划分多个wan，以AC28为例，默认port3为wan，port 0、1�
 - Q：如何确定开发板上网口对应的端口编号？
 
 A： 将一个网口连接网线，其余网口不接网线，使用cat /sys/kernel/debug/npu_debug命令查看，link status为 1 的phy代表该网口对应的端口编号。如下示例，代表当前接着网线的网口为端口2。
+
 ```
 root@OpenWrt:/# cat /sys/kernel/debug/npu_debug 
 check phy link status
@@ -176,14 +186,17 @@ phy2    status 1
 phy3    status 0
 phy4    status 0
 ```
+
 - Q：如何将wifi作为wan使用？
 
 A：wifi默认配置为lan，如果要将wifi作为wan使用需要开启网页上的wds功能，配置2.4G或者5G连接上一级的主路由器，即可将wifi作为wan使用。
+
 - Q：当gmac外接phy的时候如何配置wan/lan？
 
 A：当gmac外接phy时，gmac只能配置为wan或者lan，修改01_network完成配置。
 
 gmac配置为wan：
+
 ```
 siflower_setup_interfaces()
 {
@@ -191,7 +204,9 @@ siflower_setup_interfaces()
     ucidef_set_interfaces_wan "eth0"
 }
 ```
+
 gmac配置为lan：
+
 ```
 siflower_setup_interfaces()
 {
@@ -199,9 +214,11 @@ siflower_setup_interfaces()
     ucidef_set_interfaces_lan "eth0"
 }
 ```
+
 - Q: 当系统镜像启动完毕后如何改变wan-lan划分？
 
 A: 当系统镜像启动完毕后，需要修改etc/config/network中的配置，并执行/etc/init.d/network restart指令使wan-lan划分配置生效。修改方法与修改01_network相似，以将端口0做为wan，1、2、3做为lan为例，只需要修改配置如下即可。
+
 ```
 config switch_vlan
         option device 'switch0'
