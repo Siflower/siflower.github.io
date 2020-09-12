@@ -33,6 +33,8 @@ config文件为openwrt用于存储配置的文件，方便用户进行配置。�
 
 - [openwrt 网络设置官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/uci/network)
 
+- [wifi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)
+
 ## 3 config配置文件详情
 
 ### 3.1 文件位置
@@ -150,8 +152,7 @@ revert     <config>[.<section>[.<option>]]
 
 以下以AC28的network配置文件为例，列出了常用uci指令的具体使用方法。
 
-<details>
-<summary>AC28 network<dl></summary>
+- AC28 network：
 
 ```
 config interface 'loopback'
@@ -199,8 +200,6 @@ config switch_vlan
         option vlan '2'
         option ports '3 5t'
 ```
-
-</details>
 
 |指令|作用|
 |---|---|
@@ -260,10 +259,9 @@ config another_section
 
 详细介绍了下列config文件中每个配置选项的功能。
 
-<details>
-<summary>/etc/config/wireless<dl></summary>
+### 5.1 /etc/config/wireless
 
-- wifi-device配置选项
+1、wifi-device配置选项：
 
   | 选项 |值类型|默认值|描述 | 
   | :---: |:---:|:---:| :---: |
@@ -280,14 +278,16 @@ config another_section
   |hwmode|string|-|wifi工作模式，2.4G支持11b/11g/11n，5G支持11n/11a/11ac，最终的模式是由htmode和hwmode共同决定的|
   |disabled|boolean|0|0表示启用该驱动设备，1表示关闭该驱动设备。|
   |ht_coex|boolean|/|值为1时，表示带宽20MHZ/40MHZ共存，与htmode有一定联系。|
-- wifi-iface配置选项
+
+2、wifi-iface配置选项
+
   | 选项 |值类型|默认值|描述 |
   | :---: |:---:|:---:| :---: |
   |wifi-iface|string|default_radio0|wifi-iface节点名称|
   |device|string|-|对应wifi-device驱动名称，默认2.4G为radio0，5G为radio1。|
   ifname|string|wlan0|网卡(iface)的名称，使用ifconfig时会显示对应名称。|
   |network|string|lan|对应的网桥（bridge）名称，如果需要把wifi加入到lan口则配置该值为lan。|
-  |mode|string|ap<br>(sta、minotor)|ap对应热点，sta对应站点（station），monitor对应监听模式。默认为ap模式。|
+  |mode|string|ap(sta、minotor)|ap对应热点，sta对应站点（station），monitor对应监听模式。默认为ap模式。|
   |ssid|string|SiWIFi-****|wifi的名称，最大不超过32位。支持中文，但在串口会显示为"..."。默认名称中的数字来源于mac地址。|
   |encryption|string|none|加密方式，"none"表示不加密，如果想加密，建议改成"psk2+ccmp"。|
   |key|string|12345678|wifi密码，psk2需设置8位以上。当加密方式为不加密（none）时此选项不生效，而其他加密方式必须配置密码。|
@@ -297,13 +297,11 @@ config another_section
   |group|int|-|bridge中的分组，各个不同的group之间在bridge中是不能互相访问的。默认2.4G为0，5G为1。|
   |netisolate|boolean|0|如果配置为1，则从该bssid下的设备无法访问同一bridge中其它bssid的设备。|
   
-  更多详细信息可参考[wifi架构和配置手册](#toadd)。
-</details>
+  更多详细信息可参考[wifi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)。
 
-<details>
-<summary>/etc/config/network<dl></summary>
+### 5.2 /etc/config/network
 
-- Interfaces配置选项，如wan/lan等。interface类型的节声明了逻辑网络接口，可以为这些接口指定IP地址、别名、物理网络接口名称、路由规则及防火墙规则。
+一、Interfaces配置选项，如wan/lan等。interface类型的节声明了逻辑网络接口，可以为这些接口指定IP地址、别名、物理网络接口名称、路由规则及防火墙规则。
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -346,8 +344,9 @@ config another_section
 |gateway|string|-|如果设置为0.0.0.0，将设置DHCP协议获取的默认网关|
 |dns|list of ip addresses|-|指定DNS服务器（1个或多个）|
 
-- switch配置选项。switch节负责交换芯片VLAN的划分。在OpenWrt系统内部，每个VLAN都会有一个独立的interface与它对应，即便它们实际上属于同一个硬件。
-list of ip addresses
+二、switch配置选项。switch节点负责交换芯片VLAN的划分。在OpenWrt系统内部，每个VLAN都会有一个独立的interface与它对应，即便它们实际上属于同一个硬件。
+
+1、switch配置选项
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -355,7 +354,7 @@ list of ip addresses
 |reset|boolean|1||
 |enable_vlan|boolean|1|启用vlan|
 
-- switch_vlan配置选项
+2、switch_vlan配置选项
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -363,11 +362,7 @@ list of ip addresses
 |vlan|munber|-|vlan id|
 |ports|string|-|指定对应的port口|
 
-</details>
-
-
-<details>
-<summary>/etc/config/basic_setting<dl></summary>
+### 5.3 /etc/config/basic_setting
 
 |节点|选项|值类型|默认值|描述 |
 |---| :---: |:---:|:---:| :---: |
@@ -385,10 +380,7 @@ list of ip addresses
 |dev_mode|mode|string|ap|暂无接口使用此参数|
 |updateKeyMode|enable|boolean|0|暂无接口使用此参数|
 
-</details>
-
-<details>
-<summary>/etc/config/ddns<dl></summary>
+### 5.4 /etc/config/ddns
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -401,12 +393,10 @@ list of ip addresses
 |ip_source|string|network||
 |ip_network|string|wan||
 |dns_server|list of ip addresses|114.114.114.114|dns服务器|
-</details>
 
-<details>
-<summary>/etc/config/dhcp<dl></summary>
+### 5.5 /etc/config/dhcp
 
-- dnsmasq
+1、dnsmasq
 
 | 选项 |值类型|默认值|描述 |
 |:---:|:---:|:---:|:---:|
@@ -428,7 +418,7 @@ list of ip addresses
 |localservice|boolean|1|仅从地址位于本地子网（即服务器上存在接口的子网）的主机上接受DNS查询|
 |dhcpscript|string|/lib/netifd/dhcplease|dhcp脚本路径|
 
-- dhcp
+2、dhcp
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -445,12 +435,9 @@ list of ip addresses
 |leasetrigger|string|-|暂无接口使用此参数|
 |loglevel|number|-|暂无接口使用此参数|
 
-</details>
+### 5.6 /etc/config/sicloud
 
-<details>
-<summary>/etc/config/sicloud<dl></summary>
-
-- addr
+1、addr
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -459,7 +446,7 @@ list of ip addresses
 |version|string|v4|服务器版本|
 |cloudtype|number|0||
 
-- leaseserver
+2、leaseserver
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -467,23 +454,18 @@ list of ip addresses
 |port|number|8051|端口号|
 |httpsport|number|8052|http端口号|
 
-</details>
+### 5.7 /etc/config/siwifi
 
-<details>
-<summary>/etc/config/siwifi<dl></summary>
-
-- hardware
+1、hardware
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
 |sn|string|-|设备sn号|
 |romtime|string|-|设备romtype值|
-</details>
 
-<details>
-<summary>/etc/config/system<dl></summary>
+### 5.8 /etc/config/system
 
-- system
+1、system
 
 | 选项 |值类型|默认值|描述 | 
 | :---: |:---:|:---:| :---: |
@@ -492,20 +474,17 @@ list of ip addresses
 |hostname|string|SiWiFi8df5|主机名|
 |hostnameset|boolean|1||
 
-- ntp
+2、ntp
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
-|server|list|-||
-|enabled|boolean|1||
-|enable_server|boolean|0||
+|server|list|-|ntp服务器地址|
+|enabled|boolean|1|是否使用ntp服务器|
+|enable_server|boolean|0|是否启用ntp服务器|
 
-</details>
+### 5.9 /etc/config/firewall
 
-<details>
-<summary>/etc/config/firewall<dl></summary>
-
-- defaults。defaults节定义了不依赖于特定区域的防火墙全局设置
+1、defaults。defaults节定义了不依赖于特定区域的防火墙全局设置
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -516,7 +495,7 @@ list of ip addresses
 |forward|string|ACCEPT|FORWARD链缺省策略(ACCEPT, REJECT, DROP)|
 |output|string|REJECT|OUTPUT缺省策略(ACCEPT, REJECT, DROP)|
 
-- zones
+2、zones
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -528,7 +507,7 @@ list of ip addresses
 |forward|string|-|转发区域流量的默认策略|
 |output|string|-|传出区域流量的默认策略|
 
-- redirect
+3、redirect
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -546,7 +525,7 @@ list of ip addresses
 |family|string|any|为其生成iptables规则的协议族（ipv4，ipv6或任何协议）|
 |reflection|boolean|1|如果设置为0，则禁用此重定向的NAT反射(适用于DNAT目标)|
 
-- forwrading
+4、forwrading
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -554,7 +533,7 @@ list of ip addresses
 |dest|zone name|-|指定流量目标区域，必须引用已定义的区域名称之一|
 |family|string|-|为其生成iptables规则的协议族（ipv4，ipv6或任何协议）|
 
-- rule
+5、rule
 
 | 选项 |值类型|默认值|描述 |
 | :---: |:---:|:---:| :---: |
@@ -568,8 +547,6 @@ list of ip addresses
 |dest_port|port or range|-|匹配定向到此主机上给定目标端口或端口范围的传入流量|
 |target|string|-|针对匹配流量的防火墙操作（接受，拒绝，删除）|
 |family|string|-|为其生成iptables规则的协议族（ipv4，ipv6或任何协议）|
-
-</details>
 
 ## 6 FAQ
 

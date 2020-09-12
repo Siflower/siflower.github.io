@@ -7,7 +7,7 @@ keywords: 接口测试
 mermaid: true
 ---
 
-# luci接口测试手册
+# SiWiFi接口测试手册
 
 **目录**
 
@@ -36,7 +36,7 @@ Ubuntu，siflower SDK，siflower硬件平台,网页浏览器
 
 ## 2 项目引用
 
-[SiWiFi接口开发手册](#todo)
+[SiWiFi接口开发手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_develop/)
 
 ## 3 测试流程
 
@@ -297,7 +297,8 @@ Mon Sep  7 06:17:18 2020 user.crit : =============the mtu is:1400
 - **Q：除了网页和postman调用外，还有调用接口的方法吗？**
 
   A：若接口为不带传入参数的接口，则可将浏览器网址末尾修改为对应路径即可实现调用。例如：LAN口设置对应网址为https://192.168.4.1/cgi-bin/luci/;stok=3ac0d1d68b779ea7941584af25653951/admin/networknew/lan，admin/networknew/lan改为admin/networknew/lan，访问该网址，可直接得到调用get_lan接口的返回值：
-  <pre><code>
+  
+  ```
   {
       "mac":"10:16:88:3A:8D:F4",
       "code":0,"netmask":"255.255.255.0",
@@ -309,7 +310,7 @@ Mon Sep  7 06:17:18 2020 user.crit : =============the mtu is:1400
       "dynamic_dhcp":1,
       "dhcpstart":100
   }
-  </code></pre>
+  ```
 
 - **Q：测试的接口已发现错误，如何修改？**
 
