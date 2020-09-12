@@ -1,7 +1,7 @@
 ---
 layout: post
 title: U-boot移植应用开发手册
-categories: system
+categories: SYSTEM
 description: 介绍了Uboot结构和使用方法
 keywords: Uboot SPL 烧录
 mermaid: true

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 新的版型引入指南
-categories: system
+categories: SYSTEM
 description: 介绍了如何添加新板型
 keywords: 板型 配置 编译
 mermaid: true

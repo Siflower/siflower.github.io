@@ -1,7 +1,7 @@
 ---
 layout: post
 title: FLASH分区开发手册
-categories: system
+categories: SYSTEM
 description: 介绍了系统各个分区的功能以及如何自定义修改flash分区
 keywords: FLASH flash 分区
 mermaid: true

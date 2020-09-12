@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Siflower IOMUX Table
-categories: linux
+categories: LINUX
 description: Siflower IOMUX Table
 keywords: 文档开发
 mermaid: true

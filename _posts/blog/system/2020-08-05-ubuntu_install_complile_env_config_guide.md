@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 虚拟机ubuntu安装及开发环境配置手册
-categories: system 
+categories:  SYSTEM
 description: 介绍如何安装虚拟机、ubuntu以及配置开发环境
 keywords: ubuntu 开发环境
 mermaid: false

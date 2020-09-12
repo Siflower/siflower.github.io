@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 管理网页开发手册
-categories: custom
+categories: CUSTOM
 description: 介绍如对siflower管理网页进行开发
 keywords: 网页 开发
 mermaid: false

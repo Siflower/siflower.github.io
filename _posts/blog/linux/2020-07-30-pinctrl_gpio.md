@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Pinctrl 和 GPIO 使用手册
-categories: linux
+categories: LINUX
 description: Pinctrl 和 GPIO 使用手册
 keywords: 文档开发
 mermaid: true

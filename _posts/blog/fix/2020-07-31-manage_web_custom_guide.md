@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 管理网页客制化手册
-categories: custom
+categories: CUSTOM
 description: 介绍如何客制化修改管理网页
 keywords: 网页 客制化
 mermaid: false

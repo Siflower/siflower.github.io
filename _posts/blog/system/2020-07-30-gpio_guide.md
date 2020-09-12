@@ -1,7 +1,7 @@
 ---
 layout: post
 title: gpio综合使用手册
-categories: system
+categories: SYSTEM
 description: 介绍如何使用gpio配置led或者button
 keywords: gpio led button
 mermaid: true

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 以太网WAN-LAN划分指南
-categories: develop
+categories: DEVELOP
 description: 以太网WAN-LAN划分指南
 keywords:  plan
 mermaid: true

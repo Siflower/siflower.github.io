@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Linux DTS说明文档
-categories: linux
+categories: LINUX
 description: Linux DTS说明文档
 keywords: 文档开发
 mermaid: true

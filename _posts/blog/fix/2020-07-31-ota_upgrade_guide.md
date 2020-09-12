@@ -1,7 +1,7 @@
 ---
 layout: post
 title: OTA系统升级开发手册
-categories: custom
+categories: CUSTOM
 description: 介绍siflower OTA升级开发
 keywords:  OTA 
 mermaid: true

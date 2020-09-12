@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Android SDK集成指南
-categories: app
+categories: APP
 description: Android SDK集成指南
 keywords: Android SDK
 mermaid: true

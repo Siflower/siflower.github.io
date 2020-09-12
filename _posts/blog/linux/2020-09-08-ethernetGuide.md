@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 有线网络和服务介绍
-categories: linux
+categories: LINUX
 description: 介绍有线网络和服务
 keywords: 有线 服务
 mermaid: true

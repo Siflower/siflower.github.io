@@ -1,7 +1,7 @@
 ---
 layout: post
 title: SPI驱动开发手册
-categories: linux
+categories: LINUX
 description: SPI驱动开发手册
 keywords: 文档开发
 mermaid: true
