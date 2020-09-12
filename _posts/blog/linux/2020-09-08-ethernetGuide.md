@@ -9,26 +9,6 @@ mermaid: true
 
 # 有线网络和服务介绍
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
-
 
 **目录**
 
@@ -85,9 +65,9 @@ graph TB
   D -->  E[lua接口更新在线设备列表]
   E -->  F[网页正确显示设备在线状态]
   D -->  G[lua接口将消息通知给APP]
-  G -->  H[APP通知用户设备上下线]
-  
+  G -->  H[APP通知用户设备上下线]  
 ```
+
 设备上下线示例：
 在路由器串口下，执行```logread -f &```然后插拔网线，可以看到设备上下线日志如下：
 ```
@@ -111,13 +91,13 @@ Wed Aug 26 16:42:44 2020 user.crit : dps_check_newdev_process has finished!
 
 ### 环境搭建
 
-参考：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ### 我们对外提供的接口
 
 #### 标准接口
 
-提供了标准net_device_ops接口，switch_dev_ops接口，ethtool_ops接口，以realtek8367c gswitch为例，展示详细接口介绍如下。
+提供了标准net_device_ops接口，switch_dev_ops接口，ethtool_ops接口，以intel7084 gswitch为例，展示详细接口介绍如下。
 
 ##### net_device_ops接口
 
@@ -151,27 +131,27 @@ static const struct net_device_ops sgmac_netdev_ops = {
 
 我们提供的switch_dev_ops接口为标准接口，如下：
 ```
-struct switch_dev_ops rtk8367c_switch_ops = {          
-        .attr_global = {                               
-                .attr = rtk8367c_globals,              
-                .n_attr = ARRAY_SIZE(rtk8367c_globals),
-        },                                             
-        .attr_port = {                                 
-                .attr = rtk8367c_port,                 
-                .n_attr = ARRAY_SIZE(rtk8367c_port),   
-        },                                             
-        .attr_vlan = {                                 
-                .attr = rtk8367c_vlan,                 
-                .n_attr = ARRAY_SIZE(rtk8367c_vlan),   
-        },                                             
-                                                       
-        .get_vlan_ports = rtk8367c_get_vlan_ports,     
-        .set_vlan_ports = rtk8367c_set_vlan_ports,     
-        .get_port_pvid = rtk8367c_get_port_pvid,       
-        .set_port_pvid = rtk8367c_set_port_pvid,       
-        .get_port_link = rtk8367c_get_port_link,       
-        .reset_switch = rtk8367c_reset_switch,         
-};                                                     
+ struct switch_dev_ops gswitch_switch_ops = {
+    .attr_global = {
+        .attr = intel7084_globals,
+        .n_attr = ARRAY_SIZE(intel7084_globals),
+    },
+    .attr_port = {
+        .attr = intel7084_port,
+        .n_attr = ARRAY_SIZE(intel7084_port),
+    },
+    .attr_vlan = {
+        .attr = intel7084_vlan,
+        .n_attr = ARRAY_SIZE(intel7084_vlan),
+    },
+
+    .get_vlan_ports = intel7084_get_vlan_ports,
+    .set_vlan_ports = intel7084_set_vlan_ports,
+    .get_port_pvid = intel7084_get_port_pvid,
+    .set_port_pvid = intel7084_set_port_pvid,
+    .get_port_link = intel7084_get_port_link,
+    .reset_switch = intel7084_reset_switch,
+};                                                    
 ```
 
 ##### ethtool_ops接口
@@ -232,7 +212,7 @@ struct switch_dev_ops rtk8367c_switch_ops = {
 
 #### 私有接口
 
-提供了自定义的Debugfs节点供技术人员使用，如内部寄存器读写函数，phy/switch寄存器读写函数，检测phy link状态函数等等。不同的硬件对应不同的调用方法，以下将以Realtek千兆switch为例展示提供的接口函数调用方法。
+提供了自定义的Debugfs节点供技术人员使用，如内部寄存器读写函数，phy/switch寄存器读写函数，检测phy link状态函数等等。不同的硬件对应不同的调用方法，以下将以Intel千兆switch为例展示提供的接口函数调用方法。
 
 **示例：**
 
@@ -240,7 +220,15 @@ struct switch_dev_ops rtk8367c_switch_ops = {
   命令：  
   ```cat /sys/kernel/debug/gsw_debug```  
   结果展示如下：  
-  ![get-link](/assets/images/ethernet_guide/get-link.png)
+  ```
+  root@OpenWrt:/# cat /sys/kernel/debug/gsw_debug 
+  check phy link status
+  phy0    status 0
+  phy1    status 0
+  phy2    status 0
+  phy3    status 0
+  root@OpenWrt:/#
+  ```
 
 - 读写gswitch内部寄存器：  
   读命令：  
@@ -285,6 +273,6 @@ struct switch_dev_ops rtk8367c_switch_ops = {
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ## FAQ
