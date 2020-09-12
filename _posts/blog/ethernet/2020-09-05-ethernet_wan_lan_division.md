@@ -6,7 +6,9 @@ description: 以太网WAN-LAN划分指南
 keywords:  plan
 mermaid: true
 ---
+
 # 以太网WAN-LAN划分指南
+
 **目录**
 
 
@@ -16,22 +18,28 @@ mermaid: true
 ## 1 简介
 
 - 适用人员
+
 对wan-lan有基本了解的人员
 
 - 开发与测试环境
-参考快速入门
+
+参考[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 - WAN-LAN介绍
+
 网络设备的WAN表明为广域网，通常用来连接猫、光猫、入户网线或者上级网络的，为网络设备提供入网服务；LAN表明为局域网，通常用来连接入网设备，如电脑，笔记本等，为下级设备提供入网服务。
 
 - WAN-LAN划分
+
 在以太网驱动中通过对以太网端口进行WAN-LAN划分，用以区分端口功能和服务配置。Siflower采用不同的network配置文件来对WAN-LAN进行划分。
 
 ## 2 项目引用
 
-- 配置参数说明中vlan划分WAN-LAN部分可以参考[外围switch芯片对接和使用手册，链接待插入]
-- wifi的wds功能可以参考[WDS开发及使用手册](/_posts/blog/wifi/2020-09-02-WDS_development_and_user_manual.md)  
-- network文件的参数参考[config文件配置手册，链接待插入]
+- 配置参数说明中vlan划分WAN-LAN部分可以参考[外围switch芯片对接和使用手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)
+
+- wifi的wds功能可以参考[WDS开发及使用手册](https://siflower.github.io/2020/09/02/WDS_development_and_user_manual/)
+
+- network文件的参数参考[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
   
 ## 3 开发详情
 
