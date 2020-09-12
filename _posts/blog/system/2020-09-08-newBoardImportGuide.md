@@ -9,26 +9,6 @@ mermaid: true
 
 # 新的版型引入指南
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
-
 
 **目录**
 
@@ -42,7 +22,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ## 开发环境
 
-openwrt系统编译环境，环境搭建参考：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+openwrt系统编译环境，环境搭建参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 开发板调试环境
 
@@ -56,7 +36,7 @@ openwrt系统编译环境，环境搭建参考：[快速入门](/_posts/blog/sys
 
 ### uboot引入新版型
 
-uboot引入新版型详细可以参考：[Uboot开发手册](/_posts/blog/system/2020-09-08-ubootDevelopmentManual.md)
+uboot引入新版型详细可以参考：[U-boot开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)
 
 ### Openwrt引入新版型
 
@@ -146,7 +126,7 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
 在target/linux/siflower/sf16a18-fullmask/下有各个版型的差异化配置，如base-files-SF16A18-EVB-V5，其包含了不同版型的差异化配置，如生成network配置文件的关键脚本01_network，因为硬件差异其配置可能略有不同。  
 
 network和wireless两个配置文件是新版型引入的关键配置，因为其决定了产品有线和无线的可用性，是产品的关键所在，所以了解其生成和配置差异尤为重要。  
-其中关于上述2个配置文件的详细内容和参数说明可参考：![config文件配置手册](待添加)
+其中关于上述2个配置文件的详细内容和参数说明可参考：![config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 其中network、wireless配置文件的生成流程如下：
 ```mermaid
 graph TB
@@ -164,17 +144,17 @@ graph TB
   G --> D
 ```
 
-以Realtek8367c gswitch为例，在引入新的有线网络硬件版型时，其需要对应修改关键配置文件/etc/board.d/01_network，依据gswitch硬件文档提供的信息修改port信息，01_network中关键配置如下：
+以intel7084 gswitch为例，在引入新的有线网络硬件版型时，其需要对应修改关键配置文件/etc/board.d/01_network，依据gswitch硬件文档提供的信息修改port信息，01_network中关键配置如下：
 ```
 siflower_setup_interfaces()
 {
     local board="$1"
     ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
     ucidef_add_switch "switch0" \
-        "1:lan:1" "2:lan:1" "3:lan:1" "4:lan:1" "0:wan:2" "16t@eth0"
+        "1:lan:1" "2:lan:1" "0:lan:1" "3:wan:2" "5t@eth0"
 }
 ```
-其中"1:lan:1"表示port 1作为lan口，vlan id为1； "0:wan:2"表示port 0作为wan口，vlan id为2；"16t@eth0"表示cpu口为port16；所以整体含义表示port1/2/3/4作为lan vlan id为1 interface 为eth0.1，port0作为wan vlan id为2 interface为eth0.2；port16为cpu口。port id依据硬件文档得来一般取值0~5，cpu port依据硬件厂商定义而来，故引入新版型时需要依据硬件信息不同进行修改。
+其中"1:lan:1"表示port 1作为lan口，vlan id为1； "3:wan:2"表示port 3作为wan口，vlan id为2；"5t@eth0"表示cpu口为port5；所以整体含义表示port1/2/0作为lan vlan id为1 interface 为eth0.1，port3作为wan vlan id为2 interface为eth0.2；port5为cpu口。port id依据硬件文档得来一般取值0~5，cpu port依据硬件厂商定义而来，故引入新版型时需要依据硬件信息不同进行修改。
 
 #### Linux 增加配置
 
@@ -212,7 +192,7 @@ linux需要增加相应的dts文件和Kconfig选项。
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 
 ## 开发详情
@@ -258,11 +238,11 @@ Makefile组织
 
 ## 测试用例
 
-编译好镜像，烧录完成后，可以进行基础有线/无线上网测试，基础网页设置测试等，可参考：[有线网络测试](待添加)。
+编译好镜像，烧录完成后，可以进行基础有线/无线上网测试，基础网页设置测试等，可参考：[以太网测试介绍](https://siflower.github.io/2020/09/08/ethernetTestGuide/)。
 
 ### 测试环境配置
 
-编译好对应板型镜像后，烧录测试即可，烧录方法见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+编译好对应板型镜像后，烧录测试即可，烧录方法见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ### 测试流程和测试结果
 

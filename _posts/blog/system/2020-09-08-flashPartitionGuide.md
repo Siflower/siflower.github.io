@@ -11,27 +11,6 @@ mermaid: true
 # FLASH分区开发手册
 
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
-
-
 **目录**
 
 * TOC
@@ -43,7 +22,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ## 开发环境
 
-Siflower代码编译环境，详细见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+Siflower代码编译环境，详细见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 开发板调试环境
 
@@ -92,7 +71,7 @@ Siflower 目前Flash系统分区如下：
 
 spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。
 **注意：**
-一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](待添加)。
+一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)。
 
 #### uboot  
 
@@ -100,7 +79,7 @@ uboot是用于引导和启动内核程序的bootloader。uboot镜像为uboot.img
 
 #### uboot-env  
 
-uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照[U-boot移植应用开发手册](待添加)。  
+uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照[U-boot开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)。  
 
 #### factory  
 
@@ -174,7 +153,7 @@ firmware包括整个openwrt系统和用户数据，对应镜像为openwrt-*.bin�
 
 #### pcba-test
 
-pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，仅供pcba测试使用。在pcba测试结束后，该分区会作为系统的rootfs-data使用。详细pcba介绍可参考：[PCBA介绍](/_posts/blog/system/待添加)  
+pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，仅供pcba测试使用。在pcba测试结束后，该分区会作为系统的rootfs-data使用。详细pcba介绍可参考：[PCBA介绍](待添加)  
 
 ### 修改分区
 
@@ -256,7 +235,7 @@ openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90
 
 ##### 系统起来之前
 
-通过烧录16M Flash完整镜像更新所有分区，详细见[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+通过烧录16M Flash完整镜像更新所有分区，详细见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ##### 系统起来之后
 
@@ -308,20 +287,16 @@ graph TB
 
 ## 调试/新增对应的物料
 
-详细可以参考：[Flash&&DDR物料调试指南](待添加)
+详细可以参考：[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## 项目引用
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
-[Flash&&DDR物料调试指南](待添加)
+[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
-
-## TODO
-
-更新相关文档链接
 
 ## FAQ

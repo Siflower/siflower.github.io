@@ -9,25 +9,6 @@ mermaid: true
 
 # U-boot移植应用开发手册
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
 
 **目录**
 
@@ -41,7 +22,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ## 开发环境
 
-Uboot代码编译环境，环境搭建见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+Uboot代码编译环境，环境搭建见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 Siflower开发板测试环境。
 
@@ -338,24 +319,24 @@ uboot引入新版型主要涉及到新版型配置文件改动，以太网驱动
 
 #### 以太网驱动适配
 
-当新增版型引入了新的有线设备时，需要对应适配以太网驱动，对应文件drivers/net/sfa18_gmac.c，详细引入新的有线设备（gphy、gswitch）可以参考：[gmac外围芯片对接手册](待添加)
+当新增版型引入了新的有线设备时，需要对应适配以太网驱动，对应文件drivers/net/sfa18_gmac.c，详细引入新的有线设备（gphy、gswitch）可以参考：[gmac外围芯片对接手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)
 
 
 ### Uboot物料对接
 
-Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细参考：[DDR物料调试指南](待添加)
+Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细参考：[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## 项目引用
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
-[DDR物料调试指南](待添加)
+[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## FAQ
 
 **Q：uboot烧录失败怎么处理**  
-A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
