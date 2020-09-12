@@ -1,8 +1,8 @@
 ---
 layout: post
-title: siflower快速入门
-categories:  SYSTEM
-description: 介绍siflower平台开发快速入门的方法
+title: 快速入门手册
+categories: SYSTEM 
+description: 介绍siflower平台快速入门的方法
 keywords:  快速入门
 mermaid: true
 ---
@@ -10,7 +10,7 @@ mermaid: true
 * TOC
 {:toc}
 
-# Siflower快速入门
+# 快速入门手册
 
 ## 1 介绍
 
@@ -29,7 +29,7 @@ mermaid: true
 
 Siwifi的系统方案源于openwrt开源系统，必须基于GNU/Linux, BSD or MacOSX进行编译  
 为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，ubuntu14.04、ubuntu16.04都是经过详细测试的操作系统版本  
-windows下安装，参考[虚拟机安装及编译环境配置手册](待添加文档链接)这里有详细的关于虚拟机安装，ubuntu编译环境配置等步骤
+windows下安装，参考[虚拟机安装及编译环境配置手册](https://siflower.github.io/2020/08/05/ubuntu_install_complile_env_config_guide/)这里有详细的关于虚拟机安装，ubuntu编译环境配置等步骤
 
 ## 2 快速入门详情
 
@@ -44,14 +44,14 @@ graph TB;
 
 #### 2.1.1 环境准备
 
-- 参考[虚拟机安装及编译环境配置手册](待添加文档链接)搭建开发环境
+- 参考[虚拟机安装及编译环境配置手册](https://siflower.github.io/2020/08/05/ubuntu_install_complile_env_config_guide/)搭建开发环境
 
 - 需要有SDK支持的硬件平台
   >AC28 路由板型(intel switch芯片)  
    AC22 路由板型(realtek switch芯片)
 
   上述对应的硬件板型可以联系矽昌官方获取  
-  如果是客户新做的硬件，需要参考[新的版型引入指南](待添加文档链接)根据硬件配置建立对应的板型配置后，再进行编译
+  如果是客户新做的硬件，需要参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)根据硬件配置建立对应的板型配置后，再进行编译
 
 #### 2.1.2 源码下载
 
@@ -81,11 +81,14 @@ graph TB;
 
   ![quick_4](/assets/images/quick_image/quick_4.png)
 
-  选择对应项目，然后再选择git clone方式下载
+  选择对应项目，可以看到右上角在自己项目信息下有fork的信息，然后再选择git clone方式下载
+
+  ![quick_4_1](/assets/images/quick_image/quick_41.png)
+
 
 - 下载完成如图
   
-  ![qiuck_5](/assets/images/quick_image/quick_5.png))
+  ![quick_5](/assets/images/quick_image/quick_5.png))
 
   由于服务器的问题，github下载可能会出现由于下载速率慢造成的下载失败，解决方法参考FAQ  
   如果多次尝试仍然下载不了，请联系邮箱(irving.luo@siflower.com.cn)提供离线版本  
@@ -224,6 +227,27 @@ graph TB;
 
 如果路由器本身的系统是可以正常启动的，可以登录路由器的网页端进行镜像更新  
 
+**原生界面**
+
+- 打开浏览器，访问192.168.4.1，进入路由器登陆页面，登录密码admin
+  ![quick_6_1](/assets/images/quick_image/quick_6_1.png) 
+
+- 进入系统-->备份/升级-->刷写新的固件
+  ![quick_7_1](/assets/images/quick_image/quick_7_1.png)
+
+- 选择刷写固件，上传本地镜像
+  ![quick_8_1](/assets/images/quick_image/quick_8_1.png)
+
+- 上传成功之后，选择继续
+  ![quick_8_2](/assets/images/quick_image/quick_8_2.png)
+
+- 等待更新进程完成升级
+  ![quick_8_3](/assets/images/quick_image/quick_8_3.png)
+
+  更新镜像大约需要1-2分钟的时间，更新完毕系统会自动重启
+
+**siflower界面**
+
 - 打开浏览器，访问192.168.4.1，进入路由器登陆页面，登录密码admin  
   ![quick_6](/assets/images/quick_image/quick_6.png)  
 
@@ -280,13 +304,24 @@ graph TB;
 
   ![quick_15](/assets/images/quick_image/quick_15.png)
 
-##### 2.1.6.2 烧录器更新
+##### 2.1.6.3 IROM download更新
 
-如果板子uboot镜像损坏，导致uboot无法正常启动  
-或者flash为空，未烧录过任何镜像  
-需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过芯片烧录器对flash芯片进行烧录  
+在板子硬件配置上有外置以太网口/usb otg接口时，如果出现以下情况  
+1，uboot镜像损坏，导致uboot无法正常启动  
+2，flash为空，里面没有任何内容，需要烧录镜像  
+可以通过Siflower的irom download下载工具将文件下载到FLASH中，支持ETH，USB下载方案，点击下载[PC端工具]()  
+
+- ETH下载
+
+- USB下载
+
+##### 2.1.6.4 烧录器更新
+
+在板子硬件配置上无外置以太网口/usb otg接口时，如果出现以下情况  
+1，uboot镜像损坏，导致uboot无法正常启动  
+2，flash为空，未烧录过任何镜像  
+需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过FLASH烧录器对flash芯片进行烧录  
 具体操作方法请联系邮箱(irving.luo@siflower.com.cn)  
-
 
 #### 2.1.7 串口调试
 
@@ -415,15 +450,15 @@ A：这个是由于编译指令漏了项目名或者项目名错误。具体支�
 ![faq4](/assets/images/quick_image/faq4.png)   
 
 A：出现图示问题是由于第一次脚本编译，有一些package的依赖没有选上导致编译不通过    
-可以尝试使用  
-make  V=s继续编译  
+可以尝试在这个状态下继续使用  
+make -j1 V=s继续编译  
 或者make -j4 V=s、 make -j8 V=s，使用多个线程，提高编译速度继续编译    
 
 **Q：脚本编译的项目如何添加？**  
 
 A：因为硬件的不同，编译时需要对版型进行区分选择相应的配置文件   
 
-参考[新的版型引入指南](待添加链接)  
+参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)  
 
 **Q：如何判断编译成功？**   
 A：出现图示log即为编译成功。编译成功会在/bin/target/siflower/下生成对应的镜像文件  
@@ -442,6 +477,6 @@ A：这个是由于系统的dtc版本太低导致的，使用sudo apt-get instal
 
 A：这是由于FLASH为空，为烧录任何程序打印的芯片内部的log  
 
-需要通过flash烧录器烧录镜像，如果板子支持usb slave可以使用[siflower_usb下载工具进行烧录](添加网页链接)  
+需要通过flash烧录器烧录镜像，如果板子支持usb slave可以使用siflower irom下载工具进行烧录
 
 
