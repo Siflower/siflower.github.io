@@ -1,7 +1,7 @@
 ---
 layout: post
 title: SDK文档开发介绍
-categories: develop
+categories: DEMO
 description: 介绍如何进行文档开发
 keywords: 文档开发
 mermaid: true

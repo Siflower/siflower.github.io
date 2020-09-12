@@ -1,7 +1,7 @@
 ---
 layout: post
 title: WDS开发及使用手册
-categories: wifi
+categories: WIFI
 description: 介绍WDS开发及使用
 keywords: wifi wds
 mermaid: true
