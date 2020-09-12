@@ -32,7 +32,7 @@ mermaid: true
 
 [iOS SDK集成指南](https://siflower.github.io/2020/07/29/iOS_sdk/#iOS-sdk%E9%9B%86%E6%88%90%E6%8C%87%E5%8D%97)
 
-[Siwifi接口测试手册](#todo)
+[Siwifi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/#42-app%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95)
 
 ## 1 接口调用条件
 
@@ -42,7 +42,7 @@ SDK所有API调用的前置条件是完成**用户登录**和**绑定路由器**
 
 确认手机可以连接internet，在手机浏览器中访问url https://cloud.siflower.cn/ 如能正常弹出页面，则表示和Siflower服务器连接正常。
 
-![手机查看cloud](../../../assets/images/android_api_test/web_cloud.png)
+![手机查看cloud](/assets/images/android_api_test/web_cloud.png)
 
 ## 1.2 用户登录
 
@@ -72,7 +72,7 @@ SDK所有API调用的前置条件是完成**用户登录**和**绑定路由器**
 
 将手机连上路由器WiFi,在手机浏览器中输入路由器网关地址(如：192.168.4.1)。能正常弹出路由器管理页面，则环境准备就绪。
 
-![手机查看4.1](../../../assets/images/android_api_test/web_41.png)
+![手机查看4.1](/assets/images/android_api_test/web_41.png)
 
 ## 1.3.2 密码验证
 
@@ -164,7 +164,7 @@ SDK所有API调用的前置条件是完成**用户登录**和**绑定路由器**
 
 最后可以到路由器web上查看设置是否正确
 
-![web查看结果](../../../assets/images/android_api_test/view_web_result.png)
+![web查看结果](/assets/images/android_api_test/view_web_result.png)
 
 ### 3 常见错误
 
@@ -177,4 +177,4 @@ SDK所有API调用的前置条件是完成**用户登录**和**绑定路由器**
 | 2205   | user not logon  |    用户未登录     |   需要先进行用户登录  |
 | 1011 | login fail  |  路由器管理员密码错误  |   传入正确的管理员密码   |
 
-部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](#todo)
+部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](RM7136)

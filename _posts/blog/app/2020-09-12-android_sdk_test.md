@@ -45,7 +45,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 [Android SDK集成指南](https://siflower.github.io/2020/07/29/android_sdk/#android-sdk%E9%9B%86%E6%88%90%E6%8C%87%E5%8D%97)
 
-[Siwifi接口测试手册](#todo)
+[Siwifi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/#42-app%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95)
 
 ## 1 接口类型
 
@@ -234,7 +234,7 @@ logcat中查看获取到的信息
 | 2001 | null return  |  连接的WiFi不是矽昌路由器或ip地址传入错误  |   连接到正确的WiFi并重新获取ip地址  |
 | 1011   | login fail  |    路由器管理密码设置错误      |   传入正确的密码  |
 
-部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](#todo)
+部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](RM7136)
 
 ## 3 远程接口测试
 
@@ -391,5 +391,5 @@ SiWiFiManager.getInstance().getWifiObserve(routers, sfUser, new SingleObserver<L
 | 9 | cant find user  |  传入的SFUser对象错误  |   重新登录，将得到的SFUser传入   |
 | 2004 | time out  |  websocket连接断开，接口超时  |   重新建立websocket连接   |
 
-部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](#todo)
+部分错误是由路由器端返回的，可以参考[路由器接口文档中的错误码](#RM7136)
 
