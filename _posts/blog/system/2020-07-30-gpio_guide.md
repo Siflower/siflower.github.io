@@ -31,9 +31,9 @@ ubuntu系统
 
 ## 2 项目引用
 ### 2.1 参考文档  
-参考[快速入门手册](待添加)  
-参考[GPIO使用手册](待添加)  
-参考[siflower dts添加规则](待添加)
+参考[快速入门手册](https://siflower.github.io/2020/08/05/quick_start/)  
+参考[GPIO使用手册](https://siflower.github.io/2020/09/03/iomux_table/)  
+参考[Linux DTS说明文档](https://siflower.github.io/2020/09/03/linux_dts_introduce/)
 
 ## 3 开发详情  
 ### 3.1 功能设计和流程  
@@ -79,7 +79,7 @@ graph TB;
 #### 3.2.1.2 openwrt led 配置
 **使用led-button package进行管理**   
   led-button package是为了统一管理siflower不同板型的led和button而实现的，代码的位置在openwrt源码的package/siflower/bin/led-package目录下  
-  如果是新的版型引入，在此之前请确认版型已建立，如果没有请新建版型，siflower版型添加参考[新的版型引入指南](待添加)  
+  如果是新的版型引入，在此之前请确认版型已建立，如果没有请新建版型，siflower版型添加参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)  
 - 在action.h中根据版型定义行为编号，对使用led-button package的led行为进行了统一管理，具体对编号的使用在led.c中体现  
 ```
 enum {
