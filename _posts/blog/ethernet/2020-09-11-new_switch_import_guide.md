@@ -22,7 +22,7 @@ mermaid: true
 
 - 开发与测试环境
 
-参考快速入门
+参考[快速入门](../system/2020-08-05-quick_start.md)
 
 - 简介
 
@@ -44,7 +44,7 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 ## 2 项目引用
 
-- network配置可以参考[wan-lan划分指南]()
+- network配置可以参考[以太网wan-lan划分指南](2020-09-05-ethernet_wan_lan_division.md)
 
 ## 3 开发详情
 
@@ -52,7 +52,7 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 1、mdio读写
 
-通过gmac的mdio接口既可以读写通用phy中的寄存器，也可以读写switch中的寄存器。其中不同的switch芯片有不同的mdio读写方式，查看待对接switch的说明书可以新增该switch中寄存器的mdio读写方法。使用mdio读写时，需要确定phy addr。phy addr一般通过scan的方式在0~31的范围进行查找，也可以按实际硬件情况在dts中指定，具体查看[dts文档]()。
+通过gmac的mdio接口既可以读写通用phy中的寄存器，也可以读写switch中的寄存器。其中不同的switch芯片有不同的mdio读写方式，查看待对接switch的说明书可以新增该switch中寄存器的mdio读写方法。使用mdio读写时，需要确定phy addr。phy addr一般通过scan的方式在0~31的范围进行查找，也可以按实际硬件情况在dts中指定，具体查看[linux dts说明文档](../linux/2020-09-03-linux_dts_introduce.md)。
 
 2、rgmii的clock检查是否正常
 
@@ -224,7 +224,7 @@ intel switch参数示例与各参数说明如下：
 
 - 代码结构参见redmine#[5197](http://redmine.siflower.cn/redmine/issues/5197)
 
-- irom烧录参考[快速入门]()
+- irom烧录参考[快速入门](../system/2020-08-05-quick_start.md)
 
 irom烧录截图
 
@@ -240,7 +240,7 @@ pc烧录成功截图
 
 - 对接准备
 
-见3.1节的介绍，可以参考[uboot开发手册]()
+见3.1节的介绍，可以参考[U-boot移植应用开发手册](../system/2020-09-08-ubootDevelopmentManual.md)
 
 - 对接流程
 
@@ -370,7 +370,7 @@ if (priv->gswitch == INTEL7084)
 }
 ```
 
-具体ethtool使用参考[以太网指南]()
+具体ethtool使用参考[有线网络和服务介绍](../linux/2020-09-08-ethernetGuide.md)
 
 3. phy的对接
 
@@ -562,7 +562,7 @@ linux对接完成后，编译镜像并烧录，wan口连接上级设备后能自
 - switch的吞吐测试
 
 测试包括普通网线下的lan-lan,host-lan,wan-lan的测试，百米网线的测试，千兆网卡的百兆模式下的测试。
-具体的测试环境搭建和测试方法可以参考[以太网测试文档]()
+具体的测试环境搭建和测试方法可以参考[以太网测试介绍](../system/2020-09-08-ethernetTestGuide.md)
 
 - qos测试用例
 
