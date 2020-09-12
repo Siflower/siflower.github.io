@@ -16,11 +16,11 @@ mermaid: true
 
 ### 1.1 适用人员
 
- - 熟悉wifi配置，见[WiFi架构和配置手册，todo]()
+ - 熟悉wifi配置，见[WiFi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)
 
 ### 1.2 开发环境
 
- - 正常的编译和运行环境，见[快速入门，todo]()
+ - 正常的编译和运行环境，见[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ### 1.3 功能概述
 
