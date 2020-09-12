@@ -41,7 +41,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
   * 熟悉相关硬件产品的功能和使用
 
-  * 使用SiWiFi Openwrt SDK完成产品固件的调试  [使用指南](#todo)
+  * 使用SiWiFi Openwrt SDK完成产品固件的调试,可参照[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
   * 了解Android开发、上线等一系列流程
 
@@ -449,7 +449,7 @@ private void bindRouter(Context context,SFUser sfUser){
 
 [参数及返回值列表](https://open.siflower.cn/androidlocal/index.html)
 
-[路由器本地接口使用手册](#todo)
+[路由器本地接口使用手册](RM7136)
 
 # 测试
 ## 1 网络状态测试
@@ -539,7 +539,7 @@ private void bindRouter(Context context,SFUser sfUser){
 
 ### (2) 路由器接口测试
 
-参照[路由器本地接口使用手册](#todo)
+参照[SiWiFi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/#42-app%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95)
 
 ## 3 远程接口测试
 
