@@ -233,8 +233,9 @@ init() {
 	done
 	for i in `seq 3 5`
 	do
-		a=`uci add network switch_vlan`          
-		uci set network.$a.vlan="$i"             
+		a=`uci add network switch_vlan`
+        uci set network.$a.device="switch0"
+		uci set network.$a.vlan="$i"
 		uci set network.$a.ports="`expr $i - 1` 16t"
 	done
 	uci commit

@@ -18,7 +18,7 @@ mermaid: true
 
 ### 1.1 适用人员
 
-- 掌握基本的wifi配置方法，见[WiFi模式配置手册，待插入]()
+- 掌握基本的wifi配置方法，见[WiFi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)
 
 ### 1.2 开发环境
 
