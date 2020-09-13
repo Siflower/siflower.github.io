@@ -269,7 +269,7 @@ sf16a18/sf19a28 evb、p10开发板。
 #### 烧录步骤
 
 ①板子接串口，重启进入uboot，回车进入command模式，输入命令httpd 192.168.1.1 （或者其它和PC同网段的ip），回车，界面如下：  
-![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)
+![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)  
 ②电脑网线接板子上的第一个网口，最左侧的网口，在evb和p10上都是lan口的第一个网口。  
 ③浏览器地址根据不同的需求输入不同的网址，如下表，以192.168.1.1为例：
 

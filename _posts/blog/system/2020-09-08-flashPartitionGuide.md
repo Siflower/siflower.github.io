@@ -69,7 +69,7 @@ Siflower 目前Flash系统分区如下：
 
 #### spl  
 
-spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。
+spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。  
 **注意：**
 一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)。
 
@@ -79,7 +79,7 @@ uboot是用于引导和启动内核程序的bootloader。uboot镜像为uboot.img
 
 #### uboot-env  
 
-uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照[U-boot开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)。  
+uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照：[U-boot开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)。  
 
 #### factory  
 

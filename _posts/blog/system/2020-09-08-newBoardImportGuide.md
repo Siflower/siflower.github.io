@@ -126,7 +126,7 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
 在target/linux/siflower/sf16a18-fullmask/下有各个版型的差异化配置，如base-files-SF16A18-EVB-V5，其包含了不同版型的差异化配置，如生成network配置文件的关键脚本01_network，因为硬件差异其配置可能略有不同。  
 
 network和wireless两个配置文件是新版型引入的关键配置，因为其决定了产品有线和无线的可用性，是产品的关键所在，所以了解其生成和配置差异尤为重要。  
-其中关于上述2个配置文件的详细内容和参数说明可参考：![config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
+其中关于上述2个配置文件的详细内容和参数说明可参考：[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)  
 其中network、wireless配置文件的生成流程如下：
 ```mermaid
 graph TB
