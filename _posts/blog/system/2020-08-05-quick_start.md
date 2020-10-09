@@ -198,7 +198,7 @@ graph TB;
   - 单独编译软件包
   
   ```
-  make pakcake/siflower/bin/led-button/{clean,compile} V=s
+  make package/libs/mbedtls/{clean,compile} V=s
   ```
 
 
