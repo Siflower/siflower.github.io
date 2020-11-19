@@ -5,6 +5,7 @@ categories: SYSTEM
 description: 介绍siflower平台快速入门的方法
 keywords:  快速入门
 mermaid: true
+topmost: true
 ---
 
 * TOC
