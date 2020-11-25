@@ -5,6 +5,7 @@ categories: SYSTEM
 description: 介绍siflower平台快速入门的方法
 keywords:  快速入门
 mermaid: true
+topmost: true
 ---
 
 * TOC
@@ -59,11 +60,11 @@ graph TB;
 
 一种是直接下载，第二种是将代码库fork到自己账户再下载
 
-**注：推荐先fork代码库到自己的github账户，然后在ubuntu环境下，以git clone的方式下载，方便代码更新和管理**
+**注：推荐先fork代码库到自己的github账户，然后在ubuntu环境下，以git clone的方式下载自己fork的代码仓库，方便代码更新和管理**
 
 - 直接下载：进入GitHub[官方网页](https://github.com)  
   
-  - 在左上角的搜索框，输入要下载的代码，如Siflower/siflower-sdk-18.06-linux4.14-v0，点击enter按键即可进行搜索  
+  - 在左上角的搜索框，输入要下载的代码，如Siflower/1806_SDK，点击enter按键即可进行搜索  
   
   ![quick_1](/assets/images/quick_image/quick_1.png)
 
@@ -88,19 +89,19 @@ graph TB;
 
 - 下载完成如图
   
-  ![quick_5](/assets/images/quick_image/quick_5.png))
+  ![quick_5](/assets/images/quick_image/quick_5.png)
 
   由于服务器的问题，github下载可能会出现由于下载速率慢造成的下载失败，解决方法参考FAQ  
   如果多次尝试仍然下载不了，请联系邮箱(irving.luo@siflower.com.cn)提供离线版本  
-  注意：使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码
+  **注意：使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码**
 
 #### 2.1.3 源码上传
 
 - siflower SDK主分支
 
   - 代码更新
-  siflower github源码我们保持它是干净的，统一针对所有开发人员使用的，客户原则上不允许向sdk master分支提交任何改动  
-  有代码更新会由siflower内部进行发布更新到SDK，客户进行同步即可  
+   siflower github源码我们保持它是干净的，统一针对所有开发人员使用的，客户原则上不允许向sdk master分支提交任何改动  
+   有代码更新会由siflower内部进行发布更新到SDK，客户进行同步即可  
 
   - 如果开发人员发现重大公共性的bug，需要提交代码  
    1)可以在SDK issue进行发布，由矽昌来解决并更新代码    
@@ -109,9 +110,11 @@ graph TB;
 - fork 分支
   
   下载源码时，选择fork代码库然后再下载  
-  可以参考[pull requests](https://siflower.github.io/wiki/github_pull_reqest_submit/)的方法提交更新到自己的fork分支
+  如果需要更新或者上传代码可以参考[pull requests](https://siflower.github.io/wiki/github_pull_reqest_submit/)的方法提交更新
 
 #### 2.1.4 源码目录
+
+![quick_5_1](/assets/images/quick_image/quick_5_1.png)
 
 > openwrt-18.06/  
   这个是openwrt目录，代码修改，系统镜像编译，在此目录下进行  
@@ -128,16 +131,16 @@ graph TB;
 - 第一次编译请使用 make.sh 脚本进行编译
   
   ```
-  ./make.sh ac28 fullmask 
+  ./make.sh ac28  
   ```
 
 
   首次编译需要通过脚本选择硬件平台进行编译，ac28为路由器板型，更换板型只需要更换此参数  
-  使用脚本之前，请确保在make.sh中有此版型的相关代码，在target/linux/sifower/sf19a28-fullmask/下有对应的板型的配置文件即可  
-  首次编译成功后，会在根目录生成一个如openwrt1806_master_ac28fullmask_rel_.bin的镜像  
+  使用脚本之前，请确保在make.sh中有添加此版型的相关代码，在target/linux/sifower/sf19a28-fullmask/下有对应的板型的配置文件即可  
+  首次编译成功后，会在根目录生成一个如openwrt1806_master_ac28_sf19a288_fullmask_rel_.bin的镜像  
 
 - 后续编译
-  第一次脚本编译通过后，续在不更换版型的情况下，会默认使用根目录.config配置
+  第一次脚本编译通过后，在不更换板型的情况下，会默认使用根目录.config配置
   即使用make menuconfig修改之后，可以用以下指令直接编译
 
   ```
@@ -154,7 +157,7 @@ graph TB;
 
 
   >make.sh脚本编译  
-  例如./make.sh ac28 fullmask脚本编译  
+  例如./make.sh ac28 脚本编译  
   会使用SDK中版型默认的配置文件  
   即target/linux/siflower/sf19a28_ac28_fullmask.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
 
@@ -196,7 +199,7 @@ graph TB;
   - 单独编译软件包
   
   ```
-  make pakcake/siflower/bin/led-button/{clean,compile} V=s
+  make package/libs/mbedtls/{clean,compile} V=s
   ```
 
 
@@ -309,11 +312,19 @@ graph TB;
 在板子硬件配置上有外置以太网口/usb otg接口时，如果出现以下情况  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，里面没有任何内容，需要烧录镜像  
-可以通过Siflower的irom download下载工具将文件下载到FLASH中，支持ETH，USB下载方案，点击下载[PC端工具]()  
+可以通过Siflower的irom download下载工具将文件下载到FLASH中，支持ETH，USB下载方案
 
 - ETH下载
 
+  由于A28芯片支持ETH需要外挂switch芯片，操作方法根据switch芯片类型有所不同，目前支持  
+  Intel switch芯片  
+  Realtek switch芯片
+
 - USB下载
+
+  此方法需要usb口模式需要为OTG
+
+此方法需要专业人士进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
 
 ##### 2.1.6.4 烧录器更新
 
@@ -427,22 +438,12 @@ graph TB;
 
 ## FAQ
 
-**Q：git代码下载不成功出现图示问题，怎么解决？**   
-
-![faq1](/assets/images/quick_image/faq1.png)   
-
- A：(1)由于系统环境自带的git缓存buffer较小导致    
-
- 可以参考[buffer修改](https://blog.csdn.net/zcmain/article/details/76855595) 行修改本地git缓存  
-
-(2)网络状况不好导致，如果下载时下载速度一直在90kb/s以下，会导致下载失败，建议待网络环境良好或者更换下载时间段进行下载   
-
 **Q：编译出现图示问题，怎么解决？**    
 
 ![faq2](/assets/images/quick_image/faq2.png)   
 
 A：这个是由于编译指令漏了项目名或者项目名错误。具体支持的版型可以查看make.sh脚本代码中的参数选项。
-例如编译evb_v5版型：./make.sh evb_v5 fullmask 
+例如编译ac28版型：./make.sh ac28 
 
 **Q：第一次使用脚本编译出现图示问题，怎么解决？**  
 ![faq3](/assets/images/quick_image/faq3.png)   
@@ -478,5 +479,57 @@ A：这个是由于系统的dtc版本太低导致的，使用sudo apt-get instal
 A：这是由于FLASH为空，为烧录任何程序打印的芯片内部的log  
 
 需要通过flash烧录器烧录镜像，如果板子支持usb slave可以使用siflower irom下载工具进行烧录
+
+**Q：git代码下载不成功出现图示问题，怎么解决？**   
+
+![faq1](/assets/images/quick_image/faq1.png)   
+
+ A：(1)由于系统环境自带的git缓存buffer较小导致,可以参考[buffer修改](https://blog.csdn.net/zcmain/article/details/76855595) 行修改本地git缓存  
+
+(2)网络状况不好导致，如果下载时下载速度一直在90kb/s以下，会导致下载失败，建议待网络环境良好或者更换下载时间段进行下载，可能仍然需要花长时间下载   
+
+(3)如果办公环境下载速度一直在几十kb/s左右，可以尝试使用电脑无线网卡连接手机热点进行下载，速度会有很大提升，但是会有一点浪费流量，请谨慎选择此方法。
+
+(4)使用gitee码云下载
+
+- 注册一个[gitee账户](https://gitee.com/)
+
+- 获取已有的github代码库链接，siflower即为https://github.com/Siflower/1806_SDK.git
+
+- 进入gitee工作台，新建仓库
+  
+  ![faq1_1](/assets/images/quick_image/faq1_1.png)
+
+- 开始导入github代码仓库到码云
+  
+  ![faq1_2](/assets/images/quick_image/faq1_2.png)
+
+- 将需要导入的github链接填入
+
+  ![faq1_3](/assets/images/quick_image/faq1_3.png)
+
+- 点击创建，等待仓库导入
+  
+  ![faq1_4](/assets/images/quick_image/faq1_4.png)
+
+ - 导入成功后点击下载，获取下载链接
+
+  ![faq1_5](/assets/images/quick_image/faq1_5.png)
+
+- 回到ubuntu环境，使用gitee下载链接下载代码
+
+  ![faq1_6](/assets/images/quick_image/faq1_6.png)
+
+  此时可以看到，下载速度可以到达5M/s，这是因为gitee服务器设置在国内，通过gitee将代码仓库导入后，会显著的提升下载速度  
+  这样下载的区别是 clone 链接换成了目标项目在gitee中的链接
+
+- 如何保持与github主仓库代码一致
+  
+  点击gitee代码仓库此按钮，即可强制同步github主分支的更新
+
+  ![faq1_7](/assets/images/quick_image/faq1_7.png)
+
+
+
 
 
