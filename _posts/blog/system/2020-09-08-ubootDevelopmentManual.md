@@ -232,14 +232,32 @@ sfa18 # bootm
 
 #### 代码下载
 
-git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot。  
+##### ssh方式下载  
+
+ssh方式下载代码需要先使用ssh-keygen命令在本地电脑生成一对秘钥，然后将公钥（id_rsa.pub）放在服务器上，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+放置秘钥位置如下：  
+![uboot_ssh](/assets/images/uboot_development_manual/uboot_ssh.png)  
+代码下载命令：  
+git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot  
+
+##### http方式下载  
+
+http方式下载需要先在服务器网站上生成一个http下载密码，下载时需要输入此密码，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+生成密码位置如下：  
+![uboot_http](/assets/images/uboot_development_manual/uboot_http.png)  
+代码下载命令：  
+git clone http://username@codereview.siflower.cn:8008/a/openwrt/siflower/uboot  
+
 除此之外，建议通过repo下载，详见repo使用说明：http://192.168.1.11:8081/redmine/news/7  
 两者内容是一致的。 
 
 #### 编译
 
 由于同时需要spl和uboot两部分，而为了简化烧录过程，会将两部分拼成一个镜像，统一作为BootLoader，因此uboot的编译推荐直接使用编译脚本sf_make.sh。  
-由于存在不同的板型和芯片，因此该脚本还支持若干个参数：ver，prj、mode和cmd。  
+由于存在不同的板型和芯片，因此该脚本还支持若干个参数：use_mti，ver，prj，mode和cmd。  
+use_mti：表示编译工具链选择，支持0（默认）和1。其中０表示使用当前目录toolchain中工具链，１表示使用系统编译工具链。　　
 Cmd：表示命令，支持distclean、clean、make、dmake（默认）。其中dmake指的是先进行distclean，再make。  
 Mode：表示选择release或debug模式，支持r（默认）和d。Mode=r时编译出的binary文件包含设备树信息，elf debug文件不包含；mode=d时binary不包含，debug文件包含。Mode=d一般是配合jtag进行调试使用的。  
 Ver：表示芯片型号，支持mpw0（默认）、mpw1和fullmask。  
