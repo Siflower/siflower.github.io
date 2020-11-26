@@ -232,10 +232,24 @@ sfa18 # bootm
 
 #### 代码下载
 
-* ssh方式下载  
+##### ssh方式下载  
+
+ssh方式下载代码需要先使用ssh-keygen命令在本地电脑生成一对秘钥，然后将公钥（id_rsa.pub）放在服务器上，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+放置秘钥位置如下：  
+![uboot_ssh](/assets/images/uboot_development_manual/uboot_ssh.png)  
+代码下载命令：  
 git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot  
-* http方式下载  
+
+##### http方式下载  
+
+http方式下载需要先在服务器网站上生成一个http下载密码，下载时需要输入此密码，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+生成密码位置如下：  
+![uboot_http](/assets/images/uboot_development_manual/uboot_http.png)  
+代码下载命令：  
 git clone http://username@codereview.siflower.cn:8008/a/openwrt/siflower/uboot  
+
 除此之外，建议通过repo下载，详见repo使用说明：http://192.168.1.11:8081/redmine/news/7  
 两者内容是一致的。 
 
