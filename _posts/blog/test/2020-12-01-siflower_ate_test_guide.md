@@ -1,0 +1,241 @@
+---
+Layout: post
+title: SIFLOWER ATE TEST
+categories: TEST
+description: 介绍SIFLOWER方案手动及ATE工具射频测试
+keywords: Performance Testing
+mermaid: true
+---
+
+# SIFLOWER ATE TEST 使用手册
+
+**目录**
+
+* TOC
+{:toc}
+
+## 1 介绍
+
+本文基于公司SIFLOWER芯片方案介绍Openwrt系统下手动及使用ATE工具测试产品射频性能，包括TX/RX两方面测试，帮助客户或使用者了解和评估产品射频性能。本文档只介绍command测试操作方法，至于对产品进行校准，请使用PCBA产测工具。
+
+## 2 环境准备
+
+|序号|设备名称|型号|用途|数量|备注|
+|--|--|--|--|--|--|
+|1|待测产品|任意|待测设备|1|待测板子须具备ATE测试功能的Openwrt环境|
+|2|测试电脑|任意|用于测试操作|1||
+|3|综测仪|任意|用于完成TX/RX测试|1|具备11a/b/g/n/11ac协议要求的双频综测仪|
+|4|RF线缆|任意|用于搭建测试环境|5|频率要求支持到6G|
+|5|串口线|任意|用于发送command控制板子|1||
+
+
+## 3 SIFLOWER 协议命令参数说明
+
+### 3.2 Band参数说明
+
+|Band|wlan0|wlan1|
+|--|--|--|
+|频段|2.4G|5G|
+
+### 3.2 Mode参数说明
+
+|值|0|2|4|
+|--|--|--|--|
+|模式|11a/b/g|11n|11ac|
+
+### 3.3 DataRate参数说明
+- 当帧格式为11b时：
+
+|值|0|1|2|3|
+|--|--|--|--|--|
+|DataRate（Mbps）|1|2|5.5|11|
+
+- 当帧格式为11g时：
+
+|值|4|5|6|7|8|9|10|11|
+|--|--|--|--|--|--|--|--|--|
+|DataRate（Mbps）|6|9|12|18|24|36|48|54|
+
+- 当帧格式为11a时：
+
+|值|0|1|2|3|4|5|6|7|
+|--|--|--|--|--|--|--|--|--|
+|DataRate（Mbps）|6|9|12|18|24|36|48|54|
+
+- 当帧格式为11n时：
+
+|值|0|1|2|3|4|5|6|7|
+|--|--|--|--|--|--|--|--|--|
+|DataRate（Mbps）|MCS0|MCS1|MCS2|MCS3|MCS4|MCS5|MCS6|MCS7|
+
+- 当帧格式为11ac HT20MHz时：
+
+|值|0|1|2|3|4|5|6|7|8|
+|--|--|--|--|--|--|--|--|--|--|
+|DataRate（Mbps）|MCS0|MCS1|MCS2|MCS3|MCS4|MCS5|MCS6|MCS7|MCS8|
+
+- 当帧格式为11ac HT20/HT40 MHz时：
+
+|值|0|1|2|3|4|5|6|7|8|9|
+|--|--|--|--|--|--|--|--|--|--|--|
+|DataRate（Mbps）|MCS0|MCS1|MCS2|MCS3|MCS4|MCS5|MCS6|MCS7|MCS8|MCS9|
+
+### 3.4 BandWidth参数说明
+
+|值|0|1|2|3|
+|--|--|--|--|--|
+|BandWidth|20MHz（11a/b/g）|20MHz(11n/ac)|40MHz(11n/ac)|80MHz(11ac)|
+
+### 3.5 Frame BandWidth参数说明
+
+|值|0|1|2|3|
+|--|--|--|--|--|
+|BandWidth|20MHz（11a/b/g）|20MHz(11n/ac)|40MHz(11n/ac)|80MHz(11ac)|
+
+注意：测试时BandWidth参数与Frame BandWidth参数保持一致。
+
+## 4 SIFLOWER 协议命令组成及说明
+本部分包括TX与RX测试两部分，命令为上文3小节所描述的参数组成。
+
+### 4.1 TX 测试命令
+
+|命令头部|Tx_Frame_longth|Freq|Center-freq|BW|Frame-BW|Mode|DataRate|Guard Interval|Power_level|命令尾部|
+|--|--|--|--|--|--|--|--|--|--|--|
+|ate_cmd Band fastconfig| -l 发射帧长度| -f 频率| -c 中心频率| -w 带宽| -u 帧带宽| -m 模式| -i 速率| -g 传输间隔| -p gain| -y|
+
+如上TX命令结构:
+- Band代表wlan0/wlan1;
+- 传输间隔代表Short GI或者Long GI,分别用0和1表示;
+- gain代表TX功率发射等级，供0-31可选;
+
+如想要控制板子做11ac，中心频率为5510，速率为MCS9，功率等级为30的短距发射，命令结构如下：
+
+ate_cmd wlan1 fastconfig  -l 4096 -f 5510 -c 5510 -w 2 -u 2 -m 4 -i 9 -g 0 -p 30  -y
+
+如控制板子停止TX，使用如下指令：
+
+ate_cmd wlan1 fastconfig -q
+注意停止2.4G与5G 时wlan参数不同。
+### 4.2 RX测试命令
+
+|命令头部|Freq|Center-freq|BW|Frame-BW|命令尾部|
+|--|--|--|--|--|--|
+|ate_cmd Band fastconfig|-f 频率| -c 中心频率| -w 带宽| -u 帧带宽|-r|
+
+如上RX命令结构：
+- Band代表wlan0/wlan1;
+- 带宽与帧带宽相一致。
+
+如综测仪发射20MHz，中心频率为5180的信号，板子端可通过如下指令查看RX接收情况。
+
+ate_cmd wlan1 fastconfig -f 5180 -c 5180 -w 0 -u 0 -r
+
+如控制板子停止RX，使用如下指令：
+
+ate_cmd wlan1 fastconfig -k
+注意停止2.4G与5G 时wlan参数不同。
+
+## 5 SIFLOWER 方案手动测试
+
+测试拓扑如下：
+
+![Test_topolgy](/assets/images/ate_test/Test_topolgy.png)
+
+如图：
+- PC1通过网线连接综测仪；
+- 综测仪与板子天线之间用RF线缆连接；
+- PC2通过串口线连接板子，用于控制板子。
+
+### 5.1 SIFLOWER 方案手动TX测试
+
+如上测试拓扑搭建完成后，给板子上电，然后观察串口打印信息，等待板子启动完毕后在串口工具界面输入“ate_init”,如下图：
+
+![boot](/assets/images/ate_test/boot.png)
+
+此后等待大约10秒，板子进入ATE测试模式，如下图：
+
+![ATE_Mode](/assets/images/ate_test/ATE_Mode.png)
+
+此后在串口工具界面输入如4.1小节的TX Start测试命令，板子即进入TX工作模式，此时借助综测仪自带工具，如极致汇仪的WLAN Meter查看TX发射情况，如下图：
+
+![TX_Result](/assets/images/ate_test/TX_Result.png)
+
+注意：当要控制板子由一个TX状态切换到另一个TX状态，如查看另一个信道或频率的TX情况时，请先在原TX状态下停止板子发射，更改TX参数后再在控制板子发射。
+
+### 5.1 SIFLOWER 方案手动RX测试
+
+- 板子启动后参照5.1先行让板子进入ATE测试模式；
+- 此时使用综测仪发送要测试的wifi信号；
+- 使用如“ate_cmd wlan1 fastconfig -f 5180 -c 5180 -w 0 -u 0 -r”的命令查看板子RX，注意命令结构f，c，w，u需要与综测仪发射信号参数保持一致。
+
+测试结果如下图：
+
+![RX_Result](/assets/images/ate_test/RX_Result.png)
+
+注意：当要控制板子由一个RX状态切换到另一个RX状态，如查看另一个信道或频率的RX情况时，请先在原RX状态下停止板子接收，更改RX参数后再在控制板子发射。
+
+## 6 SIFLOWER 方案ATE工具测试
+
+本节介绍一个SIFLOWER 方案ATE测试工具，测试结果与上文提到的手动命令测试方式一致，使用工具旨在简化使用人员操作复杂的命令组合，达到同样的测试效果。
+
+### 6.1 SIFLOWER ATE TOOL工具下载
+
+工具下载链接：
+链接: https://pan.baidu.com/s/15KKzOWpKD2jZ998KG7AGGg 
+提取码: 4s4b 
+
+### 6.2 SIFLOWER ATE TOOL工具使用
+
+本工具支持基于SIFLOWER 芯片方案的ATE测试，包括TX/RX两个部分：
+
+工具界面如下：
+
+![ATE_TOOL](/assets/images/ate_test/ATE_TOOL.png)
+
+#### 6.2.1 SIFLOWER ATE TOOL工具TX测试
+
+参照5 SIFLOWER 方案手动测试搭建测试环境，环境打建好以后给板子上电，待板子启动完毕，在串口工具界面输入“ifconfig br-lan 192.168.4.1”，修改板子的ip为192.168.4.1，在原有测试拓扑上增加一根网联连接PC2与待测板子LAN口，并将PC2网卡的IP地址设成“192.168.4.xx”网段，通过PC端ping -t 192.168.4.1来查看PC2与板子连接情况，待连接正常后，在串口界面输入以下指令“ate_init_server.sh”，使板子进入如下图的SFATETESTTOOL测试模式，此外在PC2上打开SIFLOWER ATE TOOL测试工具。
+
+![ATE_TOOL_init](/assets/images/ate_test/ATE_TOOL_init.png)
+
+大概10秒后，当见到下图中的log后，板子测试环境初始化完成。
+
+![init_ok](/assets/images/ate_test/init_ok.png)
+
+板子ATE初始化完成后点击工具界面左上角Connect DUT，工具即与板子建立连接，在工具右下角的log区域会提示工具与板子连接情况：如下图：
+
+![connect_ok](/assets/images/ate_test/connect_ok.png)
+
+当连接异常时工具会弹框提示连接失败，如下图示：
+
+![connect_fail](/assets/images/ate_test/connect_fail.png)
+
+正常连接后，依次从左到右选择如下图所示的参数选项，单击工具Start Tx按钮即开始控制板子进行TX测试。
+
+![Start_Tx](/assets/images/ate_test/Start_Tx.png)
+
+仪器界面可查看测试结果，如使用极致汇仪综测仪时，测试结果如下图：
+
+![TX_Result](/assets/images/ate_test/TX_Result.png)
+
+注意：当要控制板子由一个TX状态切换到另一个TX状态，如查看另一个信道或频率的TX情况时，请先在原TX状态下单击Stop TX按键，更改TX参数后再在控制板子发射。
+
+#### 6.2.2 SIFLOWER ATE TOOL工具RX测试
+
+保持如6.2.1所搭建的测试环境，待板子上电启动完成，依照6.2.1同样方法使板子进入SF ATE TEST TOOL测试模式，并打开工具，点击工具界面左上角Connect DUT，使工具即与板子建立连接，此时使用综测仪自带工具的VSG功能发送信号，在工具端设置好RX参数后即可在工具log区域查看板子rx情况。
+
+工具RX参数设置需与综测仪发送参数设置相一致，如下图所示：
+
+![RX](/assets/images/ate_test/RX.png)
+
+设置完成点击Start RX即可在工具log区域查看板子接收情况。
+
+注意：当要控制板子由一个RX状态切换到另一个RX状态，如查看另一个信道或频率的RX情况时，请先在原RX状态下单击Stop RX按键，更改RX参数后再在控制板子发射。
+
+### 6.3 退出测试模式
+
+当要退出测试模式时，在串口工具界面输入“sfwifi reset”命令，即可推出测试模式。
+
+## 7 异常处理
+
+当遇到任何waring，error等问题，首先通过“ate_init”(手动测试)，或“ate_init_server.sh”（ATE_TOOL_TEST）尝试解决。
