@@ -1,11 +1,12 @@
 ---
 layout: post
 title: PCBA工具手册
-categories: TEST
+categories: PRODUCE
 description: 介绍pcba测试PC端工具如何使用
 keywords: pcba pc测试
 mermaid: true
 ---
+
 
 # PCBA工具使用手册
 
