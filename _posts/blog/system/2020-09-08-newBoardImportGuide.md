@@ -47,25 +47,31 @@ Openwrt引入新版型包含系统和内核两部分。
 所有关于版型的配置内容统一归类在target目录下。  
 siflower芯片相关配置在target/linux/siflower目录下。  
 
-其中sf16a18-fullmask 目录代表了量产芯片sf16a18的配置目录：
+其中sf16a18-fullmask 目录代表了量产芯片sf16a18的配置目录  
 ![sf16a18-fullmask](/assets/images/new_board_guide/sf16a18-fullmask.png)
 
-其中sf19a28-fullmask 目录代表了量产芯片sf19a28的配置目录：
+其中sf19a28-fullmask 目录代表了量产芯片sf19a28的配置目录  
 ![sf19a28-fullmask](/assets/images/new_board_guide/sf19a28-fullmask.png)
 
-config-4.14_evb_v5
-表示了不同版型对应kernel config，此文件由make kernel_menuconfig 生成
-base-files-SF16A18-EVB-V5
+**config-4.14_evb_v5**  
+表示了不同版型对应kernel config，此文件由make kernel_menuconfig 生成  
+
+**base-files-SF16A18-EVB-V5**  
 表示针对EVB-V5这个版型，需要预留在rootfs下的文件
-profiles
+
+**profiles**
 该目录下面存放每个版型对应的mk文件，这边可以增加一些配置，在编译过程中生效，包含选择软件包和config项，这里制定了**版型的名称**和描述内容。
 
-base-files 目录用于存放用户希望预先存放到rootfs下指定路径的文件。
+**base-files** 
+目录用于存放用户希望预先存放到rootfs下指定路径的文件
+
 ![sf16a18-basefile](/assets/images/new_board_guide/sf16a18-basefile.png)
+
 >该目录下文件路径和rootfs下一致，在相应路径下防止文件，编译完成后，体现到rootfs中，
 该目录下文件对于所有siflower 版型**通用**。
 
 target/linux/siflower 目录下的sf16a18_evb_v5_fullmask_def.config 为config文件，为对应版型的openwrt文件配置。
+
 >config 文件为在编译根目录下使用make menuconfig 选择不同openwrt软件模块后生成
 后文实例中会具体介绍。
 
@@ -73,7 +79,9 @@ target/linux/siflower 目录下的sf16a18_evb_v5_fullmask_def.config 为config�
 #### kernel关于不同版型的配置
 
 kernel中有关版型的配置为dts配置部分，kernel本身config，在openwrt中已有描述。
+
 linux-4.14.90/arch/mips/boot/dts/siflower/ 为siflower dts所在路径位置。
+
 >sf16a18_full_mask.dtsi 为所有siflower 芯片通用dts配置项
 sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
 
@@ -87,6 +95,7 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
 
 - 首先在target/linux/siflower/sf16a18-fullmask/profiles 目录下新建对应的mk文件。
   修改所有相应的名称为指定型号，需要和文件名统一，注意大小写。
+
   ![evb-v5-mk](/assets/images/new_board_guide/evb-v5-mk.png)
 
 - 根据需要，决定是否建立target/linux/siflower/sf16a18-fullmask/base-files-SF16A18-EVB-V5 目录，放置额外文件,注意文件夹名称统一。  
@@ -96,7 +105,8 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
   ![evb-v5-kconfig](/assets/images/new_board_guide/evb-v5-kconfig.png)
 
 - 下面进入target/linux/siflower 目录
-复制其他版型的 openwrt config文件，后续进行修改。
+  复制其他版型的 openwrt config文件，后续进行修改。
+
   ![evb-v5-config](/assets/images/new_board_guide/evb-v5-config.png)
 
 - 进入根目录
@@ -115,7 +125,10 @@ sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
 
 - 如下界面中选择新添加的版型。
   ![evb-v5-menuconfig](/assets/images/new_board_guide/evb-v5-menuconfig.png)
-  保存配置后并退出。
+  保存配置后并退出。  
+
+  **注意：如果make menuconfig选择时没有新版型选项，请在openwrt根目录下，删除tmp/ 和 .config**  
+  **然后重新拷贝新建版型配置为 .config,再进行make menuconfig即可**
 
 - 保存最终配置  
   ![evb-v5-copy2](/assets/images/new_board_guide/evb-v5-copy2.png)
@@ -165,9 +178,8 @@ linux需要增加相应的dts文件和Kconfig选项。
 
 ![evb-v5-dts](/assets/images/new_board_guide/evb-v5-dts.png)
 
-将生成的config文件覆盖会target目录下的文件，使配置永久保存。
+编辑此目录下的Makefile文件，建立dts文件对应宏选项
 
-编辑此目录下的Makefile文件，建立dts文件对应宏选项。
 ![evb-v5-dtsMK](/assets/images/new_board_guide/evb-v5-dtsMK.png)
 
 - 进入linux-4.14.90/arch/mips/siflower 目录
@@ -175,10 +187,12 @@ linux需要增加相应的dts文件和Kconfig选项。
 新增新dts对应Kconfig的配置项。
 ![evb-v5-dtsKconfig](/assets/images/new_board_guide/evb-v5-dtsKconfig.png)
 
-- 最后回到**openwr根目录**下使用命令：
+- 最后回到**openwrt根目录**下使用命令
+  
 ![evb-v5-kmconfigCMD](/assets/images/new_board_guide/evb-v5-kmconfigCMD.png)
 
-在下图中选择对应的新的DTS，并且保存退出。
+在下图中选择对应的新的DTS，并且保存退出
+
 ![evb-v5-kmconfig](/assets/images/new_board_guide/evb-v5-kmconfig.png)
 
 #### 编译新版型镜像

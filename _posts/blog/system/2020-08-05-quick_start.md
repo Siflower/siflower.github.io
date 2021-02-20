@@ -134,10 +134,11 @@ graph TB;
   ./make.sh ac28  
   ```
 
-
   首次编译需要通过脚本选择硬件平台进行编译，ac28为路由器板型，更换板型只需要更换此参数  
-  使用脚本之前，请确保在make.sh中有添加此版型的相关代码，在target/linux/sifower/sf19a28-fullmask/下有对应的板型的配置文件即可  
-  首次编译成功后，会在根目录生成一个如openwrt1806_master_ac28_sf19a288_fullmask_rel_.bin的镜像  
+  **如果编译出错请参考FAQ**
+
+  首次编译成功后，会在编译根目录生成一个如openwrt1806_github_ac28_sf19a28_fullmask_rel_1.bin的镜像  
+  **如果用脚本编译出错后，使用FAQ提供的方法继续编译成功，此时不会生成镜像在根目录，再次使用脚本编译一次则正常生成**
 
 - 后续编译
   第一次脚本编译通过后，在不更换板型的情况下，会默认使用根目录.config配置
@@ -159,12 +160,12 @@ graph TB;
   >make.sh脚本编译  
   例如./make.sh ac28 脚本编译  
   会使用SDK中版型默认的配置文件  
-  即target/linux/siflower/sf19a28_ac28_fullmask.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
+  即target/linux/siflower/sf19a28_ac28_fullmask_def.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
 
 
 
   >使用脚本编译和使用指令的区别在于会使用target/linux/siflower/下默认板型配置文件，并且在根目录下会生成一个带版型名称和版本号的镜像  
-  这个镜像与bin/目录下的一样，只是通过make.sh脚本对其重新命名，详情可以参考脚本中的代码实现
+  这个镜像与bin/target/siflower/目录下的一样，只是通过make.sh脚本对其重新命名，详情可以参考脚本中的代码实现
 
 
   调试板型固定时，修改代码后，使用make指令编译生成镜像测试功能即可  
@@ -182,11 +183,12 @@ graph TB;
 - 镜像路径
     
   不管使用脚本编译还是指令编译，编译成功后镜像都会生成在如下目录  
-  使用脚本编译会额外在根目录生成一个名称带有分支名称板型名称版本号的镜像  
-
+   
   ```
   /bin/target/siflower/openwrt-siflower-sf19a28-fullmask-squashfs-sysupgrade.bin
   ```
+
+  使用脚本编译会额外在根目录生成一个名称带有分支名称板型名称版本号的镜像
 
 - 单独编译
   
@@ -209,15 +211,15 @@ graph TB;
 
   ```
   1)make clean
-  删除目录/ bin和/ build_dir的内容。 使清洁不会删除工具链，它也可以避免清除不同于您在.config中选择的体系结构/目标
+  删除目录/bin和/build_dir的内容。 使清洁不会删除工具链，它也可以避免清除不同于您在.config中选择的体系结构/目标
 
   2)make dirclean
-  删除目录/ bin和/ build_dir以及/ staging_dir和/ toolchain（=交叉编译工具）和/ logs的内容。“Dirclean”是您的基本“全面清理”操作。
+  删除目录/bin和/build_dir以及/staging_dir和/toolchain（=交叉编译工具）和/logs的内容。“Dirclean”是您的基本“全面清理”操作。
 
   3)make distclean
   将编译或配置的所有内容都删除，并删除所有已下载的提要内容和程序包源。
 
-  4）make target / linux / clean
+  4）make target/linux/clean
   清理linux对象。
 
   5)make package/luci/clean
@@ -225,6 +227,24 @@ graph TB;
   ```
 
 #### 2.1.6 更新镜像
+
+##### 镜像获取
+
+我们提供一些现有的镜像供客户下载，做demo使用，用于硬件验证  
+这里提供的镜像只用于验证，后续功能镜像由客户下载SDK，根据自身客制化需求自行编译生成  
+
+- uboot镜像
+  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动（ddr/flash等）
+- openwrt镜像 
+  
+- 完整的FLASH镜像
+  
+  |版型|ddr+flash|switch|链接|
+  |--|--|--|--|
+  |ac28|16M+64M DDR2|intel|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+  |ac22|16M+64M DDR2|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+  |evb|16M+128M DDR3|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+
 
 ##### 2.1.6.1 网页更新
 
@@ -322,7 +342,7 @@ graph TB;
 
 - USB下载
 
-  此方法需要usb口模式需要为OTG
+  此方法需要硬件上带usb口且模式需要为OTG
 
 此方法需要专业人士进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
 
@@ -455,6 +475,8 @@ A：出现图示问题是由于第一次脚本编译，有一些package的依赖
 make -j1 V=s继续编译  
 或者make -j4 V=s、 make -j8 V=s，使用多个线程，提高编译速度继续编译    
 
+如果是使用的虚拟机，尝试将虚拟机的内存改大，4G及以上
+
 **Q：脚本编译的项目如何添加？**  
 
 A：因为硬件的不同，编译时需要对版型进行区分选择相应的配置文件   
@@ -478,7 +500,7 @@ A：这个是由于系统的dtc版本太低导致的，使用sudo apt-get instal
 
 A：这是由于FLASH为空，为烧录任何程序打印的芯片内部的log  
 
-需要通过flash烧录器烧录镜像，如果板子支持usb slave可以使用siflower irom下载工具进行烧录
+需要通过flash烧录器烧录镜像，或者使用siflower irom下载工具进行烧录
 
 **Q：git代码下载不成功出现图示问题，怎么解决？**   
 

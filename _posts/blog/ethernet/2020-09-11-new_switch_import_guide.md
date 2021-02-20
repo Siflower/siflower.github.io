@@ -159,6 +159,7 @@ patch数据分为5个部分：
 |5| 触发检查连接 | 这条配置触发2中配置的检查连接 | 
 
 各部分说明及注意点如下：
+
 ||  | 说明 | 
 | -----| ------- | ------ | 
 |1| 前两条patch数据 | 1、可以选择phy/switch模式，选择1000Mphy模式时，irom按照通用phy的方式进行初始化，无需后续部分的patch内容 2、可配置tx/rx delay，tx/rx delay范围为0x1~0x100 3、当选择switch模式时，irom代码需要各部分patch的起始offset，其中检查连接固定为第3条，所以这里需要存放switch初始化、 触发初始化、触发检查连接的offset，offset的计算见patch简介 | 
