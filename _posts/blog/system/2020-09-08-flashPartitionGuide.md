@@ -39,19 +39,19 @@ Flash属于内存器件的一种，是一种非易失性内存，一般的嵌入
 Siflower 目前Flash系统分区如下：
 <table>
    <tr>
-      <td colspan="3" align="center">spl</td>
+      <td colspan="3" align="center">spl (128K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">uboot</td>
+      <td colspan="3" align="center">uboot (384K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">uboot-env</td>
+      <td colspan="3" align="center">uboot-env (64K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">factory</td>
+      <td colspan="3" align="center">factory (64K)</td>
    </tr>
    <tr>
-      <td rowspan="3" align="center">firmware</td>
+      <td rowspan="3" align="center">firmware (640K~16M)</td>
       <td colspan="2" align="center">kernel</td>
    </tr>
    <tr>
@@ -62,7 +62,7 @@ Siflower 目前Flash系统分区如下：
       <td align="center">rootfs-data</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">pcba-test</td>
+      <td colspan="3" align="center">pcba-test (512K)</td>
    </tr>
 </table>
  
