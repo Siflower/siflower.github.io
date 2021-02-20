@@ -505,4 +505,5 @@ WinSCP 是一个 Windows 环境下使用的 SSH 的开源图形化 SFTP 客户�
 登录完成后，将 pelinux_mipsle_720 （选中文件右击点击上传即可）上传至路由的路径下。上传路径最好选择根目录下,便于后续操作。
 
 ![Ple_winSCP](/assets/images/throughput/Ple_winSCP.png)
+
 ![Ple_winSCP_2](/assets/images/throughput/Ple_winSCP_2.png)
