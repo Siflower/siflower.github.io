@@ -1,11 +1,12 @@
 ---
 layout: post
 title: 矽路由性能测试手册
-categories: TEST
+categories: PRODUCE
 description: 介绍矽路由性能测试手册
 keywords: Performance Testing
 mermaid: true
 ---
+
 
 # 矽路由性能测试手册
 

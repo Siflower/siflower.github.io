@@ -1,11 +1,12 @@
 ---
 layout: post
 title: 方案以及生产支持说明手册
-categories: SYSTEM
+categories: PRODUCE
 description: 介绍siflower方案及生产支持
 keywords: produce 
 mermaid: true
 ---
+
 
 # siflower方案及生产支持手册
 
