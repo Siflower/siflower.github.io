@@ -118,4 +118,3 @@ A[项目立项]-->B[获取SDK/HDK]-->C[硬件设计/软件开发]-->D[各项测�
     主要是针对机器出厂后，需要对机器进行升级维护  
     siflower软件有一个OTA升级的功能，可以对出厂的设备进行OTA升级更新，但是仅限于使用siflower管理网页的方案，其它方案则需要客户自行开发  
     siflower OTA软件升级说明参考[OTA升级开发手册](https://siflower.github.io/2020/07/31/ota_upgrade_guide/)
-

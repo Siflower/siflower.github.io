@@ -1,5 +1,5 @@
 ---
-Layout: post
+layout: post
 title: SIFLOWER ATE TEST
 categories: PRODUCE
 description: 介绍SIFLOWER方案手动及ATE工具射频测试
