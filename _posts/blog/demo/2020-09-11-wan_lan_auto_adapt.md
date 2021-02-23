@@ -26,14 +26,15 @@ siflower SDK，siflower硬件平台
 
 ### 1.3 相关背景
 
-VLAN（Virtual LAN），即“虚拟局域网”，可以使用户自由地根据实际需要分割广播域，在openwrt上可通过配置network文件实现vlan划分。但并不是每一个用户都了解vlan划分流程，因此路由器在面向普通
-用户的时候，应当具备方便、简洁的特点：用户甚至不需要了解什么是vlan，怎么区分wan/lan口；随便插上网线就能实现上网功能。
+VLAN（Virtual LAN），即“虚拟局域网”，可以使用户自由地根据实际需要分割广播域，在openwrt上可通过配置network文件实现vlan划分。但并不是每一个用户都了解vlan划分流程，因此路由器在面向普通用户的时候，应当具备方便、简洁的特点：用户甚至不需要了解什么是vlan，怎么区分wan/lan口；随便插上网线就能实现上网功能。
 
 ### 1.4 功能概述
 
-wan/lan 自适应开发脚本开机自启动，并在路由器的后台自动运行，自动根据当前的网线连接情况划分wan/lan口。如果不小心将外网网线插错到了lan口，脚本会自动将wan重新划分到该网口上，配置完成后，路由器依旧可以上网。
+wan/lan 自适应具有三种配置wan口的功能：开机自动配置、立即自动配置、立即手动配置。自动配置时会根据当前的网线连接情况划分wan/lan口。需要更换wan口时，只需将网线插入路由器需要配置的端口，运行脚本自动配置，就会自动将wan重新划分到该端口上。配置完成后，路由器依旧可以正常上网。
 
 ## 2 项目引用
+
+- [维基百科-DHCP协议](https://zh.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol)
 
 - [config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 
@@ -41,9 +42,11 @@ wan/lan 自适应开发脚本开机自启动，并在路由器的后台自动运
 
 - [以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
 
+- [SiWiFi接口开发手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_develop/)
+
 ## 3 开发详情
 
-### 3.1 基础指令
+### 3.1 基础指令及原理
 
 #### 3.1.1 uci指令
 
@@ -113,219 +116,149 @@ uci set network.@switch_vlan[1].ports='2 16t'
 uci commit
 ```
 
-更多vlan划分的内容，请参考[以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
+更多vlan划分的内容，请参考[以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)。如果能划分出5个vlan分别对应5个路由器端口，那么就能通过向外发送dhcp discover数据包的方法寻找dhcp服务器，从而知道哪一个口应该成为wan口。
 
-#### 3.1.3 udhcpc
+#### 3.1.3 dhcp协议
 
-udhcpc指令可以判断当前口是否可以获取到ip，从而判断该网口是否应该配置为wan口，可直接在串口键入。指令为"udhcpc -n -q -t 1 -i {port}" 。{port}为需要检测的端口，如br-lan，eth0.2。
+详细了解dhcp协议过程，请参考[维基百科-DHCP协议](https://zh.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol)。wan/lan自适应流程会利用到其中的前两步：
 
-- 获取到ip时会返回：
+- 1、从某端口向dhcp server发送discover数据包。
 
-```
-udhcpc (v1.23.2) started
-Sending discover...
-Sending select for 192.168.14.100...
-Lease of 192.168.14.100 obtained, lease time 43200
-```
+- 2、若dhcp server收到discover数据包，则会回复一个offer包。
 
-- 无法获取ip时会返回：
-
-```
-udhcpc (v1.23.2) started
-Sending discover...
-No lease, failing
-```
-
-利用以上指令，可以在shell脚本里通过以下方法判断某个端口是否能够获取到ip。若获取到ip,则变量rv被赋值为1。
-
-```
-rv=0
-udhcpc -n -q -t 1 -i eth0.x>&- && rv=1
-```
+至此，若收到offer包，即可判断该端口与dhcp server相连，可配置为路由器的wan口。
 
 ### 3.2 功能设计流程
 
 #### 3.2.1 自启动实现
 
-openwrt在开机启动时，会自动执行路径为/etc/rc.local的文件。因此在rc.local的末尾部分加上运行某脚本的指令，那么这个脚本就会实现开机自启动。例如：现有一个可执行脚本test.sh放在/bin目录下。如果在rc.local最后（exit 0之前）添加/bin/test.sh，这个脚本就会开机自启动。
+openwrt在开机启动时，会自动执行路径为/etc/rc.local的文件。因此在rc.local的末尾部分加上运行某脚本的指令，那么这个脚本就会实现开机自启动。例如：现有一个可执行脚本auto_adapt.sh放在/bin目录下。如果在rc.local最后（exit 0之前）添加./bin/auto_adapt.sh，这个脚本就会开机自启动。若在脚本中加入对uci参数的判断（例如network.lan.auto_adapt参数为1时才执行脚本），则可以实现由用户随时设置是否开机自启动。
 
 #### 3.2.2 wan/lan自适应流程
 
-- 1 开机时将network进行初次配置（新划分5个vlan均为dhcp）
+- 1 下发自动配置指令或路由器开机启动时，将network备份并重新划分5个vlan分别对应5个端口，替代原有配置。
 
-- 2 将检测这5个vlan口是否拿到ip，若能则划分这个口为wan口，开机启动划分完成。
+- 2 利用发包工具send从这5个端口向外发送dhcp discover包，若收到dhcp server的回复，则说明检测到wan口。
 
-- 2 将lan口proto设置为dhcp，利用udhcpc指令循环检测br-lan是否获取到ip。若能获取到，说明使用过程中网线插错，则进行重新配置。
+- 3 恢复network原有配置，并将检测到的端口配置为wan口。下发手动配置指令时直接进行这一步。
 
-- 3 配置新的wan/lan并重启网络。待配置完成，继续循环检测直到下一次配置。
-
-流程图如下所示：
+- 4 重启网络，自适应配置完成，路由器恢复上网功能。
 
 ```mermaid
 graph TD
-A(路由器启动) -->B(初次配置) --> C(循环等待) --> D{lan口是否拿到ip}
-D -->|yes| E(配置lan口) --> C
-D -->|no| C
+A(自动配置指令) -->B(划分vlan) --> C(send检测wan口) --> D(配置WAN口) --> E(重启网络)
+F(开机启动) -->G(rc.local判断是否自动配置) --> |yes| B
+I(手动配置指令) -->D
 ```
 
 ### 3.3 代码实现（以AC22为例）
 
-- 1 将示例自启动脚本test.sh（需要有执行权限，执行chmod 777 test.sh）放置在需要的位置，如/etc/config
-  
+实现wan/lan自适应的demo放在package/network/services/auto_adapt路径下。需要使用时，在sdk根目录下运行make menuconfig，选中Network下的auto_adapt，保存退出后再进行编译。files里为脚本和网页，src下为send发包工具代码。
+
+### 3.3.1 send.c
+
+send是配合auto_adapt.sh脚本使用的发包工具，源码路径为package/network/services/auto_adapt/src/send.c。此工具可以指定端口发送dhcp disvover数据包。根据是否能收到dhcp server回复的dhcp offer数据包判断该网口是否应该配置为wan口。可直接在串口键入指令"send + 端口名称"实现往该端口发包，例如send eth0.2。若收到回复，则会在串口返回log并将端口名称写入/tmp/dhcp_iface文件，供脚本读取并配置。
+
+- 收到回复时会返回：
+
 ```
-#!/bin/sh
+ifindex : 8
+receive dhcp offer in ifindex 8, start setting
+```
 
-set_wan() {
-    case $1 in
-        1)
-            ports_wan="0 16t"
-            ports_lan="1 2 3 4 16t"
-            ;;
-        2)
-            ports_wan="1 16t"
-            ports_lan="0 2 3 4 16t"
-            ;;
-        3)
-            ports_wan="2 16t"
-            ports_lan="0 1 3 4 16t"
-            ;;
-        4)
-            ports_wan="3 16t"
-            ports_lan="0 1 2 4 16t"
-            ;;
-        *)
-            ports_wan="4 16t"
-            ports_lan="0 1 2 3 16t"
-            ;;
-    esac
-    uci set network.@switch_vlan[0].ports="$ports_lan"
-    uci set network.@switch_vlan[1].ports="$ports_wan"
-    uci commit
-}
+- 无法收到回复则会阻塞等待，直到auto_adapt.sh将其关闭。
 
-checkport() {
-    a=0
-    rv=0
-    for i in `seq 1 5`
-    do
-        {
-            udhcpc -n -q -t 1 -i eth0."$i">&- && rv=$i
-            [ $rv -ne 0 ] && echo $rv > /tmp/wanlan_set
-        }&
-    done
-    wait
-    if [ -f "/tmp/wanlan_set" ]; then
-        a=`cat /tmp/wanlan_set`
-        rm /tmp/wanlan_set
-    fi
-    echo $a
-}
+利用以上指令，可以在auto_adapt.sh脚本里通过读取/tmp/dhcp_iface文件判断某个端口是否应该配置成wan口。
 
-init() {
-	uci set network.lan.proto='dhcp'
-	uci set network.@switch_vlan[0].ports='0 16t'
-	uci set network.@switch_vlan[1].ports='1 16t'
-	for i in `seq 3 5`
-	do
-		uci set network.wan"$i"='interface'
-		uci set network.wan"$i".ifname=eth0."$i"
-		uci set network.wan"$i".proto=dhcp
-	done
-	for i in `seq 3 5`
-	do
-		a=`uci add network switch_vlan`
-        uci set network.$a.device="switch0"
-		uci set network.$a.vlan="$i"
-		uci set network.$a.ports="`expr $i - 1` 16t"
-	done
-	uci commit
-	/etc/init.d/network restart
-}
+### 3.3.2 auto_adapt.sh
 
-dinit() {
-	for i in `seq 3 5`
-	do
-		uci delete network.wan"$i"
-		uci delete network.@switch_vlan[2]
-	done
-	uci set network.lan.proto='static'
-	uci commit
-}
+实现wan/lan自适应的核心脚本，被编译到/bin/auto_adapt.sh路径下，用法为：
 
+- auto_adapt.sh start 立即进行自动配置
+
+- auto_adapt.sh set 2 指定将2号端口配置号为wan口
+
+主要函数解析：
+
+```
 start() {
-    init
-    port=0
-    for i in `seq 1 5`
-    do
-        port=$(checkport)
-        if [ $port -ne 0 ]; then
-            set_wan $port
-            break
-        fi
-        sleep 2
-    done
-    dinit
-    /etc/init.d/network restart
+    init()      --初始化，备份network配置并划分vlan
+    checkport() --调用send，发送数据包寻找wan口
+    kill_all()  --1s后停止send，kill所有send进程。
+    dinit()     --寻找到wan口后恢复network配置
+    set_wan()   --根据结果配置wan口。直接调用该函数可完成手动配置。
 }
-
-waiting() {
-    rv=0
-    while true
-    do
-        udhcpc -n -q -t 1 -i br-lan>&- && rv=1
-        if [ $rv -eq 1 ]; then
-            start
-            rv=0
-        fi
-        sleep 3
-    done
-}
-start
-#循环检测会耗费cpu资源，因此若不添加waiting函数则只在开机时配置一次。
-waiting
-
 ```
 
-- 2 修改/etc/rc.local，使其开机运行/etc/config/test.sh
+### 3.3.3 auto_adapt.htm
 
-```
-# Put your custom commands here that should be executed once
-# the system init finished. By default this file does nothing.
+用于显示其功能的htm文件，配合feeds/luci/modules/luci-mod-network/luasrc/controller/admin/network文件，将自适应功能以网页+接口调用的形式可视化。开发流程可参考[SiWiFi接口开发手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_develop/)。最终界面如下所示：
 
-/etc/config/test.sh
-exit 0
-```
+![auto_adapt_htm](/assets/images/demo/auto_adapt_htm.png)
 
-### 3.4 TODO 
+- 手动配置一栏显示当前端口的连接状态，点击"lan"按钮即可将对应端口配置为wan口。
 
-以上代码实现的实例为仅适用于p10的初级版本，此功能需要根据不同版型做开发，同时可以考虑更换不同的逻辑和方法实现代码优化。目前版本的代码自适应需要花费15-20s左右的时间，时间略长。后续开发将围绕以下目标进行：
+- 自动配置一栏点击立即配置后则立即进行一次wan口自动配置。若未找到wan口则配置不变。
 
-- 优化算法和流程，减少自适应的配置时间
+- 开机自启动一栏可选择是否启用。启用后，开机时会进行一次wan口自动配置。
 
-- 开发一套模板，能试用于所有版型
+### 3.3.4 rc.local
+
+开机自动运行的脚本，读取/etc/config/network文件lan下的auto_adapt选项。若该选项被配置为1，则立即进行一次自动配置。
+
 
 ## 4 测试用例
 
 ### 4.1 测试环境配置
 
-一台待已放置自启动脚本的待测路由、串口、能获取到ip并上网的网线。
+一台待已编译自启动脚本的待测路由、串口、能获取到ip并上网的网线。
 
 ### 4.2 测试流程
 
-- 1、将网线插入路由器任意网口，重启路由，同时在串口观察是否打印log。等待重启完成后，ping www.baidu.com检测是否能上网。
+#### 4.2.1 手动配置测试
 
-- 2、将网线拔出，插入另一个口，同时在串口观察是否打印log。然后等待约30s，再次检测是否能上网
-  
+- 1、将网线插入第1号口。
+
+- 2、串口执行auto_adapt.sh set 1，或者浏览器访问路由器配置界面，打开“网络”选项下的“wan/lan自适应”，点击手动配置下的第一个按钮。
+
+- 3、等待约10s，同时在串口观察是否打印log。
+
+- 4、在串口输入ping www.baidu.com检测是否能上网。更换端口，重复测试。
+
+#### 4.2.2 自动配置测试
+
+- 1、将网线插入路由器任意端口。
+
+- 2、串口执行auto_adapt.sh start，或者浏览器访问路由器配置界面，打开“网络”选项下的“wan/lan自适应”，点击自动配置下的“立即配置”按钮。
+
+- 3、等待约10s，同时在串口观察是否打印log。
+
+- 4、在串口输入ping www.baidu.com检测是否能上网。更换端口，重复测试。
+
+#### 4.2.3 开机自启动测试
+
+  - 1、将外部网线插入路由器任意端口。
+
+  - 2、在串口输入指令：uci set network.lan.auto_adapt=1;uci commit network。或者浏览器访问路由器配置界面，打开“网络”选项下的“wan/lan自适应”，启用“开机自启动”选项下的按钮。
+
+  - 3、重启路由器。待路由器重启完成。
+
+  - 4、在串口输入ping www.baidu.com检测是否能上网。更换端口，重复测试。
+
 ### 4.3 测试结果
 
-重启后或者插拔网线更换网口后，会有自适应脚本的相应log打印；等待一段时间后，路由器能正常上网，说明功能正常。
+以上所有操作执行后，均会有自适应脚本的相应log打印；等待一段时间后，路由器能正常上网，说明功能正常。
 
 ## 5 FAQ
 
 - **Q: 脚本在开机后没有自启动，如何检查？**
 
-  A：在/etc/rc.local中，运行脚本指令之前打log，确认自启动脚本是否被调用。若此log未出现，说明rc.local有问题而非自启动脚本本身的问题。之后在脚本第一行打log,并用ps指令查看脚本是否已在后台运行。若log已打但脚本未运行，则可判断是脚本逻辑问题导致运行结束。
+  A：在/etc/rc.local中，运行脚本指令之前添加log，确认自启动脚本是否被调用。若此log未出现，说明rc.local有问题而非自启动脚本本身的问题。之后在auto_adapt.sh脚本中添加log,并用ps指令查看脚本是否已在后台运行。若log已打但脚本未运行，则可判断是脚本逻辑问题导致运行结束。
 
-- **Q:配置后无法上网，如何检查？**
+- **Q:配置后路由器无法上网，如何检查？**
 
-  A：首先查看/etc/config/network文件是否按照规范配置，wan口有没有划分正确；/etc/init.d/network restart重启网络，差看是否是因为配置未生效；网线连电脑查看是否是外部网络的问题。
+  A：首先查看/etc/config/network文件是否按照规范配置，wan口有没有划分正确；串口输入/etc/init.d/network restart重启网络，差看是否是因为配置未生效；查看是否是外部网络不通畅的问题。
+
+- **Q:配置之后网页无法点击？**
+
+  A：这是因为更换了wan/lan配置并重启了网络，刷新网页或重新登录即可。
