@@ -69,7 +69,7 @@ CONFIG_PACKAGE_kmod-sf_smac=y
 CONFIG_PACKAGE_SFSMAC_DBGINFO_ALLOCS=y
 CONFIG_PACKAGE_SFUMAC_WIFI_TEST_SCRIPTS=y
 CONFIG_PACKAGE_SFUMAC_WIFI_ATE_TOOLS=y
-CONFIG_PACKAGE_SFUMAC_SMAC=y
+CONFIG_PACKAGE_SFUMAC_FMAC=y
 CONFIG_PACKAGE_libiwinfo=y
 CONFIG_PACKAGE_hostapd-common=y
 CONFIG_PACKAGE_iw=y
@@ -102,13 +102,13 @@ SDK中的配置沿用了openwrt原始的wifi配置，可以参考[openwrt-wifi�
 config wifi-device 'radio0'
         option type 'mac80211'
         option country 'CN'
-        option channel 'auto'
         option txpower_lvl '2'
+        option channel '1'
         option band '2.4G'
         option hwmode '11g'
         option noscan '0'
         option netisolate '0'
-        option max_all_num_sta '40'
+        option max_all_num_sta '64'
         option path 'platform/11000000.wifi-lb'
         option htmode 'HT20'
         option disabled '0'
@@ -144,9 +144,9 @@ config wifi-iface 'default_radio0'
   |wifi-device|string|radio0|驱动设备名称|
   |type|string|mac80211|驱动类型，目前固定为"mac80211"。|
   |country|string|CN|国家码，2个大写字母，默认为CN，表示中国（China），国家码会影响信道和发射功率。其他常见国家代码参见[2.2.5节](#225-常见国家代码)。|
-  |channel|string/int|-|信道，默认2.4G为auto（自动选取最优信道），可以按需修改为固定信道，不同国家信道限制不同，如中国地区2.4G信道为1~13 ，5G信道为36~64 、149~165。|
+  |channel|string/int|-|信道，默认2.4G为信道1，值为"auto"时表示自动选取最优信道，不同国家信道限制不同，如中国地区2.4G信道为1~13 ，5G信道为36~64 、149~165。|
   |txpower_lvl|int|2|发射功率，可设值为0、1、2。该值越大，表示功率越大。|
-  |max_all_num_sta|int|40|驱动所能连接设备个数的最大值|
+  |max_all_num_sta|int|64|驱动所能连接设备个数的最大值|
   |netisolate|boolean|0|设备隔离，如果设置为1，则从该device下的设备无法访问同一网桥（bridge）中其它bssid的设备。|
   |noscan|boolean|0|值为1时，表示不扫描周围信道。|
   |path|string|-|对应驱动在/sys/devices/下的节点，一般不作修改。默认2.4G为"platform/11000000.wifi-lb"，5G为"platform/17800000.wifi-hb"。|
@@ -486,9 +486,8 @@ wifi模块存放在板子上的目录为```/lib/modules/4.14.90/```，在板子�
 ```mermaid
 graph LR
   A[compat.ko]-->B[cfg80211.ko]
-  B-->C[mac80211.ko]
-  C-->D[sf16a18_rf.ko ]
-  D-->E[sf16a18_smac.ko]
+  B-->D[sf16a18_rf.ko ]
+  D-->E[sf16a18_fmac.ko]
   F[startcore.ko]-->E
   E-->wifi驱动加载完成
 ```
@@ -501,7 +500,7 @@ graph LR
 |insmod|"模块名称" ...|加载该模块，简单指令如```insmod /lib/modules/4.14.90/startcore.ko```<br>(或```insmod startcore.ko```或```insmod startcore```)。需要注意的是，有些模块加载需要附加较多参数，建议使用sfwifi指令进行模块操作。|
 |rmmod|"模块名称" ...|卸载该模块|
 |modinfo|"模块名称" ...|显示该模块相关信息|
-|sfwifi|remove|移除wifi驱动相关模块，包括sf16a18_rf.ko、startcore.ko、sf16a18_smac.ko|
+|sfwifi|remove|移除wifi驱动相关模块，包括sf16a18_rf.ko、startcore.ko、sf16a18_fmac.ko|
 |sfwifi|reload|重新加载wifi驱动模块|
 |sfwifi|reset|重新启动wifi驱动相关模块|
 
@@ -509,237 +508,282 @@ graph LR
 
 ```
 root@OpenWrt:/# sfwifi remove
-[  203.862426] wlan1: transmit a DEAUTH frame to ff:ff:ff:ff:ff:ff, Reason: 3
-[  203.870097] wlan0: transmit a DEAUTH frame to ff:ff:ff:ff:ff:ff, Reason: 3
-[  203.878805] device wlan1 left promiscuous mode
-[  203.884133] br-lan: port 3(wlan1) entered disabled state
-[  203.920493] device wlan0 left promiscuous mode
-[  203.925383] br-lan: port 2(wlan0) entered disabled state
-[  204.871058] lmac_glue_stop(0)
-[  204.874131] stop_task, 0
-[  204.876790] stop aresetn 2 por_resetn 1 
-[  204.881702] rwnx_errorinfo_deallocs
-[  204.885404] successfully turn off platform 0!
-[  204.889942] remove_task, 0
-[  204.892846] band 1
-[  204.947820] lmac_glue_stop(1)
-[  204.951039] stop_task, 1
-[  204.953760] stop aresetn 2 por_resetn 1 
-[  204.958906] rwnx_errorinfo_deallocs
-[  204.962668] successfully turn off platform 1!
-[  204.967909] remove_task, 1
-[  204.970791] band 2
+[ 1265.173692] device wlan0 left promiscuous mode
+[ 1265.178409] br-lan: port 2(wlan0) entered disabled state
+[ 1265.264372] device wlan1 left promiscuous mode
+[ 1265.269161] br-lan: port 3(wlan1) entered disabled state
+[ 1265.345273] lb-fmac 11000000.wifi-lb wlan0: AP Stopped
+[ 1265.354076] hb-fmac 17800000.wifi-hb wlan1: AP Stopped
+[ 1265.361096] lb-fmac 11000000.wifi-lb wlan0: CLOSE
+[ 1265.365990] lmac[0] vif_mgmt_unregister index=0 
+[ 1265.372896] ieee80211 phy2: HT supp 1, VHT supp 0, HE supp 0
+[ 1265.385397] hb-fmac 17800000.wifi-hb wlan1: CLOSE
+[ 1265.390302] lmac[1] vif_mgmt_unregister index=0 
+[ 1265.395213] ieee80211 phy3: HT supp 1, VHT supp 1, HE supp 0
+[ 1265.422643] lb-fmac 11000000.wifi-lb wlan0: Remove Interface
+[ 1265.428480] found hnat device to del
+[ 1265.584790] hb-fmac 17800000.wifi-hb wlan1: Remove Interface
+[ 1265.590530] found hnat device to del
 module is not loaded
 module is not loaded
-[  205.014666] remove_task, 0
-[  205.017426] Invalid task id.
-[  205.020339] Task 1 removed.
-[  205.023159] remove_task, 1
-[  205.025867] Invalid task id.
-[  205.028776] Task 2 removed.
-[  205.058031] sf_wifi_rf_remove
-[  205.061110] sf_wifi_rf_sysfs_unregister
-[  205.065344] sf_wifi_rf_irqs_unregister
-[  205.069226] sf_wifi_rf_platform_reset
+[ 1265.985021] lmac_glue_stop(0)
+[ 1265.988058] stop_task, 0
+[ 1265.990639] stop aresetn 2 por_resetn 1 
+[ 1265.995617] siwifi_errorinfo_deallocs
+[ 1265.999362] successfully turn off platform 0!
+[ 1266.003894] remove_task, 0
+[ 1266.006665] Now band 2.4G
+[ 1266.123794] lmac_glue_stop(1)
+[ 1266.126841] stop_task, 1
+[ 1266.129512] stop aresetn 2 por_resetn 1 
+[ 1266.134559] siwifi_errorinfo_deallocs
+[ 1266.138311] successfully turn off platform 1!
+[ 1266.143467] remove_task, 1
+[ 1266.146268] Now band 5G
+[ 1266.189839] remove_task, 0
+[ 1266.192580] Invalid task id.
+[ 1266.195596] Task 1 removed.
+[ 1266.198398] remove_task, 1
+[ 1266.201101] Invalid task id.
+[ 1266.204067] Task 2 removed.
+[ 1266.269822] sf_wifi_rf_remove
+[ 1266.272824] sf_wifi_rf_sysfs_unregister
+[ 1266.277185] sf_wifi_rf_irqs_unregister
 root@OpenWrt:/# 
-root@OpenWrt:/#
-root@OpenWrt:/#
-root@OpenWrt:/#
-root@OpenWrt:/#
-root@OpenWrt:/# sfwifi reload
-[  208.954490] startcore init fill all memory!
-[  208.978345] sf_wifi_rf_probe
-[  208.981421] irq: type mismatch, failed to map hwirq-194 for /interrupt-controller@1bdc0000!
-[  208.989818] rf access base address : b1c00000
-[  208.994204] priv->base : b1c00000
-[  208.997546] priv->irq : 29
-[  209.000286] sf_wifi_rf_platform_reset
-[  209.003987] sf_wifi_rf_irqs_register
-[  209.007987] get LB1_EXTERNAL_PA_CONF_IN_IDLE==00
-[  209.012661] get LB1_EXTERNAL_PA_CONF_IN_RX==06
-[  209.017183] get LB1_EXTERNAL_PA_CONF_IN_TX==04
-[  209.021667] get LB1_EXTERNAL_PA_CONF_IN_PA==01
-[  209.026147] get LB2_EXTERNAL_PA_CONF_IN_IDLE==00
-[  209.030833] get LB2_EXTERNAL_PA_CONF_IN_RX==06
-[  209.035318] get LB2_EXTERNAL_PA_CONF_IN_TX==04
-[  209.039800] get LB2_EXTERNAL_PA_CONF_IN_PA==01
-[  209.044283] get HB1_EXTERNAL_PA_CONF_IN_IDLE==00
-[  209.048940] get HB1_EXTERNAL_PA_CONF_IN_RX==06
-[  209.053425] get HB1_EXTERNAL_PA_CONF_IN_TX==04
-[  209.057911] get HB1_EXTERNAL_PA_CONF_IN_PA==01
-[  209.062397] get HB2_EXTERNAL_PA_CONF_IN_IDLE==00
-[  209.067066] get HB2_EXTERNAL_PA_CONF_IN_RX==06
-[  209.071577] get HB2_EXTERNAL_PA_CONF_IN_TX==04
-[  209.076071] get HB2_EXTERNAL_PA_CONF_IN_PA==01
-[  209.080659] gpio 0 level is 0, hb_ex_pa_exist 0, lb_ex_pa_exist 0
-[  209.086801] sf_wifi_rf_fw_load
-[  209.090973] 
-[  209.090973] ### Now copy rf_pmem.bin firmware with size 66876, @ = 0x4002
-[  209.128391] 
-[  209.128391] ### Now copy rf_default_reg.bin default reg with size 63548
-[  209.166490] Can not find XO config!
-[  209.169997] get XO config from sf_factory_read failed
-[  209.175088] sf_wifi_rf_cali_config_get_mtd
-[  209.179579] Do not find XO cali value in flash,mark is 
-[  209.185033] XO config value : 0
-[  209.188251] sf_wifi_rf_sysfs_register, parent :aetnensis
-[  209.194062] get TRX_PATH_CFG==ff
-[  209.197355] rf_bootup
-[  209.199666] ml_apb_send_0_params_cmd command : 0x8010, cmd_base : 0x3240, rrq : 1
-[  209.207291] command 0x8010 get a repsonse with args : 4
-[  209.212543] rf hw version : 0x1b0
-[  209.215885] rf sw version : 0x1009
-[  209.219313] value : 0x4
-[  209.221761] rf_app_prepare
-[  209.224496] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8101, args0 = 0xff
-[  209.233071] command 0x8101 get a repsonse with args : 1
-[  209.238321] switch to OPERATING mode
-[  209.241929] ml_apb_send_0_params_cmd command : 0x8090, cmd_base : 0x3240, rrq : 1
-[  209.511733] command 0x8090 get a repsonse with args : 1
-[  209.530498] ml_apb_send_0_params_cmd command : 0x8070, cmd_base : 0x3240, rrq : 1
-[  209.538126] command 0x8070 get a repsonse with args : 2
-[  210.572813] sf16a18_lb_smac: unknown parameter 'force_mod_name' ignored
-[  210.580656] rwnx v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
-[  210.588915] band 1
-[  210.590988] load_task, /lib/firmware/sf1688_lb_smac.bin, 0
-[  210.596640] node->entry_addr=1f00000 node=820b8080
-[  210.608590] task id=0 state=0
-[  210.611650] priv->base : b1000000
-[  210.616085] get wifi address from factory
-[  210.620200] the default platform clk rate is 375000000
-[  210.625392] Can not find wifi version!
-[  210.629171] can not get wifi info from factory
-[  210.635696] lb registering.......
-[  210.639054] find a empty client seat : 0
-[  210.643766] 
-[  210.643766] ### Now copy ldpcram.bin firmware, @ = 0xb1109000
-[  210.651036] 
-[  210.651036] ### size = 980 is_lb=1
-[  210.656133] load ldpc cost 0 cnt loop
-[  210.659840] lmac_glue_start(0)
-[  210.662938] start_task, 0
-[  210.665562] task entry_addr=0x1f00000
-[  210.669271] start aresetn 0 por_resetn 0 
-[  210.673310] wait lmac init(0)>>>>>>>>>>>>>>>>>>>>>>>
-[  210.678330] lmac init complete(0)
-[  210.678359] lmac[0] v6.0.0.0 - build: robert Mon, 29 Jun 2020 10:46:11 +0800 band: 0
-[  210.678373] lmac[0] SW profiling configuration:
-[  210.678383] lmac[0]   - TX_IPC_IRQ: 0
-[  210.678394] lmac[0]   - TX_APP_EVT: 1
-[  210.678404] lmac[0]   - TX_BUF_ALLOC: 2
-[  210.678416] lmac[0]   - TX_DMA_IRQ: 3
-[  210.678452] lmac[0]   - TX_PAYL_HDL: 4
-[  210.678465] lmac[0]   - TX_NEW_TAIL: 5
-[  210.678475] lmac[0]   - TX_MAC_IRQ: 6
-[  210.678485] lmac[0]   - TX_BUF_FREE: 7
-[  210.678495] lmac[0]   - TX_CFM_EVT: 8
-[  210.678507] lmac[0]   - TX_CFM_DMA_IRQ: 9
-[  210.678518] lmac[0]   - RX_MAC_IRQ: 10
-[  210.678528] lmac[0]   - RX_CNTRL_EVT: 11
-[  210.678539] lmac[0]   - RX_MPDU_XFER: 12
-[  210.678550] lmac[0]   - RX_MPDU_FREE: 13
-[  210.678561] lmac[0]   - RX_DMA_IRQ: 14
-[  210.678571] lmac[0]   - RX_DMA_EVT: 15
-[  210.678582] lmac[0]   - RX_IPC_IND: 16
-[  210.678595] lmac[0]   - AGG_FIRST_MPDU_DWNLD: 17
-[  210.678607] lmac[0]   - AGG_START_AMPDU: 18
-[  210.678618] lmac[0]   - AGG_ADD_MPDU: 19
-[  210.678631] lmac[0]   - AGG_FINISH_AMPDU: 20
-[  210.678642] lmac[0]   - AGG_BAR_DONETX: 21
-[  210.678652] lmac[0]   - AGG_BA_RXED: 22
-[  210.678663] lmac[0]   - MM_HW_IDLE: 23
-[  210.678674] lmac[0]   - MM_SET_CHANNEL: 24
-[  210.678685] lmac[0]   - TX_FRAME_PUSH: 25
-[  210.678697] lmac[0]   - TX_FRAME_CFM: 26
-[  210.678708] lmac[0]   - TX_AC_BG[0]: 27
-[  210.678718] lmac[0]   - TX_AC_BG[1]: 28
-[  210.678729] lmac[0]   - TX_AC_IRQ[0]: 29
-[  210.811566] wait lmac over(0)<<<<<<<<<<<<<<<<<<<<<<<
-[  210.816614] successfully turn on platform 0!
-[  210.822065] ieee80211 phy4: PHY features: [NSS=2][CHBW=40][LDPC]
-[  210.828147] ieee80211 phy4: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][PS][UAPSD][DPSM][AMPDU][CHNL_CTXT]
-[  210.871096] sf16a18_hb_smac: unknown parameter 'force_mod_name' ignored
-[  210.879200] rwnx v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
-[  210.887548] band 2
-[  210.889597] load_task, /lib/firmware/sf1688_hb_smac.bin, 1
-[  210.895253] node->entry_addr=1f80000 node=83287380
-[  210.907437] task id=1 state=0
-[  210.910558] priv->base : b7800000
-[  210.914416] get wifi address from factory
-[  210.918667] the default platform clk rate is 375000000
-[  210.923896] Can not find wifi version!
-[  210.927708] can not get wifi info from factory
-[  210.934302] hb registering.......
-[  210.937775] find a empty client seat : 1
-[  210.942778] 
-[  210.942778] ### Now copy ldpcram.bin firmware, @ = 0xb7909000
-[  210.950070] 
-[  210.950070] ### size = 1500 is_lb=0
-[  210.955371] load ldpc cost 0 cnt loop
-[  210.959098] lmac_glue_start(1)
-[  210.962156] start_task, 1
-[  210.964831] task entry_addr=0x1f80000
-[  210.968544] start aresetn 0 por_resetn 0 
-[  210.972589] wait lmac init(1)>>>>>>>>>>>>>>>>>>>>>>>
-[  210.974759] lmac[1] v6.0.0.0 - build: robert Mon, 29 Jun 2020 10:46:14 +0800 band: 1
-[  210.985368] lmac[1] SW profiling configuration:
-[  210.989940] lmac[1]   - TX_IPC_IRQ: 0
-[  210.993641] lmac[1]   - TX_APP_EVT: 1
-[  210.997369] lmac[1]   - TX_BUF_ALLOC: 2
-[  211.001250] lmac[1]   - TX_DMA_IRQ: 3
-[  211.004948] lmac[1]   - TX_PAYL_HDL: 4
-[  211.008733] lmac[1]   - TX_NEW_TAIL: 5
-[  211.012518] lmac[1]   - TX_MAC_IRQ: 6
-[  211.016215] lmac[1]   - TX_BUF_FREE: 7
-[  211.019999] lmac[1]   - TX_CFM_EVT: 8
-[  211.023698] lmac[1]   - TX_CFM_DMA_IRQ: 9
-[  211.027743] lmac[1]   - RX_MAC_IRQ: 10
-[  211.031528] lmac[1]   - RX_CNTRL_EVT: 11
-[  211.035487] lmac[1]   - RX_MPDU_XFER: 12
-[  211.039446] lmac[1]   - RX_MPDU_FREE: 13
-[  211.043427] lmac[1]   - RX_DMA_IRQ: 14
-[  211.047225] lmac[1]   - RX_DMA_EVT: 15
-[  211.051048] lmac[1]   - RX_IPC_IND: 16
-[  211.054854] lmac[1]   - AGG_FIRST_MPDU_DWNLD: 17
-[  211.059509] lmac[1]   - AGG_START_AMPDU: 18
-[  211.063728] lmac[1]   - AGG_ADD_MPDU: 19
-[  211.067688] lmac[1]   - AGG_FINISH_AMPDU: 20
-[  211.071995] lmac[1]   - AGG_BAR_DONETX: 21
-[  211.076127] lmac[1]   - AGG_BA_RXED: 22
-[  211.079998] lmac[1]   - MM_HW_IDLE: 23
-[  211.083784] lmac[1]   - MM_SET_CHANNEL: 24
-[  211.087917] lmac[1]   - TX_FRAME_PUSH: 25
-[  211.091963] lmac[1]   - TX_FRAME_CFM: 26
-[  211.095920] lmac[1]   - TX_AC_BG[0]: 27
-[  211.099793] lmac[1]   - TX_AC_BG[1]: 28
-[  211.103664] lmac[1]   - TX_AC_IRQ[0]: 29
-[  211.107669] lmac init complete(1)
-[  211.111406] wait lmac over(1)<<<<<<<<<<<<<<<<<<<<<<<
-[  211.116516] successfully turn on platform 1!
-[  211.122153] ieee80211 phy5: PHY features: [NSS=2][CHBW=80][LDPC]
-[  211.128332] ieee80211 phy5: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][PS][UAPSD][DPSM][AMPDU][CHNL_CTXT][VHT]
+root@OpenWrt:/# 
+root@OpenWrt:/# 
+root@OpenWrt:/# sfwifi reload fmac
+[ 1270.574385] startcore init fill all memory!
+[ 1270.599458] irq: type mismatch, failed to map hwirq-194 for /interrupt-controller@1bdc0000!
+[ 1270.607905] rf access base address : b1c00000
+[ 1270.612269] sf_wifi_rf_os_resources_get:
+[ 1270.616255]  priv->base : b1c00000
+[ 1270.619661]  priv->irq : 27
+[ 1270.622557] gpio -2,of_get_named_gpio failed! Do not support external PA
+[ 1270.630182] Now copy rf_pmem.bin firmware with size 69588, @ = 0x4002
+[ 1270.648098] Now copy rf_default_reg.bin default reg with size 63436
+[ 1270.693382] Can not find XO config!
+[ 1270.696910] get XO config from sf_factory_read failed
+[ 1270.702179] Do not find XO cali value in flash,mark is ÿÿ
+[ 1270.707674] XO config value : 0
+[ 1270.710821] sf_wifi_rf_sysfs_register, parent :aetnensis
+[ 1270.716655] get TRX_PATH_CFG==ff
+[ 1270.719926] rf_bootup
+[ 1270.722202] ml_apb_send_0_params_cmd command : 0x8010, cmd_base : 0x3240, rrq : 1
+[ 1270.729918] command 0x8010 get a repsonse with args : 4
+[ 1270.735198] rf hw version : 0x50c0
+[ 1270.738604] rf sw version : 0x2100
+[ 1270.742003] value : 0x104
+[ 1270.744687] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8101, args0 = 0xff
+[ 1270.753231] command 0x8101 get a repsonse with args : 1
+[ 1270.758502] switch to OPERATING mode
+[ 1270.762091] ml_apb_send_0_params_cmd command : 0x8090, cmd_base : 0x3240, rrq : 1
+[ 1271.062881] command 0x8090 get a repsonse with args : 1
+[ 1271.093363] ml_apb_send_0_params_cmd command : 0x8070, cmd_base : 0x3240, rrq : 1
+[ 1271.100971] command 0x8070 get a repsonse with args : 2
+[ 1271.106307] xo value 0
+[ 1271.108680] xo_value_conf :0x0
+[ 1271.111739] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8111, args0 = 0x0
+[ 1271.120287] command 0x8111 get a repsonse with args : 1
+[ 1272.153996] sf16a18_lb_fmac: unknown parameter 'force_mod_name' ignored
+[ 1272.160767] sf16a18_lb_fmac: unknown parameter 'independent_antenna_control' ignored
+[ 1272.169691] siwifi v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
+[ 1272.178164] Now band 2.4G
+[ 1272.180821] load_task, path : /lib/firmware/sf1688_lb_fmac.bin, task_id : 0
+[ 1272.188013] node->entry_addr=1f00000 node=86c7e400
+[ 1272.215348] task id=0 state=0
+[ 1272.218368] siwifi_platform_init, priv->base : b1000000
+[ 1272.225046] get wifi address from factory
+[ 1272.229165] the default platform clk rate is 375000000
+[ 1272.234554] Can not find wifi version!
+[ 1272.238328] Can not find wifi info!
+[ 1272.241820] can not get READ_LB_MORE_INFO from factory
+[ 1272.247200] txpower calibration table use default_txpower_calibrate_table.bin
+[ 1272.254429] Can not find XO config!
+[ 1272.258061] get XO config from deautlt_txpower_calibrate.bin
+[ 1272.264851] band 0: wifi txpower table version 1, flag 2, normal list 86f84200, sleepmode list 86f84400, low list 86f84600, high list   (null)
+[ 1272.292543] lb registering.......
+[ 1272.295955] find a empty client seat : 0
+[ 1272.300622] Now copy ldpcram.bin firmware, @ = 0xb1109000
+[ 1272.306108] size=980, is_lb=1
+[ 1272.309258] load ldpc cost 0 cnt loop
+[ 1272.312941] lmac_glue_start(0)
+[ 1272.316064] start_task, 0
+[ 1272.318698] task entry_addr=0x1f00000
+[ 1272.322362] start aresetn 0 por_resetn 0 
+[ 1272.326434] wait lmac init(0)>>>>>>>>>>>>>>>>>>>>>>>
+[ 1272.332566] lmac[0] v6.0.0.0 - build: davy Fri, 06 Nov 2020 15:05:54 +0800 band: 0
+[ 1272.340198] lmac[0] SW profiling configuration:
+[ 1272.344770] lmac[0]   - TX_IPC_IRQ: 0
+[ 1272.348439] lmac[0]   - TX_APP_EVT: 1
+[ 1272.352104] lmac[0]   - TX_BUF_ALLOC: 2
+[ 1272.355963] lmac[0]   - TX_DMA_IRQ: 3
+[ 1272.359630] lmac[0]   - TX_PAYL_HDL: 4
+[ 1272.363413] lmac[0]   - TX_NEW_TAIL: 5
+[ 1272.367168] lmac[0]   - TX_MAC_IRQ: 6
+[ 1272.370832] lmac[0]   - TX_BUF_FREE: 7
+[ 1272.374613] lmac[0]   - TX_CFM_EVT: 8
+[ 1272.378280] lmac[0]   - TX_CFM_DMA_IRQ: 9
+[ 1272.382291] lmac[0]   - RX_MAC_IRQ: 10
+[ 1272.386071] lmac[0]   - RX_CNTRL_EVT: 11
+[ 1272.389999] lmac[0]   - RX_MPDU_XFER: 12
+[ 1272.393954] lmac[0]   - RX_MPDU_FREE: 13
+[ 1272.397880] lmac[0]   - RX_DMA_IRQ: 14
+[ 1272.401631] lmac[0]   - RX_DMA_EVT: 15
+[ 1272.405409] lmac[0]   - RX_IPC_IND: 16
+[ 1272.409165] lmac[0]   - AGG_FIRST_MPDU_DWNLD: 17
+[ 1272.413815] lmac[0]   - AGG_START_AMPDU: 18
+[ 1272.418002] lmac[0]   - AGG_ADD_MPDU: 19
+[ 1272.421927] lmac[0]   - AGG_FINISH_AMPDU: 20
+[ 1272.426228] lmac[0]   - AGG_BAR_DONETX: 21
+[ 1272.430329] lmac[0]   - AGG_BA_RXED: 22
+[ 1272.434196] lmac[0]   - MM_HW_IDLE: 23
+[ 1272.437950] lmac[0]   - MM_SET_CHANNEL: 24
+[ 1272.442048] lmac[0]   - TX_FRAME_PUSH: 25
+[ 1272.446089] lmac[0]   - TX_FRAME_CFM: 26
+[ 1272.450017] lmac[0]   - TX_AC_BG[0]: 27
+[ 1272.453884] lmac[0]   - TX_AC_BG[1]: 28
+[ 1272.457724] lmac[0]   - TX_AC_IRQ[0]: 29
+[ 1272.461684] lmac init complete(0)
+[ 1272.461728] wait lmac over(0)<<<<<<<<<<<<<<<<<<<<<<<
+[ 1272.470088] successfully turn on platform 0!
+[ 1272.476232] ieee80211 phy4: PHY features: [NSS=2][CHBW=40][LDPC]
+[ 1272.482267] ieee80211 phy4: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][RADAR][PS][UAPSD][DPSM][AMPDU][AMSDU][CHNL_CTXT][REORD][UMAC][MFP]
+[ 1272.496083] ieee80211 phy4: HT supp 1, VHT supp 0, HE supp 0
+[ 1272.503175] siwifi_hw->phy_config.digtable[0]:30303030
+[ 1272.508599] siwifi_hw->phy_config.digtable[1]:2c2c2c2c
+[ 1272.513910] siwifi_hw->phy_config.digtable[2]:30303030
+[ 1272.519104] siwifi_hw->phy_config.digtable[3]:2c2c2c2c
+[ 1272.524432] siwifi_hw->phy_config.digtable[4]:30303030
+[ 1272.529698] siwifi_hw->phy_config.digtable[5]:2c2c2c2c
+[ 1272.535113] siwifi_hw->phy_config.digtable_max[0]:7f504434
+[ 1272.540710] siwifi_hw->phy_config.digtable_max[1]:6c4c4030
+[ 1272.546518] siwifi_hw->phy_config.digtable_max[2]:7f504434
+[ 1272.552095] siwifi_hw->phy_config.digtable_max[3]:6c4c4030
+[ 1272.557864] siwifi_hw->phy_config.digtable_max[4]:7f504434
+[ 1272.563542] siwifi_hw->phy_config.digtable_max[5]:6c4c4030
+[ 1272.569136] siwifi_hw->phy_config.digtable_max[6]:0
+[ 1272.574264] siwifi_hw->phy_config.digtable[6]:0
+[ 1272.583429] found hnat device to add
+[ 1272.587090] [hnat notice]add wifi dev index 7 ndev86e3d000
+[ 1272.592615] ieee80211 phy4: New interface create wlan0
+[ 1272.625929] sf16a18_hb_fmac: unknown parameter 'force_mod_name' ignored
+[ 1272.633023] sf16a18_hb_fmac: unknown parameter 'independent_antenna_control' ignored
+[ 1272.641960] siwifi v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
+[ 1272.650449] Now band 5G
+[ 1272.653002] load_task, path : /lib/firmware/sf1688_hb_fmac.bin, task_id : 1
+[ 1272.660215] node->entry_addr=2000000 node=86b25600
+[ 1272.687648] task id=1 state=0
+[ 1272.690668] siwifi_platform_init, priv->base : b7800000
+[ 1272.696741] get wifi address from factory
+[ 1272.700864] the default platform clk rate is 375000000
+[ 1272.706277] Can not find wifi version!
+[ 1272.710044] Can not find wifi info!
+[ 1272.713639] can not get READ_LB_MORE_INFO from factory
+[ 1272.718973] txpower calibration table use default_txpower_calibrate_table.bin
+[ 1272.726227] Can not find XO config!
+[ 1272.729840] get XO config from deautlt_txpower_calibrate.bin
+[ 1272.737483] band 1: wifi txpower table version 1, flag 2, normal list 873a2000, sleepmode list 873a3000, low list 873a5000, high list   (null)
+[ 1272.765576] hb registering.......
+[ 1272.768959] find a empty client seat : 1
+[ 1272.774052] Now copy ldpcram.bin firmware, @ = 0xb7909000
+[ 1272.779528] size=1500, is_lb=0
+[ 1272.782920] load ldpc cost 0 cnt loop
+[ 1272.786820] lmac_glue_start(1)
+[ 1272.789990] start_task, 1
+[ 1272.792724] task entry_addr=0x2000000
+[ 1272.796627] start aresetn 0 por_resetn 0 
+[ 1272.800736] wait lmac init(1)>>>>>>>>>>>>>>>>>>>>>>>
+[ 1272.806632] lmac[1] v6.0.0.0 - build: davy Fri, 06 Nov 2020 15:05:54 +0800 band: 1
+[ 1272.814362] lmac[1] SW profiling configuration:
+[ 1272.818926] lmac[1]   - TX_IPC_IRQ: 0
+[ 1272.822592] lmac[1]   - TX_APP_EVT: 1
+[ 1272.826332] lmac[1]   - TX_BUF_ALLOC: 2
+[ 1272.830178] lmac[1]   - TX_DMA_IRQ: 3
+[ 1272.833893] lmac[1]   - TX_PAYL_HDL: 4
+[ 1272.837653] lmac[1]   - TX_NEW_TAIL: 5
+[ 1272.841403] lmac[1]   - TX_MAC_IRQ: 6
+[ 1272.845115] lmac[1]   - TX_BUF_FREE: 7
+[ 1272.848872] lmac[1]   - TX_CFM_EVT: 8
+[ 1272.852536] lmac[1]   - TX_CFM_DMA_IRQ: 9
+[ 1272.856593] lmac[1]   - RX_MAC_IRQ: 10
+[ 1272.860351] lmac[1]   - RX_CNTRL_EVT: 11
+[ 1272.864326] lmac[1]   - RX_MPDU_XFER: 12
+[ 1272.868256] lmac[1]   - RX_MPDU_FREE: 13
+[ 1272.872181] lmac[1]   - RX_DMA_IRQ: 14
+[ 1272.875976] lmac[1]   - RX_DMA_EVT: 15
+[ 1272.879734] lmac[1]   - RX_IPC_IND: 16
+[ 1272.883536] lmac[1]   - AGG_FIRST_MPDU_DWNLD: 17
+[ 1272.888161] lmac[1]   - AGG_START_AMPDU: 18
+[ 1272.892347] lmac[1]   - AGG_ADD_MPDU: 19
+[ 1272.896316] lmac[1]   - AGG_FINISH_AMPDU: 20
+[ 1272.900596] lmac[1]   - AGG_BAR_DONETX: 21
+[ 1272.904741] lmac[1]   - AGG_BA_RXED: 22
+[ 1272.908585] lmac[1]   - MM_HW_IDLE: 23
+[ 1272.912337] lmac[1]   - MM_SET_CHANNEL: 24
+[ 1272.916487] lmac[1]   - TX_FRAME_PUSH: 25
+[ 1272.920507] lmac[1]   - TX_FRAME_CFM: 26
+[ 1272.924482] lmac[1]   - TX_AC_BG[0]: 27
+[ 1272.928325] lmac[1]   - TX_AC_BG[1]: 28
+[ 1272.932164] lmac[1]   - TX_AC_IRQ[0]: 29
+[ 1272.936165] lmac init complete(1)
+[ 1272.936202] wait lmac over(1)<<<<<<<<<<<<<<<<<<<<<<<
+[ 1272.944653] successfully turn on platform 1!
+[ 1272.950871] ieee80211 phy5: PHY features: [NSS=2][CHBW=80][LDPC]
+[ 1272.957030] ieee80211 phy5: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][RADAR][PS][UAPSD][DPSM][AMPDU][AMSDU][CHNL_CTXT][REORD][UMAC][VHT][MFP]
+[ 1272.971322] ieee80211 phy5: HT supp 1, VHT supp 1, HE supp 0
+[ 1272.978655] siwifi_hw->phy_config.digtable[0]:30383430
+[ 1272.983921] siwifi_hw->phy_config.digtable[1]:2c34302c
+[ 1272.989172] siwifi_hw->phy_config.digtable[2]:30383430
+[ 1272.994470] siwifi_hw->phy_config.digtable[3]:2c34302c
+[ 1272.999675] siwifi_hw->phy_config.digtable[4]:30383430
+[ 1273.004991] siwifi_hw->phy_config.digtable[5]:2c34302c
+[ 1273.010267] siwifi_hw->phy_config.digtable_max[0]:78483830
+[ 1273.015958] siwifi_hw->phy_config.digtable_max[1]:6c40342c
+[ 1273.021603] siwifi_hw->phy_config.digtable_max[2]:78483830
+[ 1273.027343] siwifi_hw->phy_config.digtable_max[3]:6c40342c
+[ 1273.032970] siwifi_hw->phy_config.digtable_max[4]:78483830
+[ 1273.038644] siwifi_hw->phy_config.digtable_max[5]:6c40342c
+[ 1273.044326] siwifi_hw->phy_config.digtable_max[6]:0
+[ 1273.049302] siwifi_hw->phy_config.digtable[6]:0
+[ 1273.057813] found hnat device to add
+[ 1273.061490] [hnat notice]add wifi dev index 6 ndev86abb000
+[ 1273.067276] ieee80211 phy5: New interface create wlan1
 WARNING: Wifi detect is deprecated. Use wifi config instead
 For more information, see commit 5f8f8a366136a07df661e31decce2458357c167a
 band=2.4G device=radio0
 band=5G device=radio1
 device=
-root@OpenWrt:/# [  212.598173] lmac[0] vif_mgmt_register, vif_type : 2
-[  212.607065] IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready
-[  212.623468] br-lan: port 2(wlan0) entered blocking state
-[  212.629003] br-lan: port 2(wlan0) entered disabled state
-[  212.635616] device wlan0 entered promiscuous mode
-[  212.654201] IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
-[  212.661383] br-lan: port 2(wlan0) entered blocking state
-[  212.666897] br-lan: port 2(wlan0) entered forwarding state
-[  212.719811] lmac[1] vif_mgmt_register, vif_type : 2
-[  212.730402] IPv6: ADDRCONF(NETDEV_UP): wlan1: link is not ready
-[  212.747680] br-lan: port 3(wlan1) entered blocking state
-[  212.753518] br-lan: port 3(wlan1) entered disabled state
-[  212.760246] device wlan1 entered promiscuous mode
-[  212.767095] br-lan: port 3(wlan1) entered blocking state
-[  212.772625] br-lan: port 3(wlan1) entered forwarding state
-[  212.785294] ----------rwnx_send_scan_req----------
-[  213.030314] IPv6: ADDRCONF(NETDEV_CHANGE): wlan1: link becomes ready
+root@OpenWrt:/# [ 1273.770235] lb-fmac 11000000.wifi-lb wlan0: Remove Interface
+[ 1273.776153] found hnat device to del
+[ 1273.934770] hb-fmac 17800000.wifi-hb wlan1: Remove Interface
+[ 1273.940521] found hnat device to del
+[ 1274.456406] found hnat device to add
+[ 1274.460075] [hnat notice]add wifi dev index 7 ndev86ab8000
+[ 1274.516234] lmac[0] vif_mgmt_register, vif_type : 2 status=0 index=0 vif 0x81F5CCF0
+[ 1274.523998] lmac[0] use normal txpower table
+[ 1274.530024] IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready
+[ 1274.539144] found hnat device to add
+[ 1274.542799] [hnat notice]add wifi dev index 6 ndev859d5000
+[ 1274.558530] br-lan: port 2(wlan0) entered blocking state
+[ 1274.564028] br-lan: port 2(wlan0) entered disabled state
+[ 1274.570097] device wlan0 entered promiscuous mode
+[ 1274.587473] lb-fmac 11000000.wifi-lb wlan0: AP started: ch=0, bcmc_idx=64
+[ 1274.594532] IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+[ 1274.601600] br-lan: port 2(wlan0) entered blocking state
+[ 1274.607030] br-lan: port 2(wlan0) entered forwarding state
+[ 1274.621957] lmac[1] vif_mgmt_register, vif_type : 2 status=0 index=0 vif 0x8205E028
+[ 1274.629833] lmac[1] use normal txpower table
+[ 1274.635728] IPv6: ADDRCONF(NETDEV_UP): wlan1: link is not ready
+[ 1274.649703] br-lan: port 3(wlan1) entered blocking state
+[ 1274.655166] br-lan: port 3(wlan1) entered disabled state
+[ 1274.661705] device wlan1 entered promiscuous mode
+[ 1274.667532] br-lan: port 3(wlan1) entered blocking state
+[ 1274.672939] br-lan: port 3(wlan1) entered forwarding state
+[ 1274.923248] hb-fmac 17800000.wifi-hb wlan1: AP started: ch=0, bcmc_idx=64
+[ 1274.930369] IPv6: ADDRCONF(NETDEV_CHANGE): wlan1: link becomes ready
+
+...
 ```
 
 
@@ -766,7 +810,7 @@ root@OpenWrt:/# [  212.598173] lmac[0] vif_mgmt_register, vif_type : 2
 ```
 
 
-- 需要时可以使用sfwifi reset来加载驱动，启用wifi。
+- 需要时可以使用sfwifi reset fmac来加载驱动，启用wifi。
 
 #### 2.5.3 wifi信号优化
 
@@ -900,239 +944,287 @@ start time is 2020-07-18T14:25:44+0800
 
 **测试方法**
 
-板子起来后使用指令```sfwifi stress```，该指令会不停的重启wifi驱动（sfwifi reset）。
+板子起来后使用指令```sfwifi stress fmac```，该指令会不停的重启wifi驱动（sfwifi reset fmac）。
 
 **示例**
 
 ```
-root@OpenWrt:/# sfwifi stress
+root@OpenWrt:/# sfwifi stress fmac
 ======sfwifi stess test start=====================
-sh: can't kill pid 18479: No such process
 ====cycle is 0====
-[77492.003825] wlan1: transmit a DEAUTH frame to ff:ff:ff:ff:ff:ff, Reason: 3
-[77492.011409] wlan0: transmit a DEAUTH frame to ff:ff:ff:ff:ff:ff, Reason: 3
-[77492.048607] device wlan0 left promiscuous mode
-[77492.053595] br-lan: port 3(wlan0) entered disabled state
-[77492.081198] device wlan1 left promiscuous mode
-[77492.086131] br-lan: port 2(wlan1) entered disabled state
-[77493.005035] lmac_glue_stop(0)
-[77493.008156] stop_task, 0
-[77493.010736] stop aresetn 2 por_resetn 1 
-[77493.015475] rwnx_errorinfo_deallocs
-[77493.019117] successfully turn off platform 0!
-[77493.023799] remove_task, 0
-[77493.026620] band 1
-[77493.088729] lmac_glue_stop(1)
-[77493.091869] stop_task, 1
-[77493.094678] stop aresetn 2 por_resetn 1 
-[77493.099641] rwnx_errorinfo_deallocs
-[77493.103341] successfully turn off platform 1!
-[77493.109221] remove_task, 1
-[77493.112003] band 2
+[ 1585.863680] device wlan1 left promiscuous mode
+[ 1585.868528] br-lan: port 3(wlan1) entered disabled state
+[ 1585.944868] hb-fmac 17800000.wifi-hb wlan1: AP Stopped
+[ 1585.950190] device wlan0 left promiscuous mode
+[ 1585.955178] br-lan: port 2(wlan0) entered disabled state
+[ 1585.995783] lb-fmac 11000000.wifi-lb wlan0: AP Stopped
+[ 1586.009341] hb-fmac 17800000.wifi-hb wlan1: CLOSE
+[ 1586.014298] lmac[1] vif_mgmt_unregister index=0 
+[ 1586.021136] ieee80211 phy5: HT supp 1, VHT supp 1, HE supp 0
+[ 1586.031352] lb-fmac 11000000.wifi-lb wlan0: CLOSE
+[ 1586.036255] lmac[0] vif_mgmt_unregister index=0 
+[ 1586.043446] ieee80211 phy4: HT supp 1, VHT supp 0, HE supp 0
+[ 1586.070280] hb-fmac 17800000.wifi-hb wlan1: Remove Interface
+[ 1586.076138] found hnat device to del
+[ 1586.234825] lb-fmac 11000000.wifi-lb wlan0: Remove Interface
+[ 1586.240604] found hnat device to del
 module is not loaded
 module is not loaded
-[77493.166376] remove_task, 0
-[77493.169171] Invalid task id.
-[77493.172084] Task 1 removed.
-[77493.174878] remove_task, 1
-[77493.177617] Invalid task id.
-[77493.180559] Task 2 removed.
-[77493.207533] sf_wifi_rf_remove
-[77493.210599] sf_wifi_rf_sysfs_unregister
-[77493.214828] sf_wifi_rf_irqs_unregister
-[77493.218762] sf_wifi_rf_platform_reset
-[77494.303561] startcore init fill all memory!
-[77494.352719] sf_wifi_rf_probe
-[77494.355746] irq: type mismatch, failed to map hwirq-194 for /interrupt-controller@1bdc0000!
-[77494.364158] rf access base address : b1c00000
-[77494.368545] priv->base : b1c00000
-[77494.371861] priv->irq : 29
-[77494.374592] sf_wifi_rf_platform_reset
-[77494.378293] sf_wifi_rf_irqs_register
-[77494.449792] get LB1_EXTERNAL_PA_CONF_IN_IDLE==00
-[77494.454516] get LB1_EXTERNAL_PA_CONF_IN_RX==06
-[77494.459016] get LB1_EXTERNAL_PA_CONF_IN_TX==04
-[77494.463508] get LB1_EXTERNAL_PA_CONF_IN_PA==01
-[77494.467989] get LB2_EXTERNAL_PA_CONF_IN_IDLE==00
-[77494.472653] get LB2_EXTERNAL_PA_CONF_IN_RX==06
-[77494.477141] get LB2_EXTERNAL_PA_CONF_IN_TX==04
-[77494.481625] get LB2_EXTERNAL_PA_CONF_IN_PA==01
-[77494.486110] get HB1_EXTERNAL_PA_CONF_IN_IDLE==00
-[77494.490769] get HB1_EXTERNAL_PA_CONF_IN_RX==06
-[77494.495256] get HB1_EXTERNAL_PA_CONF_IN_TX==04
-[77494.499744] get HB1_EXTERNAL_PA_CONF_IN_PA==01
-[77494.504238] get HB2_EXTERNAL_PA_CONF_IN_IDLE==00
-[77494.508901] get HB2_EXTERNAL_PA_CONF_IN_RX==06
-[77494.513391] get HB2_EXTERNAL_PA_CONF_IN_TX==04
-[77494.517883] get HB2_EXTERNAL_PA_CONF_IN_PA==01
-[77494.522410] gpio 0 level is 0, hb_ex_pa_exist 0, lb_ex_pa_exist 0
-[77494.528548] sf_wifi_rf_fw_load
-[77494.647394] 
-[77494.647394] ### Now copy rf_pmem.bin firmware with size 66876, @ = 0x4002
-[77494.685789] 
-[77494.685789] ### Now copy rf_default_reg.bin default reg with size 63548
-[77494.724112] Can not find XO config!
-[77494.727611] get XO config from sf_factory_read failed
-[77494.732697] sf_wifi_rf_cali_config_get_mtd
-[77494.737110] Do not find XO cali value in flash,mark is 
-[77494.742567] XO config value : 0
-[77494.745738] sf_wifi_rf_sysfs_register, parent :aetnensis
-[77494.751837] get TRX_PATH_CFG==ff
-[77494.755174] rf_bootup
-[77494.757489] ml_apb_send_0_params_cmd command : 0x8010, cmd_base : 0x3240, rrq : 1
-[77494.765121] command 0x8010 get a repsonse with args : 4
-[77494.770384] rf hw version : 0x1b0
-[77494.773761] rf sw version : 0x1009
-[77494.777204] value : 0x4
-[77494.779652] rf_app_prepare
-[77494.782397] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8101, args0 = 0xff
-[77494.790983] command 0x8101 get a repsonse with args : 1
-[77494.796251] switch to OPERATING mode
-[77494.799833] ml_apb_send_0_params_cmd command : 0x8090, cmd_base : 0x3240, rrq : 1
-[77495.070307] command 0x8090 get a repsonse with args : 1
-[77495.088107] ml_apb_send_0_params_cmd command : 0x8070, cmd_base : 0x3240, rrq : 1
-[77495.095733] command 0x8070 get a repsonse with args : 2
-[77496.274694] sf16a18_lb_smac: unknown parameter 'force_mod_name' ignored
-[77496.282543] rwnx v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
-[77496.290772] band 1
-[77496.292835] load_task, /lib/firmware/sf1688_lb_smac.bin, 0
-[77496.310982] node->entry_addr=1f00000 node=8096a900
-[77496.419267] task id=0 state=0
-[77496.422313] priv->base : b1000000
-[77496.427037] get wifi address from factory
-[77496.431223] the default platform clk rate is 375000000
-[77496.436438] Can not find wifi version!
-[77496.440217] can not get wifi info from factory
-[77496.446707] lb registering.......
-[77496.450090] find a empty client seat : 0
-[77496.552432] 
-[77496.552432] ### Now copy ldpcram.bin firmware, @ = 0xb1109000
-[77496.559740] 
-[77496.559740] ### size = 980 is_lb=1
-[77496.564849] load ldpc cost 0 cnt loop
-[77496.568552] lmac_glue_start(0)
-[77496.571610] start_task, 0
-[77496.574267] task entry_addr=0x1f00000
-[77496.577984] start aresetn 0 por_resetn 0 
-[77496.582047] wait lmac init(0)>>>>>>>>>>>>>>>>>>>>>>>
-[77496.587073] lmac init complete(0)
-[77496.587103] lmac[0] v6.0.0.0 - build: robert Mon, 29 Jun 2020 10:46:11 +0800 band: 0
-[77496.587118] lmac[0] SW profiling configuration:
-[77496.587128] lmac[0]   - TX_IPC_IRQ: 0
-[77496.587138] lmac[0]   - TX_APP_EVT: 1
-[77496.587149] lmac[0]   - TX_BUF_ALLOC: 2
-[77496.587159] lmac[0]   - TX_DMA_IRQ: 3
-[77496.587170] lmac[0]   - TX_PAYL_HDL: 4
-[77496.587180] lmac[0]   - TX_NEW_TAIL: 5
-[77496.587190] lmac[0]   - TX_MAC_IRQ: 6
-[77496.587201] lmac[0]   - TX_BUF_FREE: 7
-[77496.587212] lmac[0]   - TX_CFM_EVT: 8
-[77496.587222] lmac[0]   - TX_CFM_DMA_IRQ: 9
-[77496.587233] lmac[0]   - RX_MAC_IRQ: 10
-[77496.587244] lmac[0]   - RX_CNTRL_EVT: 11
-[77496.587254] lmac[0]   - RX_MPDU_XFER: 12
-[77496.587265] lmac[0]   - RX_MPDU_FREE: 13
-[77496.587276] lmac[0]   - RX_DMA_IRQ: 14
-[77496.587287] lmac[0]   - RX_DMA_EVT: 15
-[77496.587297] lmac[0]   - RX_IPC_IND: 16
-[77496.587310] lmac[0]   - AGG_FIRST_MPDU_DWNLD: 17
-[77496.587322] lmac[0]   - AGG_START_AMPDU: 18
-[77496.587334] lmac[0]   - AGG_ADD_MPDU: 19
-[77496.587346] lmac[0]   - AGG_FINISH_AMPDU: 20
-[77496.587358] lmac[0]   - AGG_BAR_DONETX: 21
-[77496.587368] lmac[0]   - AGG_BA_RXED: 22
-[77496.587378] lmac[0]   - MM_HW_IDLE: 23
-[77496.587390] lmac[0]   - MM_SET_CHANNEL: 24
-[77496.587401] lmac[0]   - TX_FRAME_PUSH: 25
-[77496.587412] lmac[0]   - TX_FRAME_CFM: 26
-[77496.587423] lmac[0]   - TX_AC_BG[0]: 27
-[77496.587433] lmac[0]   - TX_AC_BG[1]: 28
-[77496.587444] lmac[0]   - TX_AC_IRQ[0]: 29
-[77496.720429] wait lmac over(0)<<<<<<<<<<<<<<<<<<<<<<<
-[77496.725556] successfully turn on platform 0!
-[77496.731006] ieee80211 phy2: PHY features: [NSS=2][CHBW=40][LDPC]
-[77496.737158] ieee80211 phy2: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][PS][UAPSD][DPSM][AMPDU][CHNL_CTXT]
-[77496.782863] sf16a18_hb_smac: unknown parameter 'force_mod_name' ignored
-[77496.791067] rwnx v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
-[77496.799591] band 2
-[77496.801776] load_task, /lib/firmware/sf1688_hb_smac.bin, 1
-[77496.807672] node->entry_addr=1f80000 node=822cae80
-[77496.929096] task id=1 state=0
-[77496.932203] priv->base : b7800000
-[77496.936241] get wifi address from factory
-[77496.940527] the default platform clk rate is 375000000
-[77496.945888] Can not find wifi version!
-[77496.949803] can not get wifi info from factory
-[77496.956667] hb registering.......
-[77496.960163] find a empty client seat : 1
-[77496.965067] 
-[77496.965067] ### Now copy ldpcram.bin firmware, @ = 0xb7909000
-[77496.972459] 
-[77496.972459] ### size = 1500 is_lb=0
-[77496.977855] load ldpc cost 0 cnt loop
-[77496.981718] lmac_glue_start(1)
-[77496.984913] start_task, 1
-[77496.987927] task entry_addr=0x1f80000
-[77496.991670] start aresetn 0 por_resetn 0 
-[77496.996164] wait lmac init(1)>>>>>>>>>>>>>>>>>>>>>>>
-[77496.998332] lmac[1] v6.0.0.0 - build: robert Mon, 29 Jun 2020 10:46:14 +0800 band: 1
-[77497.009013] lmac[1] SW profiling configuration:
-[77497.013597] lmac[1]   - TX_IPC_IRQ: 0
-[77497.017312] lmac[1]   - TX_APP_EVT: 1
-[77497.021027] lmac[1]   - TX_BUF_ALLOC: 2
-[77497.024915] lmac[1]   - TX_DMA_IRQ: 3
-[77497.028632] lmac[1]   - TX_PAYL_HDL: 4
-[77497.032433] lmac[1]   - TX_NEW_TAIL: 5
-[77497.036276] lmac[1]   - TX_MAC_IRQ: 6
-[77497.040009] lmac[1]   - TX_BUF_FREE: 7
-[77497.043896] lmac[1]   - TX_CFM_EVT: 8
-[77497.047658] lmac[1]   - TX_CFM_DMA_IRQ: 9
-[77497.051728] lmac[1]   - RX_MAC_IRQ: 10
-[77497.055525] lmac[1]   - RX_CNTRL_EVT: 11
-[77497.059482] lmac[1]   - RX_MPDU_XFER: 12
-[77497.063437] lmac[1]   - RX_MPDU_FREE: 13
-[77497.067390] lmac[1]   - RX_DMA_IRQ: 14
-[77497.071172] lmac[1]   - RX_DMA_EVT: 15
-[77497.074952] lmac[1]   - RX_IPC_IND: 16
-[77497.078736] lmac[1]   - AGG_FIRST_MPDU_DWNLD: 17
-[77497.083384] lmac[1]   - AGG_START_AMPDU: 18
-[77497.087600] lmac[1]   - AGG_ADD_MPDU: 19
-[77497.091553] lmac[1]   - AGG_FINISH_AMPDU: 20
-[77497.095857] lmac[1]   - AGG_BAR_DONETX: 21
-[77497.099983] lmac[1]   - AGG_BA_RXED: 22
-[77497.103919] lmac[1]   - MM_HW_IDLE: 23
-[77497.107830] lmac[1]   - MM_SET_CHANNEL: 24
-[77497.112133] lmac[1]   - TX_FRAME_PUSH: 25
-[77497.116228] lmac[1]   - TX_FRAME_CFM: 26
-[77497.120244] lmac[1]   - TX_AC_BG[0]: 27
-[77497.124177] lmac[1]   - TX_AC_BG[1]: 28
-[77497.128086] lmac[1]   - TX_AC_IRQ[0]: 29
-[77497.132159] lmac init complete(1)
-[77497.132284] wait lmac over(1)<<<<<<<<<<<<<<<<<<<<<<<
-[77497.141283] successfully turn on platform 1!
-[77497.147794] ieee80211 phy3: PHY features: [NSS=2][CHBW=80][LDPC]
-[77497.154876] ieee80211 phy3: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][PS][UAPSD][DPSM][AMPDU][CHNL_CTXT][VHT]
+[ 1586.763830] lmac_glue_stop(0)
+[ 1586.766879] stop_task, 0
+[ 1586.769467] stop aresetn 2 por_resetn 1 
+[ 1586.774538] siwifi_errorinfo_deallocs
+[ 1586.778317] successfully turn off platform 0!
+[ 1586.782894] remove_task, 0
+[ 1586.785877] Now band 2.4G
+[ 1586.893754] lmac_glue_stop(1)
+[ 1586.896789] stop_task, 1
+[ 1586.899376] stop aresetn 2 por_resetn 1 
+[ 1586.904371] siwifi_errorinfo_deallocs
+[ 1586.908113] successfully turn off platform 1!
+[ 1586.913185] remove_task, 1
+[ 1586.916183] Now band 5G
+[ 1586.969986] remove_task, 0
+[ 1586.972728] Invalid task id.
+[ 1586.975775] Task 1 removed.
+[ 1586.978587] remove_task, 1
+[ 1586.981294] Invalid task id.
+[ 1586.984238] Task 2 removed.
+[ 1587.039946] sf_wifi_rf_remove
+[ 1587.042948] sf_wifi_rf_sysfs_unregister
+[ 1587.047254] sf_wifi_rf_irqs_unregister
+[ 1588.195986] startcore init fill all memory!
+[ 1588.220826] irq: type mismatch, failed to map hwirq-194 for /interrupt-controller@1bdc0000!
+[ 1588.229270] rf access base address : b1c00000
+[ 1588.233686] sf_wifi_rf_os_resources_get:
+[ 1588.237614]  priv->base : b1c00000
+[ 1588.241013]  priv->irq : 27
+[ 1588.243960] gpio -2,of_get_named_gpio failed! Do not support external PA
+[ 1588.251487] Now copy rf_pmem.bin firmware with size 69588, @ = 0x4002
+[ 1588.269411] Now copy rf_default_reg.bin default reg with size 63436
+[ 1588.313400] Can not find XO config!
+[ 1588.316921] get XO config from sf_factory_read failed
+[ 1588.322169] Do not find XO cali value in flash,mark is ÿÿ
+[ 1588.327643] XO config value : 0
+[ 1588.330794] sf_wifi_rf_sysfs_register, parent :aetnensis
+[ 1588.336680] get TRX_PATH_CFG==ff
+[ 1588.339950] rf_bootup
+[ 1588.342226] ml_apb_send_0_params_cmd command : 0x8010, cmd_base : 0x3240, rrq : 1
+[ 1588.349914] command 0x8010 get a repsonse with args : 4
+[ 1588.355220] rf hw version : 0x50c0
+[ 1588.358637] rf sw version : 0x2100
+[ 1588.362038] value : 0x104
+[ 1588.364735] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8101, args0 = 0xff
+[ 1588.373356] command 0x8101 get a repsonse with args : 1
+[ 1588.378597] switch to OPERATING mode
+[ 1588.382179] ml_apb_send_0_params_cmd command : 0x8090, cmd_base : 0x3240, rrq : 1
+[ 1588.682545] command 0x8090 get a repsonse with args : 1
+[ 1588.713348] ml_apb_send_0_params_cmd command : 0x8070, cmd_base : 0x3240, rrq : 1
+[ 1588.720947] command 0x8070 get a repsonse with args : 2
+[ 1588.726261] xo value 0
+[ 1588.728636] xo_value_conf :0x0
+[ 1588.731695] ml_apb_send_1_params_cmd, rrq = 1, cmd_base : 0x3240, cmd = 0x8111, args0 = 0x0
+[ 1588.740224] command 0x8111 get a repsonse with args : 1
+[ 1589.773992] sf16a18_lb_fmac: unknown parameter 'force_mod_name' ignored
+[ 1589.780764] sf16a18_lb_fmac: unknown parameter 'independent_antenna_control' ignored
+[ 1589.789742] siwifi v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
+[ 1589.798185] Now band 2.4G
+[ 1589.800841] load_task, path : /lib/firmware/sf1688_lb_fmac.bin, task_id : 0
+[ 1589.808043] node->entry_addr=1f00000 node=8733f600
+[ 1589.835311] task id=0 state=0
+[ 1589.838326] siwifi_platform_init, priv->base : b1000000
+[ 1589.845046] get wifi address from factory
+[ 1589.849167] the default platform clk rate is 375000000
+[ 1589.854550] Can not find wifi version!
+[ 1589.858319] Can not find wifi info!
+[ 1589.861809] can not get READ_LB_MORE_INFO from factory
+[ 1589.867186] txpower calibration table use default_txpower_calibrate_table.bin
+[ 1589.874417] Can not find XO config!
+[ 1589.878034] get XO config from deautlt_txpower_calibrate.bin
+[ 1589.884851] band 0: wifi txpower table version 1, flag 2, normal list 858fb600, sleepmode list 858fbc00, low list 858fb400, high list   (null)
+[ 1589.912558] lb registering.......
+[ 1589.916011] find a empty client seat : 0
+[ 1589.920670] Now copy ldpcram.bin firmware, @ = 0xb1109000
+[ 1589.926155] size=980, is_lb=1
+[ 1589.929304] load ldpc cost 0 cnt loop
+[ 1589.932987] lmac_glue_start(0)
+[ 1589.936135] start_task, 0
+[ 1589.938777] task entry_addr=0x1f00000
+[ 1589.942445] start aresetn 0 por_resetn 0 
+[ 1589.946532] wait lmac init(0)>>>>>>>>>>>>>>>>>>>>>>>
+[ 1589.952662] lmac[0] v6.0.0.0 - build: davy Fri, 06 Nov 2020 15:05:54 +0800 band: 0
+[ 1589.960282] lmac[0] SW profiling configuration:
+[ 1589.964858] lmac[0]   - TX_IPC_IRQ: 0
+[ 1589.968528] lmac[0]   - TX_APP_EVT: 1
+[ 1589.972191] lmac[0]   - TX_BUF_ALLOC: 2
+[ 1589.976067] lmac[0]   - TX_DMA_IRQ: 3
+[ 1589.979739] lmac[0]   - TX_PAYL_HDL: 4
+[ 1589.983528] lmac[0]   - TX_NEW_TAIL: 5
+[ 1589.987285] lmac[0]   - TX_MAC_IRQ: 6
+[ 1589.990949] lmac[0]   - TX_BUF_FREE: 7
+[ 1589.994737] lmac[0]   - TX_CFM_EVT: 8
+[ 1589.998409] lmac[0]   - TX_CFM_DMA_IRQ: 9
+[ 1590.002421] lmac[0]   - RX_MAC_IRQ: 10
+[ 1590.006206] lmac[0]   - RX_CNTRL_EVT: 11
+[ 1590.010137] lmac[0]   - RX_MPDU_XFER: 12
+[ 1590.014098] lmac[0]   - RX_MPDU_FREE: 13
+[ 1590.018030] lmac[0]   - RX_DMA_IRQ: 14
+[ 1590.021780] lmac[0]   - RX_DMA_EVT: 15
+[ 1590.025566] lmac[0]   - RX_IPC_IND: 16
+[ 1590.029325] lmac[0]   - AGG_FIRST_MPDU_DWNLD: 17
+[ 1590.033981] lmac[0]   - AGG_START_AMPDU: 18
+[ 1590.038174] lmac[0]   - AGG_ADD_MPDU: 19
+[ 1590.042100] lmac[0]   - AGG_FINISH_AMPDU: 20
+[ 1590.046407] lmac[0]   - AGG_BAR_DONETX: 21
+[ 1590.050511] lmac[0]   - AGG_BA_RXED: 22
+[ 1590.054384] lmac[0]   - MM_HW_IDLE: 23
+[ 1590.058143] lmac[0]   - MM_SET_CHANNEL: 24
+[ 1590.062241] lmac[0]   - TX_FRAME_PUSH: 25
+[ 1590.066288] lmac[0]   - TX_FRAME_CFM: 26
+[ 1590.070218] lmac[0]   - TX_AC_BG[0]: 27
+[ 1590.074092] lmac[0]   - TX_AC_BG[1]: 28
+[ 1590.077937] lmac[0]   - TX_AC_IRQ[0]: 29
+[ 1590.081886] lmac init complete(0)
+[ 1590.085376] wait lmac over(0)<<<<<<<<<<<<<<<<<<<<<<<
+[ 1590.090420] successfully turn on platform 0!
+[ 1590.096541] ieee80211 phy6: PHY features: [NSS=2][CHBW=40][LDPC]
+[ 1590.102576] ieee80211 phy6: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][RADAR][PS][UAPSD][DPSM][AMPDU][AMSDU][CHNL_CTXT][REORD][UMAC][MFP]
+[ 1590.116293] ieee80211 phy6: HT supp 1, VHT supp 0, HE supp 0
+[ 1590.123266] siwifi_hw->phy_config.digtable[0]:30303030
+[ 1590.128690] siwifi_hw->phy_config.digtable[1]:2c2c2c2c
+[ 1590.133989] siwifi_hw->phy_config.digtable[2]:30303030
+[ 1590.139241] siwifi_hw->phy_config.digtable[3]:2c2c2c2c
+[ 1590.144550] siwifi_hw->phy_config.digtable[4]:30303030
+[ 1590.149788] siwifi_hw->phy_config.digtable[5]:2c2c2c2c
+[ 1590.155111] siwifi_hw->phy_config.digtable_max[0]:7f504434
+[ 1590.160754] siwifi_hw->phy_config.digtable_max[1]:6c4c4030
+[ 1590.166462] siwifi_hw->phy_config.digtable_max[2]:7f504434
+[ 1590.172039] siwifi_hw->phy_config.digtable_max[3]:6c4c4030
+[ 1590.177693] siwifi_hw->phy_config.digtable_max[4]:7f504434
+[ 1590.183229] siwifi_hw->phy_config.digtable_max[5]:6c4c4030
+[ 1590.188945] siwifi_hw->phy_config.digtable_max[6]:0
+[ 1590.194084] siwifi_hw->phy_config.digtable[6]:0
+[ 1590.202458] found hnat device to add
+[ 1590.206227] [hnat notice]add wifi dev index 7 ndev859dd000
+[ 1590.211780] ieee80211 phy6: New interface create wlan0
+[ 1590.240472] sf16a18_hb_fmac: unknown parameter 'force_mod_name' ignored
+[ 1590.247347] sf16a18_hb_fmac: unknown parameter 'independent_antenna_control' ignored
+[ 1590.256171] siwifi v - build: franklin Mar 30 2017 11:10:15 - svnUnversioned directory
+[ 1590.264637] Now band 5G
+[ 1590.267124] load_task, path : /lib/firmware/sf1688_hb_fmac.bin, task_id : 1
+[ 1590.274406] node->entry_addr=2000000 node=85aeb000
+[ 1590.303177] task id=1 state=0
+[ 1590.306510] siwifi_platform_init, priv->base : b7800000
+[ 1590.312655] get wifi address from factory
+[ 1590.316986] the default platform clk rate is 375000000
+[ 1590.322271] Can not find wifi version!
+[ 1590.326239] Can not find wifi info!
+[ 1590.329791] can not get READ_LB_MORE_INFO from factory
+[ 1590.335224] txpower calibration table use default_txpower_calibrate_table.bin
+[ 1590.342383] Can not find XO config!
+[ 1590.346116] get XO config from deautlt_txpower_calibrate.bin
+[ 1590.353223] band 1: wifi txpower table version 1, flag 2, normal list 85a1b800, sleepmode list 85a1f800, low list 85a1e800, high list   (null)
+[ 1590.381044] hb registering.......
+[ 1590.384471] find a empty client seat : 1
+[ 1590.389317] Now copy ldpcram.bin firmware, @ = 0xb7909000
+[ 1590.394849] size=1500, is_lb=0
+[ 1590.398248] load ldpc cost 0 cnt loop
+[ 1590.402056] lmac_glue_start(1)
+[ 1590.405300] start_task, 1
+[ 1590.408024] task entry_addr=0x2000000
+[ 1590.411764] start aresetn 0 por_resetn 0 
+[ 1590.415968] wait lmac init(1)>>>>>>>>>>>>>>>>>>>>>>>
+[ 1590.421835] lmac[1] v6.0.0.0 - build: davy Fri, 06 Nov 2020 15:05:54 +0800 band: 1
+[ 1590.429516] lmac[1] SW profiling configuration:
+[ 1590.434113] lmac[1]   - TX_IPC_IRQ: 0
+[ 1590.437785] lmac[1]   - TX_APP_EVT: 1
+[ 1590.441449] lmac[1]   - TX_BUF_ALLOC: 2
+[ 1590.445323] lmac[1]   - TX_DMA_IRQ: 3
+[ 1590.448992] lmac[1]   - TX_PAYL_HDL: 4
+[ 1590.452743] lmac[1]   - TX_NEW_TAIL: 5
+[ 1590.456544] lmac[1]   - TX_MAC_IRQ: 6
+[ 1590.460216] lmac[1]   - TX_BUF_FREE: 7
+[ 1590.464015] lmac[1]   - TX_CFM_EVT: 8
+[ 1590.467686] lmac[1]   - TX_CFM_DMA_IRQ: 9
+[ 1590.471697] lmac[1]   - RX_MAC_IRQ: 10
+[ 1590.475501] lmac[1]   - RX_CNTRL_EVT: 11
+[ 1590.479432] lmac[1]   - RX_MPDU_XFER: 12
+[ 1590.483404] lmac[1]   - RX_MPDU_FREE: 13
+[ 1590.487335] lmac[1]   - RX_DMA_IRQ: 14
+[ 1590.491086] lmac[1]   - RX_DMA_EVT: 15
+[ 1590.494890] lmac[1]   - RX_IPC_IND: 16
+[ 1590.498659] lmac[1]   - AGG_FIRST_MPDU_DWNLD: 17
+[ 1590.503337] lmac[1]   - AGG_START_AMPDU: 18
+[ 1590.507530] lmac[1]   - AGG_ADD_MPDU: 19
+[ 1590.511456] lmac[1]   - AGG_FINISH_AMPDU: 20
+[ 1590.515783] lmac[1]   - AGG_BAR_DONETX: 21
+[ 1590.519898] lmac[1]   - AGG_BA_RXED: 22
+[ 1590.523784] lmac[1]   - MM_HW_IDLE: 23
+[ 1590.527541] lmac[1]   - MM_SET_CHANNEL: 24
+[ 1590.531640] lmac[1]   - TX_FRAME_PUSH: 25
+[ 1590.535704] lmac[1]   - TX_FRAME_CFM: 26
+[ 1590.539636] lmac[1]   - TX_AC_BG[0]: 27
+[ 1590.543527] lmac[1]   - TX_AC_BG[1]: 28
+[ 1590.547374] lmac[1]   - TX_AC_IRQ[0]: 29
+[ 1590.551335] lmac init complete(1)
+[ 1590.551371] wait lmac over(1)<<<<<<<<<<<<<<<<<<<<<<<
+[ 1590.559815] successfully turn on platform 1!
+[ 1590.566496] ieee80211 phy7: PHY features: [NSS=2][CHBW=80][LDPC]
+[ 1590.572582] ieee80211 phy7: FW features: [BCN][AUTOBCN][HWSCAN][CMON][MROLE][RADAR][PS][UAPSD][DPSM][AMPDU][AMSDU][CHNL_CTXT][REORD][UMAC][VHT][MFP]
+[ 1590.587194] ieee80211 phy7: HT supp 1, VHT supp 1, HE supp 0
+[ 1590.595019] siwifi_hw->phy_config.digtable[0]:30383430
+[ 1590.600203] siwifi_hw->phy_config.digtable[1]:2c34302c
+[ 1590.605542] siwifi_hw->phy_config.digtable[2]:30383430
+[ 1590.610828] siwifi_hw->phy_config.digtable[3]:2c34302c
+[ 1590.616208] siwifi_hw->phy_config.digtable[4]:30383430
+[ 1590.621394] siwifi_hw->phy_config.digtable[5]:2c34302c
+[ 1590.626767] siwifi_hw->phy_config.digtable_max[0]:78483830
+[ 1590.632426] siwifi_hw->phy_config.digtable_max[1]:6c40342c
+[ 1590.638195] siwifi_hw->phy_config.digtable_max[2]:78483830
+[ 1590.643880] siwifi_hw->phy_config.digtable_max[3]:6c40342c
+[ 1590.649529] siwifi_hw->phy_config.digtable_max[4]:78483830
+[ 1590.655182] siwifi_hw->phy_config.digtable_max[5]:6c40342c
+[ 1590.660852] siwifi_hw->phy_config.digtable_max[6]:0
+[ 1590.666024] siwifi_hw->phy_config.digtable[6]:0
+[ 1590.675864] found hnat device to add
+[ 1590.679576] [hnat notice]add wifi dev index 6 ndev86e3e000
+[ 1590.685308] ieee80211 phy7: New interface create wlan1
 WARNING: Wifi detect is deprecated. Use wifi config instead
 For more information, see commit 5f8f8a366136a07df661e31decce2458357c167a
 band=2.4G device=radio0
 band=5G device=radio1
 device=
-[77499.057458] lmac[0] vif_mgmt_register, vif_type : 2
-[77499.065987] IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready
-[77499.085389] br-lan: port 2(wlan0) entered blocking state
-[77499.090906] br-lan: port 2(wlan0) entered disabled state
-[77499.098162] device wlan0 entered promiscuous mode
-[77499.153996] lmac[1] vif_mgmt_register, vif_type : 2
-[77499.162478] IPv6: ADDRCONF(NETDEV_UP): wlan1: link is not ready
-[77499.178006] br-lan: port 3(wlan1) entered blocking state
-[77499.183632] br-lan: port 3(wlan1) entered disabled state
-[77499.190900] device wlan1 entered promiscuous mode
-[77499.197012] br-lan: port 3(wlan1) entered blocking state
-[77499.202648] br-lan: port 3(wlan1) entered forwarding state
-[77499.459991] IPv6: ADDRCONF(NETDEV_CHANGE): wlan1: link becomes ready
-[77506.798599] IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
-[77506.805540] br-lan: port 2(wlan0) entered blocking state
-[77506.810931] br-lan: port 2(wlan0) entered forwarding state
+[ 1591.434546] hb-fmac 17800000.wifi-hb wlan1: Remove Interface
+[ 1591.440364] found hnat device to del
+[ 1591.605020] lb-fmac 11000000.wifi-lb wlan0: Remove Interface
+[ 1591.610829] found hnat device to del
+[ 1592.070601] found hnat device to add
+[ 1592.074463] [hnat notice]add wifi dev index 7 ndev859a1000
+[ 1592.117072] found hnat device to add
+[ 1592.120766] [hnat notice]add wifi dev index 6 ndev86abc000
+[ 1592.143864] lmac[0] vif_mgmt_register, vif_type : 2 status=0 index=0 vif 0x81F5CCF0
+[ 1592.151601] lmac[0] use normal txpower table
+[ 1592.158061] IPv6: ADDRCONF(NETDEV_UP): wlan0: link is not ready
+[ 1592.171529] br-lan: port 2(wlan0) entered blocking state
+[ 1592.177111] br-lan: port 2(wlan0) entered disabled state
+[ 1592.183252] device wlan0 entered promiscuous mode
+[ 1592.189273] br-lan: port 2(wlan0) entered blocking state
+[ 1592.194796] br-lan: port 2(wlan0) entered forwarding state
+[ 1592.203598] br-lan: port 2(wlan0) entered disabled state
+[ 1592.219024] lmac[1] vif_mgmt_register, vif_type : 2 status=0 index=0 vif 0x8205E028
+[ 1592.226792] lmac[1] use normal txpower table
+[ 1592.232626] IPv6: ADDRCONF(NETDEV_UP): wlan1: link is not ready
+[ 1592.250412] lb-fmac 11000000.wifi-lb wlan0: AP started: ch=0, bcmc_idx=64
+[ 1592.257549] IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+[ 1592.264634] br-lan: port 2(wlan0) entered blocking state
+[ 1592.270079] br-lan: port 2(wlan0) entered forwarding state
+[ 1592.277383] br-lan: port 3(wlan1) entered blocking state
+[ 1592.282804] br-lan: port 3(wlan1) entered disabled state
+[ 1592.289250] device wlan1 entered promiscuous mode
+[ 1592.294710] br-lan: port 3(wlan1) entered blocking state
+[ 1592.300150] br-lan: port 3(wlan1) entered forwarding state
+[ 1592.552662] hb-fmac 17800000.wifi-hb wlan1: AP started: ch=0, bcmc_idx=64
+[ 1592.559943] IPv6: ADDRCONF(NETDEV_CHANGE): wlan1: link becomes ready
 
 ...
 ```
