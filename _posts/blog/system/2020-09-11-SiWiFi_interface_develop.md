@@ -30,9 +30,13 @@ Ubuntu，siflower SDK，siflower硬件平台，网页浏览器
 
 ## 2 项目引用
 
-[openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
-[SiWiFi接口测试手册](toadd)
-[管理网页开发手册](toadd)
+- [openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
+
+- [SiWiFi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/)
+
+- [管理网页开发手册](https://siflower.github.io/2020/08/05/manage_web_develop_guide/)
+
+- [config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 
 ## 3 开发详情 
 
@@ -146,7 +150,7 @@ function get_wan()
 end
 ```
 
-- _uci_real:get()函数是适用于lua语言的uci指令，与[config文件配置手册]中提供的uci指令（适用于shell语言）结构及参数大体相似，但需要注意指令名称的不同（例如_uci_real:get()与uci get）。更多适用于lua语言的uci指令请参考[openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
+- _uci_real:get()函数是适用于lua语言的uci指令，与[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)中提供的uci指令（适用于shell语言）结构及参数大体相似，但需要注意指令名称的不同（例如_uci_real:get()与uci get）。更多适用于lua语言的uci指令请参考[openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
 
 #### 3.1.3 网页部分
 
@@ -169,7 +173,7 @@ XHR.post('<%=luci.dispatcher.build_url("admin", "networknew","set_wan")%>', para
     }
 );
 ```
-详细的调用过程请参考[网页开发手册](toadd)
+详细的调用过程请参考[管理网页开发手册](https://siflower.github.io/2020/08/05/manage_web_develop_guide/)
 
 ### 3.2 接口开发实例
 
@@ -275,7 +279,7 @@ PC端浏览器
 
 #### 4.2.1 测试流程
 
-编译并烧录镜像。电脑网络配置选择自动获取ip，然后打开浏览器访问siwifi.cn即可登录网页。F12可以打开网页调试模式。观察network一项里对接口的调用情况。详细测试流程可参考[luci接口测试手册](#todo)
+编译并烧录镜像。电脑网络配置选择自动获取ip，然后打开浏览器访问siwifi.cn即可登录网页。F12可以打开网页调试模式。观察network一项里对接口的调用情况。详细测试流程可参考[SiWiFi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/)
 
 #### 4.2.2 测试结果
 
@@ -287,7 +291,7 @@ siwifi.cn的主界面左侧显示了“新功能”和“新界面”。点击�
 
 #### 4.3.1 测试流程
 
-可参考[luci接口测试手册](#todo)了解postman的详细使用过程。测试流程为：
+可参考[SiWiFi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/)了解postman的详细使用过程。测试流程为：
 - 1、打开postman，新建一个空请求。
 - 2、添加url:"http://192.168.4.1/cgi-bin/luci/api/sfsystem/get_stok_local".
 - 3、添加传入参数，url下body选项中选择"raw",在下面空白处添加{"version":"V18"，"luci_password":"admin"}。"luci_password"为路由器登录密码。
@@ -307,9 +311,9 @@ postman调用结果如下图所示：
   ![interface_error](/assets/images/siwifi_interface_test/interface_error.png)
   其中会提示哪个文件的哪一行出了问题，例如上图为usr/lib/lua/luci/controller/admin/wireless.lua第79行少了一个“)”。通过串口工具（或ssh）打开提示路径下出错的lua文件。先根据错误提示修改有误的地方，然后执行指令rm -rf /tmp/luci*，再重新进入网页即可。
 
-- **Q：除了网页调用外，还有调用接口的方法吗？**
+- **Q：除了网页和postman调用外，还有调用接口的方法吗？**
 
-  A：还可以通过postman进行调用，详见[luci接口测试手册](to add)。若接口为不带传入参数的接口，则可将浏览器网址末尾修改为对应路径即可实现调用。例如：LAN口设置对应网址为https://192.168.4.1/cgi-bin/luci/;stok=3ac0d1d68b779ea7941584af25653951/admin/networknew/lan，admin/networknew/lan改为admin/networknew/lan，访问该网址，可直接得到调用get_lan接口的返回值：
+  A：若接口为不带传入参数的接口，则可将浏览器网址末尾修改为对应路径即可实现调用。例如：LAN口设置对应网址为https://192.168.4.1/cgi-bin/luci/;stok=3ac0d1d68b779ea7941584af25653951/admin/networknew/lan，admin/networknew/lan改为admin/networknew/lan，访问该网址，可直接得到调用get_lan接口的返回值：
   ```
   {
       "mac":"10:16:88:3A:8D:F4",

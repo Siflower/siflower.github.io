@@ -22,7 +22,7 @@ mermaid: true
 
 - 开发与测试环境
 
-参考快速入门
+参考[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 - 简介
 
@@ -44,7 +44,7 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 ## 2 项目引用
 
-- network配置可以参考[wan-lan划分指南]()
+- network配置可以参考[以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
 
 ## 3 开发详情
 
@@ -52,7 +52,7 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 1、mdio读写
 
-通过gmac的mdio接口既可以读写通用phy中的寄存器，也可以读写switch中的寄存器。其中不同的switch芯片有不同的mdio读写方式，查看待对接switch的说明书可以新增该switch中寄存器的mdio读写方法。使用mdio读写时，需要确定phy addr。phy addr一般通过scan的方式在0~31的范围进行查找，也可以按实际硬件情况在dts中指定，具体查看[dts文档]()。
+通过gmac的mdio接口既可以读写通用phy中的寄存器，也可以读写switch中的寄存器。其中不同的switch芯片有不同的mdio读写方式，查看待对接switch的说明书可以新增该switch中寄存器的mdio读写方法。使用mdio读写时，需要确定phy addr。phy addr一般通过scan的方式在0~31的范围进行查找，也可以按实际硬件情况在dts中指定，具体查看[linux dts说明文档](https://siflower.github.io/2020/09/03/linux_dts_introduce/)。
 
 2、rgmii的clock检查是否正常
 
@@ -159,6 +159,7 @@ patch数据分为5个部分：
 |5| 触发检查连接 | 这条配置触发2中配置的检查连接 | 
 
 各部分说明及注意点如下：
+
 ||  | 说明 | 
 | -----| ------- | ------ | 
 |1| 前两条patch数据 | 1、可以选择phy/switch模式，选择1000Mphy模式时，irom按照通用phy的方式进行初始化，无需后续部分的patch内容 2、可配置tx/rx delay，tx/rx delay范围为0x1~0x100 3、当选择switch模式时，irom代码需要各部分patch的起始offset，其中检查连接固定为第3条，所以这里需要存放switch初始化、 触发初始化、触发检查连接的offset，offset的计算见patch简介 | 
@@ -224,7 +225,7 @@ intel switch参数示例与各参数说明如下：
 
 - 代码结构参见redmine#[5197](http://redmine.siflower.cn/redmine/issues/5197)
 
-- irom烧录参考[快速入门]()
+- irom烧录参考[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 irom烧录截图
 
@@ -240,7 +241,7 @@ pc烧录成功截图
 
 - 对接准备
 
-见3.1节的介绍，可以参考[uboot开发手册]()
+见3.1节的介绍，可以参考[U-boot移植应用开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)
 
 - 对接流程
 
@@ -370,7 +371,7 @@ if (priv->gswitch == INTEL7084)
 }
 ```
 
-具体ethtool使用参考[以太网指南]()
+具体ethtool使用参考[有线网络和服务介绍](https://siflower.github.io/2020/09/08/ethernetGuide/)
 
 3. phy的对接
 
@@ -562,7 +563,7 @@ linux对接完成后，编译镜像并烧录，wan口连接上级设备后能自
 - switch的吞吐测试
 
 测试包括普通网线下的lan-lan,host-lan,wan-lan的测试，百米网线的测试，千兆网卡的百兆模式下的测试。
-具体的测试环境搭建和测试方法可以参考[以太网测试文档]()
+具体的测试环境搭建和测试方法可以参考[以太网测试介绍](https://siflower.github.io/2020/09/08/ethernetTestGuide/)
 
 - qos测试用例
 

@@ -35,9 +35,11 @@ wan/lan 自适应开发脚本开机自启动，并在路由器的后台自动运
 
 ## 2 项目引用
 
-- [config文件配置手册](/_posts/pw/configconfig文件配置手册.md)
+- [config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 
 - [openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
+
+- [以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
 
 ## 3 开发详情
 
@@ -57,7 +59,7 @@ wan/lan 自适应开发脚本开机自启动，并在路由器的后台自动运
 |uci delete network.test|删除test节点|
 |uci commit|保存修改|
 
-更多地了解如何使用uci指令配置config文件，请参考[config文件配置手册](/_posts/pw/config文件配置手册.md)或[openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
+更多地了解如何使用uci指令配置config文件，请参考[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)或[openwrt uci官方文档](https://oldwiki.archive.openwrt.org/zh-cn/doc/techref/uci)
 
 #### 3.1.2 vlan划分
 
@@ -111,7 +113,7 @@ uci set network.@switch_vlan[1].ports='2 16t'
 uci commit
 ```
 
-更多vlan划分的内容，请参考[以太网wan/lan划分手册](toadd)
+更多vlan划分的内容，请参考[以太网wan-lan划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
 
 #### 3.1.3 udhcpc
 
@@ -159,21 +161,16 @@ openwrt在开机启动时，会自动执行路径为/etc/rc.local的文件。因
 
 流程图如下所示：
 
-```flow
-st=>start: 路由器启动
-config=>operation: 初次配置
-wait=>operation: 循环等待
-ifchange=>condition:  lan口是否拿到ip
-change=>operation: 配置wan口
-sub1=>subroutine: sleep等待配置完成
-st->config->wait->ifchange
-ifchange(yes)->change->wait
-ifchange(no)->wait
+```mermaid
+graph TD
+A(路由器启动) -->B(初次配置) --> C(循环等待) --> D{lan口是否拿到ip}
+D -->|yes| E(配置lan口) --> C
+D -->|no| C
 ```
 
 ### 3.3 代码实现（以AC22为例）
 
-- 1 将示例自启动脚本test.sh放置在需要的位置，如/etc/config
+- 1 将示例自启动脚本test.sh（需要有执行权限，执行chmod 777 test.sh）放置在需要的位置，如/etc/config
   
 ```
 #!/bin/sh
@@ -236,8 +233,9 @@ init() {
 	done
 	for i in `seq 3 5`
 	do
-		a=`uci add network switch_vlan`          
-		uci set network.$a.vlan="$i"             
+		a=`uci add network switch_vlan`
+        uci set network.$a.device="switch0"
+		uci set network.$a.vlan="$i"
 		uci set network.$a.ports="`expr $i - 1` 16t"
 	done
 	uci commit

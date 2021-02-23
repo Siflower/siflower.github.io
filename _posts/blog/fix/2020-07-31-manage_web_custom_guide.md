@@ -28,19 +28,19 @@ PC网页浏览器
 
 ### 1.3 相关背景
 
-管理网页客制化为用户提供可以自定义修改各类siflower设备管理页面风格的功能，并且提供管理网客制化demo指导客户在siflower管理网页面基础上做修改    
+管理网页客制化为用户提供可以自定义修改各类siflower设备管理页面风格的功能，并且提供管理网客制化demo指导客户在siflower管理网页面基础上做修改  
 
 ### 1.4 功能概述
 
-此文档描述了修改siflower管理网页内部风格的功能，比如背景颜色、字体颜色和所有用到的图标的方法，便于用户量身打造一款属于自己的管理网页 
+此文档描述了修改siflower管理网页内部风格的功能，比如背景颜色、字体颜色和所有用到的图标的方法，便于用户量身打造一款属于自己的管理网页  
 并且提供相关网页开发demo示例  
-如果想要对网页功能做开发，参考[管理网页开发手册](待添加)  
+如果想要对网页功能做开发，参考[管理网页开发手册](https://siflower.github.io/2020/08/05/manage_web_develop_guide/)  
 
 ## 2 项目引用
 
 ### 2.1 内部相关   
 
-参考openwrt1806 luci界面移植[redmine #6263](http://redmine.siflower.cn/redmine/issues/6263) 
+参考openwrt1806 luci界面移植[redmine #6263](http://redmine.siflower.cn/redmine/issues/6263)  
 参考siflower网页客制化代码流程[redmine #7194](http://redmine.siflower.cn/redmine/issues/7194)  
 
 ## 开发详情  
@@ -71,7 +71,7 @@ feeds/luci/themes/luci-theme-material-siflower/htdocs/luci-static/material/image
     该图标的使用位置，可以登录管理页面查看。如果想对该图片做更新，要求新设计的图片大小、分辨率、位深度必须和该图片保持完全一致，重新设计的图片命名也必须和该图片完全一致
 
 - **企业logo图标**
-    如果想在管理页面替换为用户的logo，替换此图片即可    
+    如果想在管理页面替换为用户的logo，替换此图片即可   
     图片格式是png ，分辨率是124*15，位深度是32。 默认样式如下图所示：  
     ![logo.png](/assets/images/web_custom_image/logo.png)  
     **注：默认是底色是透明色，字样为白色，由于在页面中看不清，把底色涂成黑色了**
@@ -377,7 +377,7 @@ feeds/luci/themes/luci-theme-material-siflower/htdocs/luci-static/material/image
 > 配置文件路径：/etc/config/style  
 
 
-- 替换方法参考[快速入门]--winSCP工具使用
+- 替换方法参考[快速入门](https://siflower.github.io/2020/08/05/quick_start/)--winSCP工具使用
   
 - 查看效果
   电脑切换到之前登录的路由器管理页面，点击Ctrl+F5，查看修改后的路由器管理页面修改后的效果

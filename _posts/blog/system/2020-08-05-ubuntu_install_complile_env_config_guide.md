@@ -1,7 +1,7 @@
 ---
 layout: post
-title: 虚拟机ubuntu安装及开发环境配置手册
-categories:  SYSTEM
+title: 虚拟机安装及编译环境配置手册
+categories: SYSTEM 
 description: 介绍如何安装虚拟机、ubuntu以及配置开发环境
 keywords: ubuntu 开发环境
 mermaid: false
@@ -10,7 +10,7 @@ mermaid: false
 * TOC
 {:toc}
 
-# 虚拟机ubuntu安装及开发环境配置手册
+# 虚拟机安装及编译环境配置手册
 
 ## 虚拟机软件下载安装
 
@@ -263,27 +263,27 @@ mermaid: false
 
 - 下载源码
   
-    从github获取下载链接，使用git clone下载源码
+    参考[快速入门手册](https://siflower.github.io/2020/08/05/quick_start/)获取下载链接，使用git clone下载源码
 
     ![env_5](/assets/images/quick_image/env_5.png)
 
-    由于github服务器的问题，下载时间可能较长，请耐心等待下载完成 
+    由于github服务器的问题，下载时间可能较长，请耐心等待下载完成
     
-    出现下图表示下载完成
+    下图表示下载完成
 
     ![env_6](/assets/images/quick_image/env_6.png)
 
 - 编译源码 
   
-    进入openwrt源码目录，第一次编译必须使用脚本编译已有的示例项目  
+    进入openwrt源码目录，第一次编译必须使用脚本编译SDK已有的项目
 
-    开始编译
+    - 开始编译
 
-    ![env_7](/assets/images/quick_image/env_7.png)
+     ![env_7](/assets/images/quick_image/env_7.png)
 
-    编译成功会成功生成烧录镜像在bin/target/siflower/下
+    - 编译成功如下图所示，并且会在同级目录生成一个bin文件
 
-    ![env_8](/assets/images/quick_image/env_8.png)
+     ![env_8](/assets/images/quick_image/env_8.png)
 
 - vim设置
   
@@ -295,7 +295,6 @@ mermaid: false
 
 
 至此虚拟机安装、ubuntu设置以及siflower编译环境搭建结束，后续可以在此环境进行siflower平台功能修改和开发
-
 
 
 ## FAQ

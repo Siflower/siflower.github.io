@@ -11,27 +11,6 @@ mermaid: true
 # FLASH分区开发手册
 
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
-
-
 **目录**
 
 * TOC
@@ -43,7 +22,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ## 开发环境
 
-Siflower代码编译环境，详细见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+Siflower代码编译环境，详细见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 开发板调试环境
 
@@ -60,19 +39,19 @@ Flash属于内存器件的一种，是一种非易失性内存，一般的嵌入
 Siflower 目前Flash系统分区如下：
 <table>
    <tr>
-      <td colspan="3" align="center">spl</td>
+      <td colspan="3" align="center">spl (128K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">uboot</td>
+      <td colspan="3" align="center">uboot (384K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">uboot-env</td>
+      <td colspan="3" align="center">uboot-env (64K)</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">factory</td>
+      <td colspan="3" align="center">factory (64K)</td>
    </tr>
    <tr>
-      <td rowspan="3" align="center">firmware</td>
+      <td rowspan="3" align="center">firmware (640K~16M)</td>
       <td colspan="2" align="center">kernel</td>
    </tr>
    <tr>
@@ -83,16 +62,16 @@ Siflower 目前Flash系统分区如下：
       <td align="center">rootfs-data</td>
    </tr>
    <tr>
-      <td colspan="3" align="center">pcba-test</td>
+      <td colspan="3" align="center">pcba-test (512K)</td>
    </tr>
 </table>
  
 
 #### spl  
 
-spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。
+spl分区是uboot的bootloader，主要用于ddr初始化。spl分区从flash的0地址开始，镜像约22KB，分区最小支持32KB。spl镜像为u-boot-spl.img 。  
 **注意：**
-一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](待添加)。
+一般spl分区大小为128k，但是实际spl镜像约为22k，后面未使用部分位于0x7000位置存储了一个irom patch，用于irom下载时从此位置读取数据，详细irom patch使用方法参考：[gmac外围芯片对接手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)。
 
 #### uboot  
 
@@ -100,7 +79,7 @@ uboot是用于引导和启动内核程序的bootloader。uboot镜像为uboot.img
 
 #### uboot-env  
 
-uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照[U-boot移植应用开发手册](待添加)。  
+uboot-env是用于保存uboot使用的环境变量的分区，可以在uboot控制台中通过printenv命令查看其内容。如果uboot的配置固定不需修改，可以去掉该分区。详细的uboot-env内容请参照：[U-boot开发手册](https://siflower.github.io/2020/09/08/ubootDevelopmentManual/)。  
 
 #### factory  
 
@@ -141,6 +120,7 @@ wifi校准信息是pcba测试软件实现填写，由wifi驱动负责解析。
 - 0-> enable telnet sever  （telnet目前主要用于产线测试，出厂时telnet sever都是关闭的）
 
 以下是p10h在pcba测试时所使用的board.ini文件，facotry分区的很多内容都是在这里配置，然后通过pcba测试软件写入factory分区的：
+
 ```
 ############### board info ################
 [setting]
@@ -168,13 +148,43 @@ product_key=c51ce410c124a10e0db5e4b97fc2af39
 ############################################
 ```
 
+##### 增加factory分区内容
+
+以factory分区增加一个uuid为例，做说明
+
+- 在linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask.dtsi中
+
+  ![uuid_1](/assets/images/flash_partition_guide/uuid_1.png)
+
+  找到factory信息，在mtd-rom-type后按照相同格式添加mtd-uuid，偏移量数值增加参考前文factory信息
+
+- 修改pcba工具，并且在board.ini中增加uuid信息
+
+   **注意：PCBA工具修改需要联系矽昌**
+
+   ![uuid_2](/assets/images/flash_partition_guide/uuid_2.png)
+
+- 在系统下读取此节点
+  
+  在进入系统后可以读取此节点的信息，需要修改sfax8_factoty_read驱动
+
+  在linux-4.14.90-dev/linux-4.14.90/drivers/sfax8_factory_read下  
+  参考sf_factory_read_entry.c/sf_factory_read_sysfs.c中其它信息的写入，按照相同格式增加uuid
+
+  增加成功后进入系统使用以下指令可以查看写入的值是否正确
+
+  ```
+   cat /sys/devices/platform/factory-read/uuid  
+  ```
+
+
 #### firmware
 
 firmware包括整个openwrt系统和用户数据，对应镜像为openwrt-*.bin。其中kernel为内核镜像，rootfs为文件系统，其中rootfs-data指用户数据（jffs2可写）。
 
 #### pcba-test
 
-pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，仅供pcba测试使用。在pcba测试结束后，该分区会作为系统的rootfs-data使用。详细pcba介绍可参考：[PCBA介绍](/_posts/blog/system/待添加)  
+pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，仅供pcba测试使用。在pcba测试结束后，该分区会作为系统的rootfs-data使用。详细pcba介绍可参考：[PCBA介绍](待添加)  
 
 ### 修改分区
 
@@ -185,6 +195,7 @@ pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，�
 ##### 修改uboot分区大小
 
 在uboot/bare_spl/main.c中定义了分区的地址信息等，如下：
+
 ```
  30 #ifdef CONFIG_SFA18_UBOOT_LITE
  31 #define SYS_SPI_U_BOOT_OFFS (32 * 1024)
@@ -202,11 +213,13 @@ pcba-test为flash最后的512KB。正常系统启动时不存在这个分区，�
  43 #endif
  44 #endif /* CONFIG_SFA18_UBOOT_LITE */
 ```
+
 其中SYS_SPI_U_BOOT_OFFS为spl分区大小（uboot分区起始地址），默认为128k，SYS_FACTORY_OFFS为factory分区起始地址，uboot分区大小为（384 * 1024 + 64 * 1024）（u-boot分区大小 + u-boot-env分区大小），SYS_SPI_PCBA_OFFS为PCBA分区起始位置，分区大小为512k。如果要修改分区大小，对应修改相应的宏定义即可。
 
 ##### 修改openwrt分区大小
 
 openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_ac28.dts，分区信息如下：  
+
 ```  
 51     w25q128@0 {
 52         compatible = "w25q128";
@@ -246,6 +259,7 @@ openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90
 86     };
 87 };
 ```  
+
 其中partition@后面的地址为该分区在flash中的起始地址；label为分区名；regs的第一个值为起始地址，第二个值为分区大小。  
 比如示例中flash总共为16MB，若是想将替换为8MB的flash，则需要将fireware分区的size减少为8\*1024\*1024-0xa0000=0x760000。
 
@@ -256,7 +270,7 @@ openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90
 
 ##### 系统起来之前
 
-通过烧录16M Flash完整镜像更新所有分区，详细见[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+通过烧录16M Flash完整镜像更新所有分区，详细见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ##### 系统起来之后
 
@@ -265,9 +279,11 @@ openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90
   通过mtd命令可以升级对应分区镜像；
 
   串口下，通过```cat /proc/mtd ```命令可以获取分区信息，如下：
+
 ![mtd-partition](/assets/images/flash_partition_guide/mtd-partition.png)
 
   mtd升级对应分区镜像，命令如下：  
+
 ![mtd-write](/assets/images/flash_partition_guide/mtd-write.png)
 
 * dd命令修改
@@ -308,20 +324,16 @@ graph TB
 
 ## 调试/新增对应的物料
 
-详细可以参考：[Flash&&DDR物料调试指南](待添加)
+详细可以参考：[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## 项目引用
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
-[Flash&&DDR物料调试指南](待添加)
+[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
-
-## TODO
-
-更新相关文档链接
 
 ## FAQ

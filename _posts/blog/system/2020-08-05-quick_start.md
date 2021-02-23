@@ -1,16 +1,17 @@
 ---
 layout: post
-title: siflower快速入门
-categories:  SYSTEM
-description: 介绍siflower平台开发快速入门的方法
+title: 快速入门手册
+categories: SYSTEM 
+description: 介绍siflower平台快速入门的方法
 keywords:  快速入门
 mermaid: true
+topmost: true
 ---
 
 * TOC
 {:toc}
 
-# Siflower快速入门
+# 快速入门手册
 
 ## 1 介绍
 
@@ -29,7 +30,7 @@ mermaid: true
 
 Siwifi的系统方案源于openwrt开源系统，必须基于GNU/Linux, BSD or MacOSX进行编译  
 为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，ubuntu14.04、ubuntu16.04都是经过详细测试的操作系统版本  
-windows下安装，参考[虚拟机安装及编译环境配置手册](待添加文档链接)这里有详细的关于虚拟机安装，ubuntu编译环境配置等步骤
+windows下安装，参考[虚拟机安装及编译环境配置手册](https://siflower.github.io/2020/08/05/ubuntu_install_complile_env_config_guide/)这里有详细的关于虚拟机安装，ubuntu编译环境配置等步骤
 
 ## 2 快速入门详情
 
@@ -44,14 +45,14 @@ graph TB;
 
 #### 2.1.1 环境准备
 
-- 参考[虚拟机安装及编译环境配置手册](待添加文档链接)搭建开发环境
+- 参考[虚拟机安装及编译环境配置手册](https://siflower.github.io/2020/08/05/ubuntu_install_complile_env_config_guide/)搭建开发环境
 
 - 需要有SDK支持的硬件平台
   >AC28 路由板型(intel switch芯片)  
    AC22 路由板型(realtek switch芯片)
 
   上述对应的硬件板型可以联系矽昌官方获取  
-  如果是客户新做的硬件，需要参考[新的版型引入指南](待添加文档链接)根据硬件配置建立对应的板型配置后，再进行编译
+  如果是客户新做的硬件，需要参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)根据硬件配置建立对应的板型配置后，再进行编译
 
 #### 2.1.2 源码下载
 
@@ -59,11 +60,11 @@ graph TB;
 
 一种是直接下载，第二种是将代码库fork到自己账户再下载
 
-**注：推荐先fork代码库到自己的github账户，然后在ubuntu环境下，以git clone的方式下载，方便代码更新和管理**
+**注：推荐先fork代码库到自己的github账户，然后在ubuntu环境下，以git clone的方式下载自己fork的代码仓库，方便代码更新和管理**
 
 - 直接下载：进入GitHub[官方网页](https://github.com)  
   
-  - 在左上角的搜索框，输入要下载的代码，如Siflower/siflower-sdk-18.06-linux4.14-v0，点击enter按键即可进行搜索  
+  - 在左上角的搜索框，输入要下载的代码，如Siflower/1806_SDK，点击enter按键即可进行搜索  
   
   ![quick_1](/assets/images/quick_image/quick_1.png)
 
@@ -81,23 +82,26 @@ graph TB;
 
   ![quick_4](/assets/images/quick_image/quick_4.png)
 
-  选择对应项目，然后再选择git clone方式下载
+  选择对应项目，可以看到右上角在自己项目信息下有fork的信息，然后再选择git clone方式下载
+
+  ![quick_4_1](/assets/images/quick_image/quick_41.png)
+
 
 - 下载完成如图
   
-  ![qiuck_5](/assets/images/quick_image/quick_5.png))
+  ![quick_5](/assets/images/quick_image/quick_5.png)
 
   由于服务器的问题，github下载可能会出现由于下载速率慢造成的下载失败，解决方法参考FAQ  
   如果多次尝试仍然下载不了，请联系邮箱(irving.luo@siflower.com.cn)提供离线版本  
-  注意：使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码
+  **注意：使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码**
 
 #### 2.1.3 源码上传
 
 - siflower SDK主分支
 
   - 代码更新
-  siflower github源码我们保持它是干净的，统一针对所有开发人员使用的，客户原则上不允许向sdk master分支提交任何改动  
-  有代码更新会由siflower内部进行发布更新到SDK，客户进行同步即可  
+   siflower github源码我们保持它是干净的，统一针对所有开发人员使用的，客户原则上不允许向sdk master分支提交任何改动  
+   有代码更新会由siflower内部进行发布更新到SDK，客户进行同步即可  
 
   - 如果开发人员发现重大公共性的bug，需要提交代码  
    1)可以在SDK issue进行发布，由矽昌来解决并更新代码    
@@ -106,9 +110,11 @@ graph TB;
 - fork 分支
   
   下载源码时，选择fork代码库然后再下载  
-  可以参考[pull requests](https://siflower.github.io/wiki/github_pull_reqest_submit/)的方法提交更新到自己的fork分支
+  如果需要更新或者上传代码可以参考[pull requests](https://siflower.github.io/wiki/github_pull_reqest_submit/)的方法提交更新
 
 #### 2.1.4 源码目录
+
+![quick_5_1](/assets/images/quick_image/quick_5_1.png)
 
 > openwrt-18.06/  
   这个是openwrt目录，代码修改，系统镜像编译，在此目录下进行  
@@ -125,16 +131,17 @@ graph TB;
 - 第一次编译请使用 make.sh 脚本进行编译
   
   ```
-  ./make.sh ac28 fullmask 
+  ./make.sh ac28  
   ```
 
-
   首次编译需要通过脚本选择硬件平台进行编译，ac28为路由器板型，更换板型只需要更换此参数  
-  使用脚本之前，请确保在make.sh中有此版型的相关代码，在target/linux/sifower/sf19a28-fullmask/下有对应的板型的配置文件即可  
-  首次编译成功后，会在根目录生成一个如openwrt1806_master_ac28fullmask_rel_.bin的镜像  
+  **如果编译出错请参考FAQ**
+
+  首次编译成功后，会在编译根目录生成一个如openwrt1806_github_ac28_sf19a28_fullmask_rel_1.bin的镜像  
+  **如果用脚本编译出错后，使用FAQ提供的方法继续编译成功，此时不会生成镜像在根目录，再次使用脚本编译一次则正常生成**
 
 - 后续编译
-  第一次脚本编译通过后，续在不更换版型的情况下，会默认使用根目录.config配置
+  第一次脚本编译通过后，在不更换板型的情况下，会默认使用根目录.config配置
   即使用make menuconfig修改之后，可以用以下指令直接编译
 
   ```
@@ -151,14 +158,14 @@ graph TB;
 
 
   >make.sh脚本编译  
-  例如./make.sh ac28 fullmask脚本编译  
+  例如./make.sh ac28 脚本编译  
   会使用SDK中版型默认的配置文件  
-  即target/linux/siflower/sf19a28_ac28_fullmask.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
+  即target/linux/siflower/sf19a28_ac28_fullmask_def.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
 
 
 
   >使用脚本编译和使用指令的区别在于会使用target/linux/siflower/下默认板型配置文件，并且在根目录下会生成一个带版型名称和版本号的镜像  
-  这个镜像与bin/目录下的一样，只是通过make.sh脚本对其重新命名，详情可以参考脚本中的代码实现
+  这个镜像与bin/target/siflower/目录下的一样，只是通过make.sh脚本对其重新命名，详情可以参考脚本中的代码实现
 
 
   调试板型固定时，修改代码后，使用make指令编译生成镜像测试功能即可  
@@ -176,11 +183,12 @@ graph TB;
 - 镜像路径
     
   不管使用脚本编译还是指令编译，编译成功后镜像都会生成在如下目录  
-  使用脚本编译会额外在根目录生成一个名称带有分支名称板型名称版本号的镜像  
-
+   
   ```
   /bin/target/siflower/openwrt-siflower-sf19a28-fullmask-squashfs-sysupgrade.bin
   ```
+
+  使用脚本编译会额外在根目录生成一个名称带有分支名称板型名称版本号的镜像
 
 - 单独编译
   
@@ -193,7 +201,7 @@ graph TB;
   - 单独编译软件包
   
   ```
-  make pakcake/siflower/bin/led-button/{clean,compile} V=s
+  make package/libs/mbedtls/{clean,compile} V=s
   ```
 
 
@@ -203,15 +211,15 @@ graph TB;
 
   ```
   1)make clean
-  删除目录/ bin和/ build_dir的内容。 使清洁不会删除工具链，它也可以避免清除不同于您在.config中选择的体系结构/目标
+  删除目录/bin和/build_dir的内容。 使清洁不会删除工具链，它也可以避免清除不同于您在.config中选择的体系结构/目标
 
   2)make dirclean
-  删除目录/ bin和/ build_dir以及/ staging_dir和/ toolchain（=交叉编译工具）和/ logs的内容。“Dirclean”是您的基本“全面清理”操作。
+  删除目录/bin和/build_dir以及/staging_dir和/toolchain（=交叉编译工具）和/logs的内容。“Dirclean”是您的基本“全面清理”操作。
 
   3)make distclean
   将编译或配置的所有内容都删除，并删除所有已下载的提要内容和程序包源。
 
-  4）make target / linux / clean
+  4）make target/linux/clean
   清理linux对象。
 
   5)make package/luci/clean
@@ -220,9 +228,48 @@ graph TB;
 
 #### 2.1.6 更新镜像
 
+##### 镜像获取
+
+我们提供一些现有的镜像供客户下载，做demo使用，用于硬件验证  
+这里提供的镜像只用于验证，后续功能镜像由客户下载SDK，根据自身客制化需求自行编译生成  
+
+- uboot镜像
+  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动（ddr/flash等）
+- openwrt镜像 
+  
+- 完整的FLASH镜像
+  
+  |版型|ddr+flash|switch|链接|
+  |--|--|--|--|
+  |ac28|16M+64M DDR2|intel|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+  |ac22|16M+64M DDR2|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+  |evb|16M+128M DDR3|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+
+
 ##### 2.1.6.1 网页更新
 
 如果路由器本身的系统是可以正常启动的，可以登录路由器的网页端进行镜像更新  
+
+**原生界面**
+
+- 打开浏览器，访问192.168.4.1，进入路由器登陆页面，登录密码admin
+  ![quick_6_1](/assets/images/quick_image/quick_6_1.png) 
+
+- 进入系统-->备份/升级-->刷写新的固件
+  ![quick_7_1](/assets/images/quick_image/quick_7_1.png)
+
+- 选择刷写固件，上传本地镜像
+  ![quick_8_1](/assets/images/quick_image/quick_8_1.png)
+
+- 上传成功之后，选择继续
+  ![quick_8_2](/assets/images/quick_image/quick_8_2.png)
+
+- 等待更新进程完成升级
+  ![quick_8_3](/assets/images/quick_image/quick_8_3.png)
+
+  更新镜像大约需要1-2分钟的时间，更新完毕系统会自动重启
+
+**siflower界面**
 
 - 打开浏览器，访问192.168.4.1，进入路由器登陆页面，登录密码admin  
   ![quick_6](/assets/images/quick_image/quick_6.png)  
@@ -280,13 +327,32 @@ graph TB;
 
   ![quick_15](/assets/images/quick_image/quick_15.png)
 
-##### 2.1.6.2 烧录器更新
+##### 2.1.6.3 IROM download更新
 
-如果板子uboot镜像损坏，导致uboot无法正常启动  
-或者flash为空，未烧录过任何镜像  
-需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过芯片烧录器对flash芯片进行烧录  
+在板子硬件配置上有外置以太网口/usb otg接口时，如果出现以下情况  
+1，uboot镜像损坏，导致uboot无法正常启动  
+2，flash为空，里面没有任何内容，需要烧录镜像  
+可以通过Siflower的irom download下载工具将文件下载到FLASH中，支持ETH，USB下载方案
+
+- ETH下载
+
+  由于A28芯片支持ETH需要外挂switch芯片，操作方法根据switch芯片类型有所不同，目前支持  
+  Intel switch芯片  
+  Realtek switch芯片
+
+- USB下载
+
+  此方法需要硬件上带usb口且模式需要为OTG
+
+此方法需要专业人士进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
+
+##### 2.1.6.4 烧录器更新
+
+在板子硬件配置上无外置以太网口/usb otg接口时，如果出现以下情况  
+1，uboot镜像损坏，导致uboot无法正常启动  
+2，flash为空，未烧录过任何镜像  
+需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过FLASH烧录器对flash芯片进行烧录  
 具体操作方法请联系邮箱(irving.luo@siflower.com.cn)  
-
 
 #### 2.1.7 串口调试
 
@@ -392,22 +458,12 @@ graph TB;
 
 ## FAQ
 
-**Q：git代码下载不成功出现图示问题，怎么解决？**   
-
-![faq1](/assets/images/quick_image/faq1.png)   
-
- A：(1)由于系统环境自带的git缓存buffer较小导致    
-
- 可以参考[buffer修改](https://blog.csdn.net/zcmain/article/details/76855595) 行修改本地git缓存  
-
-(2)网络状况不好导致，如果下载时下载速度一直在90kb/s以下，会导致下载失败，建议待网络环境良好或者更换下载时间段进行下载   
-
 **Q：编译出现图示问题，怎么解决？**    
 
 ![faq2](/assets/images/quick_image/faq2.png)   
 
 A：这个是由于编译指令漏了项目名或者项目名错误。具体支持的版型可以查看make.sh脚本代码中的参数选项。
-例如编译evb_v5版型：./make.sh evb_v5 fullmask 
+例如编译ac28版型：./make.sh ac28 
 
 **Q：第一次使用脚本编译出现图示问题，怎么解决？**  
 ![faq3](/assets/images/quick_image/faq3.png)   
@@ -415,15 +471,17 @@ A：这个是由于编译指令漏了项目名或者项目名错误。具体支�
 ![faq4](/assets/images/quick_image/faq4.png)   
 
 A：出现图示问题是由于第一次脚本编译，有一些package的依赖没有选上导致编译不通过    
-可以尝试使用  
-make  V=s继续编译  
+可以尝试在这个状态下继续使用  
+make -j1 V=s继续编译  
 或者make -j4 V=s、 make -j8 V=s，使用多个线程，提高编译速度继续编译    
+
+如果是使用的虚拟机，尝试将虚拟机的内存改大，4G及以上
 
 **Q：脚本编译的项目如何添加？**  
 
 A：因为硬件的不同，编译时需要对版型进行区分选择相应的配置文件   
 
-参考[新的版型引入指南](待添加链接)  
+参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)  
 
 **Q：如何判断编译成功？**   
 A：出现图示log即为编译成功。编译成功会在/bin/target/siflower/下生成对应的镜像文件  
@@ -442,6 +500,58 @@ A：这个是由于系统的dtc版本太低导致的，使用sudo apt-get instal
 
 A：这是由于FLASH为空，为烧录任何程序打印的芯片内部的log  
 
-需要通过flash烧录器烧录镜像，如果板子支持usb slave可以使用[siflower_usb下载工具进行烧录](添加网页链接)  
+需要通过flash烧录器烧录镜像，或者使用siflower irom下载工具进行烧录
+
+**Q：git代码下载不成功出现图示问题，怎么解决？**   
+
+![faq1](/assets/images/quick_image/faq1.png)   
+
+ A：(1)由于系统环境自带的git缓存buffer较小导致,可以参考[buffer修改](https://blog.csdn.net/zcmain/article/details/76855595) 行修改本地git缓存  
+
+(2)网络状况不好导致，如果下载时下载速度一直在90kb/s以下，会导致下载失败，建议待网络环境良好或者更换下载时间段进行下载，可能仍然需要花长时间下载   
+
+(3)如果办公环境下载速度一直在几十kb/s左右，可以尝试使用电脑无线网卡连接手机热点进行下载，速度会有很大提升，但是会有一点浪费流量，请谨慎选择此方法。
+
+(4)使用gitee码云下载
+
+- 注册一个[gitee账户](https://gitee.com/)
+
+- 获取已有的github代码库链接，siflower即为https://github.com/Siflower/1806_SDK.git
+
+- 进入gitee工作台，新建仓库
+  
+  ![faq1_1](/assets/images/quick_image/faq1_1.png)
+
+- 开始导入github代码仓库到码云
+  
+  ![faq1_2](/assets/images/quick_image/faq1_2.png)
+
+- 将需要导入的github链接填入
+
+  ![faq1_3](/assets/images/quick_image/faq1_3.png)
+
+- 点击创建，等待仓库导入
+  
+  ![faq1_4](/assets/images/quick_image/faq1_4.png)
+
+ - 导入成功后点击下载，获取下载链接
+
+  ![faq1_5](/assets/images/quick_image/faq1_5.png)
+
+- 回到ubuntu环境，使用gitee下载链接下载代码
+
+  ![faq1_6](/assets/images/quick_image/faq1_6.png)
+
+  此时可以看到，下载速度可以到达5M/s，这是因为gitee服务器设置在国内，通过gitee将代码仓库导入后，会显著的提升下载速度  
+  这样下载的区别是 clone 链接换成了目标项目在gitee中的链接
+
+- 如何保持与github主仓库代码一致
+  
+  点击gitee代码仓库此按钮，即可强制同步github主分支的更新
+
+  ![faq1_7](/assets/images/quick_image/faq1_7.png)
+
+
+
 
 

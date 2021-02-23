@@ -9,25 +9,6 @@ mermaid: true
 
 # U-boot移植应用开发手册
 
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**
-
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**
-
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**
-
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**
-
-- 地址：上海市浦东新区祖冲之路887弄84号楼408室
-- 网址：http://www.siflower.com/
-- 客户服务电话：021-51317015
-- 客户服务传真：
-- 客户服务邮箱：
 
 **目录**
 
@@ -41,7 +22,7 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ## 开发环境
 
-Uboot代码编译环境，环境搭建见：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+Uboot代码编译环境，环境搭建见：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 Siflower开发板测试环境。
 
@@ -251,14 +232,32 @@ sfa18 # bootm
 
 #### 代码下载
 
-git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot。  
+##### ssh方式下载  
+
+ssh方式下载代码需要先使用ssh-keygen命令在本地电脑生成一对秘钥，然后将公钥（id_rsa.pub）放在服务器上，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+放置秘钥位置如下：  
+![uboot_ssh](/assets/images/uboot_development_manual/uboot_ssh.png)  
+代码下载命令：  
+git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot  
+
+##### http方式下载  
+
+http方式下载需要先在服务器网站上生成一个http下载密码，下载时需要输入此密码，服务器账号需要向管理员申请。  
+服务器网站：http://codereview.siflower.cn:8008  
+生成密码位置如下：  
+![uboot_http](/assets/images/uboot_development_manual/uboot_http.png)  
+代码下载命令：  
+git clone http://username@codereview.siflower.cn:8008/a/openwrt/siflower/uboot  
+
 除此之外，建议通过repo下载，详见repo使用说明：http://192.168.1.11:8081/redmine/news/7  
 两者内容是一致的。 
 
 #### 编译
 
 由于同时需要spl和uboot两部分，而为了简化烧录过程，会将两部分拼成一个镜像，统一作为BootLoader，因此uboot的编译推荐直接使用编译脚本sf_make.sh。  
-由于存在不同的板型和芯片，因此该脚本还支持若干个参数：ver，prj、mode和cmd。  
+由于存在不同的板型和芯片，因此该脚本还支持若干个参数：use_mti，ver，prj，mode和cmd。  
+use_mti：表示编译工具链选择，支持0（默认）和1。其中０表示使用当前目录toolchain中工具链，１表示使用系统编译工具链。　　
 Cmd：表示命令，支持distclean、clean、make、dmake（默认）。其中dmake指的是先进行distclean，再make。  
 Mode：表示选择release或debug模式，支持r（默认）和d。Mode=r时编译出的binary文件包含设备树信息，elf debug文件不包含；mode=d时binary不包含，debug文件包含。Mode=d一般是配合jtag进行调试使用的。  
 Ver：表示芯片型号，支持mpw0（默认）、mpw1和fullmask。  
@@ -288,7 +287,7 @@ sf16a18/sf19a28 evb、p10开发板。
 #### 烧录步骤
 
 ①板子接串口，重启进入uboot，回车进入command模式，输入命令httpd 192.168.1.1 （或者其它和PC同网段的ip），回车，界面如下：  
-![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)
+![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)  
 ②电脑网线接板子上的第一个网口，最左侧的网口，在evb和p10上都是lan口的第一个网口。  
 ③浏览器地址根据不同的需求输入不同的网址，如下表，以192.168.1.1为例：
 
@@ -338,24 +337,24 @@ uboot引入新版型主要涉及到新版型配置文件改动，以太网驱动
 
 #### 以太网驱动适配
 
-当新增版型引入了新的有线设备时，需要对应适配以太网驱动，对应文件drivers/net/sfa18_gmac.c，详细引入新的有线设备（gphy、gswitch）可以参考：[gmac外围芯片对接手册](待添加)
+当新增版型引入了新的有线设备时，需要对应适配以太网驱动，对应文件drivers/net/sfa18_gmac.c，详细引入新的有线设备（gphy、gswitch）可以参考：[gmac外围芯片对接手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)
 
 
 ### Uboot物料对接
 
-Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细参考：[DDR物料调试指南](待添加)
+Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细参考：[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## 项目引用
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
-[DDR物料调试指南](待添加)
+[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
 ## FAQ
 
 **Q：uboot烧录失败怎么处理**  
-A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)

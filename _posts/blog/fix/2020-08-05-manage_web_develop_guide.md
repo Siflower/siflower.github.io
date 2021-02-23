@@ -11,7 +11,6 @@ mermaid: false
 # 管理网页客开发手册
 
 
-
 * TOC
 {:toc}
 
@@ -39,7 +38,7 @@ PC端浏览器
 
 **如果需要使用siflower管理页面，请先联系矽昌官方，获取siflower管理页面使用权限，即可按照本文说明进行开发**  
 
-如果仅需要要对管理网页风格样式进行修改，参考[管理网页客制化手册](待添加)  
+如果仅需要要对管理网页风格样式进行修改，参考[管理网页客制化手册](https://siflower.github.io/2020/07/31/manage_web_custom_guide/)  
 
 ## 2 项目引用
 
@@ -217,7 +216,7 @@ siflower在luci下建立了单独的文件夹，便于管理所有siflower web�
 
 - controller调用本地接口
   
-    controller调用的siflower本地接口说明参考[SiWiFi网页接口使用手册](待添加)
+    controller调用的siflower本地接口说明使用手册，请联系FAE获取
 
 - 页面代码调用controller接口
   
@@ -333,7 +332,7 @@ siflower在luci下建立了单独的文件夹，便于管理所有siflower web�
 
 ### 3.3 调试关键点
 
- 管理页面开发新功能调试时，参考[luci接口测试手册]()和[luci接口开发手册]()说明进行debug
+ 管理页面开发新功能调试时，参考[SiWiFi接口测试手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_test/)和[SiWiFi接口开发手册](https://siflower.github.io/2020/09/11/SiWiFi_interface_develop/)说明进行debug
   
 ## 4 测试用例
 

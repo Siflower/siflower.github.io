@@ -7,21 +7,6 @@ keywords: wifi wds
 mermaid: true
 ---
 # WDS开发及使用手册
-**版权所有©上海矽昌微电子有限公司2019。保留一切权利。**  
-非经本公司许可，任何单位和个人不得擅自摘抄、复制本文档内容的部分或全部，并不得以任何形式传播。
-
-**商标申明**  
-SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的商标，本文档提及的其它所有商标或注册商标，由各自的所有人拥有。
-
-**注意**  
-您购买的产品、服务或特性应受矽昌公司商业合同和条款的约束，本文档所描述的全部或部分产品、服务或特性可能不在您的购买和使用范围内。除合同另有约定，矽昌公司对文档的内容不做任何明示或暗示的声明和保证。
-
-**上海矽昌微电子有限公司**  
-地址：上海市浦东新区祖冲之路887弄84号楼408室  
-网址：http://www.siflower.com/  
-客户服务电话：021-51317015  
-客户服务传真：  
-客户服务邮箱：
 
 **目录**  
 * TOC
@@ -31,8 +16,8 @@ SiFlower、矽昌和矽昌其它商标均为上海矽昌微电子有限公司的
 
 ### 1.1 适用人员
 
-- 掌握基本的wifi配置方法，见[WiFi模式配置手册，待插入]()
-- 掌握network、firewall的配置方法，见[待插入链接]()
+- 掌握基本的wifi配置方法，见[WiFi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)
+- 掌握network、firewall的配置方法，见[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 
 ### 1.2 开发环境
 
@@ -80,7 +65,7 @@ C-.-|不建议桥接|D[四级路由器]
 
 ### 2.1 编译说明
 
-- 编译wifi模块,见[WiFi架构和配置手册，todo]()
+- 编译wifi模块,见[WiFi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)
 - 添加relayd服务，make menuconfig选中
 
 
@@ -94,7 +79,7 @@ Network--->Routing and Redirection--->CONFIG_PACKAGE_relayd
 
 #### 2.2.1 无线站点配置
 
-想要通过无线桥接（中继）到另一个ap（无线热点）上，首先需要在/etc/config/wireless添加一个对应的station（站点）与其进行连接。具体配置可参见[WiFi模式配置手册第2.3.4.2节，todo]( )。
+想要通过无线桥接（中继）到另一个ap（无线热点）上，首先需要在/etc/config/wireless添加一个对应的station（站点）与其进行连接。具体配置可参见[WiFi架构和配置手册](https://siflower.github.io/2020/08/12/wifi_architecture_and_configuration_manual/)。
 一个可用的配置示例如下：
 
 ```
@@ -114,7 +99,7 @@ config wifi-iface
 
 #### 2.2.2 Station获取ip地址
 
-在建立station后，设备会自动与host ap（目标热点）进行连接。此时如果参数配置正确，是可以正常连接的，但并不会自动获取到ip地址。想要通过dhcp获取ip地址，还要在对应的interface上再启动一个dhcp client。此时需要在/etc/config/network中添加一个新的interface wwan，并与wifi station（以下简称sfi*）绑定，同时将其proto设为dhcp。具体配置参见[待插入链接]()
+在建立station后，设备会自动与host ap（目标热点）进行连接。此时如果参数配置正确，是可以正常连接的，但并不会自动获取到ip地址。想要通过dhcp获取ip地址，还要在对应的interface上再启动一个dhcp client。此时需要在/etc/config/network中添加一个新的interface wwan，并与wifi station（以下简称sfi*）绑定，同时将其proto设为dhcp。具体配置参见[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)。
 配置示例：
 
 ```
@@ -169,7 +154,7 @@ config zone
 
 #### 2.2.4 其他防火墙设置
 
-在Firewall配置中，将wwan配置的与wan的配置相同。具体配置参见[待插入链接]()
+在Firewall配置中，将wwan配置的与wan的配置相同。具体配置参见[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)
 需要修改或增添的配置示例如下：
 ```
 ...
@@ -208,7 +193,9 @@ D-.->D1[错误的连接方式]
 ```
 
 
-#### 2.3.2 原生网页设置
+#### 2.3.2 网页设置
+
+**原生网页**
 
 - 第一步，选择网络->无线->扫描，开始扫描无线网络。
 ![第1-1步](/assets/images/wifi/native_wds_wireless_1_1.png)
@@ -246,6 +233,35 @@ D-.->D1[错误的连接方式]
 ![第1-7-5步](/assets/images/wifi/native_wds_wireless_1_7_5.png)
 
 保存应用即可。
+
+**siflower 网页**
+
+- 连接路由器wifi或者以太网，打开浏览器，输入192.168.4.1，输入密码进入路由器管理页面
+  
+  ![si_wds_1](/assets/images/wifi/si_wds_1.png)
+
+- 点击高级设置->无线设置->WDS，打开WDS无线桥接设置页面
+
+  ![si_wds_2](/assets/images/wifi/si_wds_2.png)
+
+- 点击下一步，选择使用2.4G或者5G桥接
+  
+  ![si_wds_3](/assets/images/wifi/si_wds_3.png)
+
+- 在以下列表中选择以下您将桥接的主路由无线信号名称，弹出密码输入窗口，输入要桥接的主路由器的无线密码，点击下一步
+  
+  ![si_wds_4](/assets/images/wifi/si_wds_4.png)
+
+- 设置wds后，本路由的SSID和密码，如果不设置的话默认保持和主路由一致
+  
+  ![si_wds_5](/assets/images/wifi/si_wds_5.png)
+
+- 点击下一步，开始进行桥接，设置完成
+  
+  ![si_wds_6](/assets/images/wifi/si_wds_6.png)
+
+  **需要断开wds连接使用正常wan口连接的话，需要重新进入网页，点击关闭，等待断开即可**
+
 
 #### 2.3.3 后续访问网页及关闭wds
 

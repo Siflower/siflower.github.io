@@ -9,6 +9,7 @@ mermaid: true
 
 # 以太网测试介绍
 
+
 **目录**
 
 * TOC
@@ -29,7 +30,7 @@ Linux/Windows PC，开发板测试环境。
 
 ## 以太网测试
 
-在进行有线网络测试时，可以分为基础功能测试，性能测试和压力测试等3方面进行，详细可参考：[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
+在进行有线网络测试时，可以分为基础功能测试，性能测试和压力测试等3方面进行，详细可参考内部redmine：[以太网测试](http://redmine.siflower.cn/redmine/issues/7259)。
 
 ### 基础功能测试
 
@@ -61,7 +62,7 @@ PC通过100米网线连接路由器，检测PC是否能正常link，数据收发
 
 #### 性能测试测试项
 
-有线网络性能测试常见测试项如下：  
+有线网络性能测试常见测试项如下：
 * 单口Host TX TCP/UDP；
 * 单口Host RX TCP/UDP；
 * 单口Host 双向 TCP/UDP；
@@ -75,7 +76,7 @@ PC通过100米网线连接路由器，检测PC是否能正常link，数据收发
 
 #### Iperf性能测试
 
-使用iperf可以快捷简便的进行以太网性能测试，Linux系统下通过```man iperf```或者```iperf -h```可以查看iperf使用方法。  
+使用iperf可以快捷简便的进行以太网性能测试，Linux系统下通过```man iperf```或者```iperf -h```可以查看iperf使用方法。
 不过使用iperf时需要注意以下几点：
 - 测试1000M网口的时候，iperf单条流使用单核无法达到最大性能，需要加上-P 4 使用多线程进行发送；
 - Iperf测试路由端和PC端iperf版本最好保持一致，如都使用2.0.12；
@@ -121,12 +122,12 @@ Linux环境下通过命令安装iperf/ethtool等工具进行测试，Windows环�
 
 ### 测试报告
 
-以repeater性能测试报告为例，提供详细性能测试报告如下：[repeater性能测试报告](待添加)
+Siflower提供完整详细的测试报告，如需要请联系Siflower管理人员进行获取。
 
 ## 项目引用
 
 ### 参考文档
 
-[快速入门](/_posts/blog/system/2020-08-05-quick_start.md)
+[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 ## FAQ
