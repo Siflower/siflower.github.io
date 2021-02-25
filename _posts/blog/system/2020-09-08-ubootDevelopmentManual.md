@@ -232,41 +232,77 @@ sfa18 # bootm
 
 #### 代码下载
 
-##### ssh方式下载  
+- 账号注册
+  
+uboot代码需要向siflower申请gerrit权限，同意开放后需要提供相关邮箱进行账号注册，注册通过后会给到对应的账号以及密码
 
-ssh方式下载代码需要先使用ssh-keygen命令在本地电脑生成一对秘钥，然后将公钥（id_rsa.pub）放在服务器上，服务器账号需要向管理员申请。  
-服务器网站：http://codereview.siflower.cn:8008  
-放置秘钥位置如下：  
-![uboot_ssh](/assets/images/uboot_development_manual/uboot_ssh.png)  
-代码下载命令：  
-git clone ssh://username@codereview.siflower.cn:29428/openwrt/siflower/uboot  
+- 账号激活
 
-##### http方式下载  
+  - 获取账号后，使用账号密码登陆网站gerrit.siflower.cn:9011
 
-http方式下载需要先在服务器网站上生成一个http下载密码，下载时需要输入此密码，服务器账号需要向管理员申请。  
-服务器网站：http://codereview.siflower.cn:8008  
-生成密码位置如下：  
-![uboot_http](/assets/images/uboot_development_manual/uboot_http.png)  
-代码下载命令：  
-git clone http://username@codereview.siflower.cn:8008/a/openwrt/siflower/uboot  
+  - 登陆成功后，进入设置页面开始激活
+  
+    ![uboot_get_setting](/assets/images/uboot_development_manual/uboot_get_setting.png)
 
-除此之外，建议通过repo下载，详见repo使用说明：http://192.168.1.11:8081/redmine/news/7  
-两者内容是一致的。 
+  - 添加邮箱，点击send verification获取激活链接
+  
+    ![email](/assets/images/uboot_development_manual/email.png)
+
+  - 点击激活连接激活账号，注意需要将10.0.2.10:8080修改为http://gerrit.siflower.cn:9011
+
+    ![verification](/assets/images/uboot_development_manual/verification.png)
+
+  至此完成激活。
+
+- 获取代码
+  
+  - 登陆gerrit.siflower.cn:9011
+  
+  - 在BROWSE中找到相关项目，获得git http链接
+  
+    ![browse](/assets/images/uboot_development_manual/browse.png)
+
+    ![browse2](/assets/images/uboot_development_manual/http_link.png)
+
+  - 开始下载代码，http密码通过点击generate new password获取
+  
+    ![browse3](/assets/images/uboot_development_manual/http_pw.png)
+
 
 #### 编译
 
+- 编译uboot
+  
 由于同时需要spl和uboot两部分，而为了简化烧录过程，会将两部分拼成一个镜像，统一作为BootLoader，因此uboot的编译推荐直接使用编译脚本sf_make.sh。  
 由于存在不同的板型和芯片，因此该脚本还支持若干个参数：use_mti，ver，prj，mode和cmd。  
 use_mti：表示编译工具链选择，支持0（默认）和1。其中０表示使用当前目录toolchain中工具链，１表示使用系统编译工具链。　　
 Cmd：表示命令，支持distclean、clean、make、dmake（默认）。其中dmake指的是先进行distclean，再make。  
 Mode：表示选择release或debug模式，支持r（默认）和d。Mode=r时编译出的binary文件包含设备树信息，elf debug文件不包含；mode=d时binary不包含，debug文件包含。Mode=d一般是配合jtag进行调试使用的。  
 Ver：表示芯片型号，支持mpw0（默认）、mpw1和fullmask。  
-Prj：表示板型，支持p10（或p10b）、p20（或p20b、wrt，默认）、evb、p10flash。其中evb与其他的区别为evb是sd启动的，其余均为flash启动。P10flash表示是经过flash优化的uboot，其分区信息与master不同，size也较小。  
+Prj：表示板型，支持sfa28_evb、sfa28_p20b、sfa28_ac28等  
 因此，实际编译时只要根据板子的情况，设置非default的参数即可。比如想要编译一个flash启动的fullmask最新evb镜像，编译命令如下：  
-./sf_make.sh ver=fullmask  
+
+```
+./sf_make.sh ver=fullmask
+```
+
 想要提交代码时，可以通过  
+
+```
 ./sf_make.sh cmd=clean  
+```
+
 删掉编译生成的多余文件。  
+
+- 编译带版型编号的uboot镜像
+  
+当需要生成正式的带版型名称编号分支版本号等信息的uboot镜像时，可以使用如下面指令进行编译，具体可以参考该脚本的实现
+
+```
+./make.sh sfa28_evb 
+```
+
+这样编译的进行会生成在根目录，此镜像就等同于uboot/sfax8/uboot_full.img，但是带有分支版型版本号等信息
 
 #### 编译结果
 
@@ -282,7 +318,7 @@ p20b.img：与uboot_full.img相同，会以板子型号命名。
 
 #### 适用平台
 
-sf16a18/sf19a28 evb、p10开发板。
+sf16a18/sf19a28 evb开发板。
 
 #### 烧录步骤
 
@@ -299,7 +335,7 @@ sf16a18/sf19a28 evb、p10开发板。
 正常的烧录界面如下：
 ![uboot_html](/assets/images/uboot_development_manual/uboot_html.png)
 ④烧录完毕会自动重启  
-备注： p10的板子一般情况下不要随意更新uboot，因为如果烧录的uboot中spl编译有问题，则只能把 flash摘掉，重新贴片烧录  
+ 
 
 
 

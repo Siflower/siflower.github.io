@@ -201,7 +201,15 @@ linux需要增加相应的dts文件和Kconfig选项。
 ![evb-v5-compile](/assets/images/new_board_guide/evb-v5-compile.png)
 可以编译出对应新配置版型的镜像。
 
+#### 烧录编译出来的镜像
 
+参考[快速入门](https://siflower.github.io/2020/08/05/quick_start/) 镜像更新章节
+
+注意：第一次烧录镜像到新板子之后，需要调一下rgmii接口的delay值以及确认switch gpio reset脚gpio
+
+方法参考[外围switch对接和使用手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)
+ ```3.1 对接准备``--4 switch的reset  
+ ```3.1 对接准备``--7 调整tx/rx delay
 ## 项目引用
 
 ### 参考文档
