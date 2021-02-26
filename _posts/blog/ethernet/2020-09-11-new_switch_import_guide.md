@@ -66,6 +66,14 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 使用switch之前可以对switch进行硬件reset，可以防止未知错误。switch硬件复位的过程中会导致提供给gmac的时钟不正常，所以在配置完硬件reset之后需要设置一定时间的delay等待switch硬件复位完成。
 
+**注意：** reset_gpio默认为0xb即gpio11,新的硬件版型需要对此gpio做确认。
+
+- 如果硬件上没有修改，则保持默认值  
+- 如果硬件上次脚位有改动，请在uboot中修改
+  执行```make menuconfig```,修改下图对应的switch reset gpio值，保存后覆盖configs/下默认的版型配置文件即可  
+  ![uboot_switch_gpio](/assets/images/switch_img/uboot_switch_gpio.png)
+
+
 5、switch的初始化
 
 根据switch芯片说明书的要求对该switch进行初始化的寄存器配置，一般为设置cpu port为1000M全双工即可(需要与gmac工作在同一模式)，switch的初始化在irom、uboot、linux中都需要进行。
@@ -89,6 +97,21 @@ devmem 0x19e04444  32 0x30 //设置tx delay = 0x30 * 0.04ns
 devmem 0x19e04448  32 0x40 //设置rx delay = 0x40 * 0.04ns
 //tx rx delay的设置范围为1~256
 ```
+
+- tx/rx delay在uboot中配置
+  当通过devmem命令调整好delay值后，在uboot中将该值写到configs/目录下对应的版型文件中  
+  如configs/sfa28_fullmask_ac28_defconfig  
+  ![trx_delay](/assets/images/switch_img/trx_delay.png)
+
+  也可以通过make menuconfig进行配置，然后保存到configs/目录下对应的版型文件
+  
+  ![uboot_switch_gpio](/assets/images/switch_img/uboot_switch_gpio.png)
+
+- tx/rx delay在linux中配置
+  当通过devmem命令调整好delay值后，在linux中将该值写到对应的版型的dts文件  
+  如```linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_ac28.dts```，前一个代表TX delay，后一个代表RX delay
+
+  ![dts_trx_delay](/assets/images/switch_img/dts_trx_delay.png)
 
 设置示例：
 

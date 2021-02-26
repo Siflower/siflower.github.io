@@ -49,7 +49,7 @@ graph TB;
 
 - 需要有SDK支持的硬件平台
   >AC28 路由板型(intel switch芯片)  
-   AC22 路由板型(realtek switch芯片)
+   EVB 开发板(realtek switch芯片)
 
   上述对应的硬件板型可以联系矽昌官方获取  
   如果是客户新做的硬件，需要参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)根据硬件配置建立对应的板型配置后，再进行编译
@@ -131,13 +131,13 @@ graph TB;
 - 第一次编译请使用 make.sh 脚本进行编译
   
   ```
-  ./make.sh ac28  
+  ./make.sh a28_evb  
   ```
 
-  首次编译需要通过脚本选择硬件平台进行编译，ac28为路由器板型，更换板型只需要更换此参数  
+  首次编译需要通过脚本选择硬件平台进行编译，a28_evb为矽昌A28开发板，更换板型只需要更换此参数  
   **如果编译出错请参考FAQ**
 
-  首次编译成功后，会在编译根目录生成一个如openwrt1806_github_ac28_sf19a28_fullmask_rel_1.bin的镜像  
+  首次编译成功后，会在编译根目录生成一个如openwrt1806_github_a28_evb_sf19a28_fullmask_rel_1.bin的镜像  
   **如果用脚本编译出错后，使用FAQ提供的方法继续编译成功，此时不会生成镜像在根目录，再次使用脚本编译一次则正常生成**
 
 - 后续编译
@@ -158,9 +158,9 @@ graph TB;
 
 
   >make.sh脚本编译  
-  例如./make.sh ac28 脚本编译  
+  例如./make.sh a28_evb 脚本编译  
   会使用SDK中版型默认的配置文件  
-  即target/linux/siflower/sf19a28_ac28_fullmask_def.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
+  即target/linux/siflower/sf19a28_evb_fullmask_def.config来覆盖当前的.config文件(首次编译则直接选其取作为config)，选中config里相应的配置进行编译
 
 
 
@@ -173,7 +173,7 @@ graph TB;
   如果需要生成带板型名称以及版本号的镜像，请使用脚本编译  
 
   ```
-  cp .config target/linux/siflower/sf19a28_ac28_fullmask.config
+  cp .config target/linux/siflower/sf19a28_evb_fullmask.config
   ```
 
 
@@ -242,7 +242,6 @@ graph TB;
   |版型|ddr+flash|switch|链接|
   |--|--|--|--|
   |ac28|16M+64M DDR2|intel|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
-  |ac22|16M+64M DDR2|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
   |evb|16M+128M DDR3|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
 
 
@@ -284,6 +283,7 @@ graph TB;
 
 ##### 2.1.6.2 串口更新
 
+###### openwrt镜像更新
 如果开发板内部已经有烧录好的uboot，且系统无法正常启动，那么我们只能从uboot阶段进行镜像更新，使用以太网口和串口配合来更新镜像  
 
 - 在PC端安装一个串口应用，如“SmarTTY”  
@@ -293,39 +293,57 @@ graph TB;
 - 网线连接到板子上任意LAN口  
   ![quick_9](/assets/images/quick_image/quick_9.png)  
 
-- 设置PC端的IP为静态IP 
+- 1.设置PC端的IP为静态IP 
 
   如192.168.4.100，默认网关必须和IP地址是同一网段的，且默认网关的最后一位必须为1，所以默认网关此时应设置为192.168.4.1，具体如下图所示：  
 
   ![quick_10](/assets/images/quick_image/quick_10.png)  
 
-- 给路由器上电重启，同时敲回车键，进入Command模式  
+- 2.给路由器上电重启，同时敲回车键，进入Command模式  
 
   正常的uboot会在串口显示如下图的log信息  
 
   ![quick_11](/assets/images/quick_image/quick_11.png)  
 
-- 在串口处输入 httpd 192.168.4.5
+- 3.在串口处输入 httpd 192.168.4.5
   
   此处的IP的最后一位不能和网关一样，即不能是1，可以用5或其他，按回车键显示如下log信息：  
 
   ![quick_12](/assets/images/quick_image/quick_12.png)
 
-- PC端使用浏览器访问192.168.4.5
+- 4.PC端使用浏览器访问192.168.4.5
   
   此处的IP与串口输入的IP必须一致，如果一切成功会显示如下图更新页面  
 
   ![quick_13](/assets/images/quick_image/quick_13.png)
 
-- 选择要升级的镜像文件，点击Update firmware，开始更新  
+- 5.选择要升级的镜像文件，点击Update firmware，开始更新  
   
   ![quick_14](/assets/images/quick_image/quick_14.png)
 
-- 更新镜像大约需要1-2分钟的时间，更新完毕系统会自动重启  
+- 6.更新镜像大约需要1-2分钟的时间，更新完毕系统会自动重启  
   
   串口出现如上信息表示镜像更新完毕，启动完成  
 
   ![quick_15](/assets/images/quick_image/quick_15.png)
+
+###### uboot更新
+
+- 通过串口更新uboot,1-3步与更新openwrt镜像一致
+  
+- 4.PC端使用浏览器访问192.168.4.5/uboot.html
+  
+  此处的IP与串口输入的IP必须一致，如果一切成功会显示如下图更新页面
+
+  ![update_uboot](/assets/images/quick_image/update_uboot.png)
+
+- 5.选择要升级的uboot文件，点击Update firmware，开始更新  
+  
+  ![quick_14](/assets/images/quick_image/quick_14.png)
+
+- 6.查看串口，开始更新，更新log如下，更新完成后会自动重新启动
+  
+  ![update_uboot_log](/assets/images/quick_image/update_uboot_log.png)
 
 ##### 2.1.6.3 IROM download更新
 
