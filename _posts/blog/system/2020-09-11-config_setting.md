@@ -39,15 +39,17 @@ config文件为openwrt用于存储配置的文件，方便用户进行配置。�
 
 ### 3.1 文件位置
 
-config为openwrt的配置文件，可以提前写好直接编译进镜像（ddns、sicloud等），也可以通过脚本在开机启动时自动生成（network、wireless）。配置文件存在于代码库的如下三个位置：
+config为openwrt的配置文件，可以提前写好直接编译进镜像（ddns、sicloud等），也可以通过脚本在开机启动时自动生成（network、wireless）。配置文件存在于代码库的如下四个位置：
 
-- 1 package/base-files/files/etc/config
+- 1 feeds/luci/modules/luci-base/root/etc/config
 
-- 2 target/linux/siflower/base-files/etc/config
+- 2 package/base-files/files/etc/config
 
-- 3 target/linux/siflower/sf19a28-fulmask/base-files-SF19Ax8-xxxx/etc/config
+- 3 target/linux/siflower/base-files/etc/config
 
-其中１，２为公共部分，3为私有部分，xxxx为对应的版型（AC22，AC28，EVB）。编译镜像时，会将公共部分和版型对应的私有部分的所有config文件编译进镜像中，烧录后可在/etc/config/路径下查看。当１，2，3存在同名文件时，优先顺序依次增加，即1<2<3。编译镜像时，优先级高的文件会将优先级低的覆盖
+- 4 target/linux/siflower/sf19a28-fullmask(mpw1)/base-files-SF19Ax8-xxxx/etc/config
+
+其中１，２，3为公共部分，4为私有部分。4中除了fullmask还可以选择mpw1，xxxx为对应的版型（AC22，AC28，EVB）。编译镜像时，会将公共部分和版型对应的私有部分的所有config文件编译进镜像中，烧录后可在/etc/config/路径下查看。当１，2，3，4存在同名文件时，优先顺序由高到低依次为：1 > 4 > 3 > 2。编译镜像时，优先级高的文件会将优先级低的覆盖
 
 ### 3.2 文件结构
 
