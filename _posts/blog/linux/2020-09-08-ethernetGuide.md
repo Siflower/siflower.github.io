@@ -30,7 +30,7 @@ Siflower代码编译环境以及开发板测试环境。
 
 ## 功能概述
 
-本文主要介绍Siflower以太网家族包含那些现有成员，我们基于以太网能提供那些服务，以及我们将做下一步改进计划。
+本文主要介绍Siflower以太网软硬件组成，目前提供的服务和接口，以及对接调试方法。
 
 ### 硬件组成
 
@@ -38,9 +38,14 @@ Siflower有线网络现有成员如下：
 ```mermaid
 graph TB
   title(Siflower Ethernet Family)
-  A(GMAC<br>千兆MAC) --> |connect| B[GPHY]
-  A(GMAC<br>千兆MAC) --> |connect| C[GSWITCH]
+  A(GMAC-HNAT<br>千兆MAC) --> |connect| B[GPHY]
+  A --> |connect| C[GSWITCH]
 ```
+GMAC-HNAT: 表示Siflower的千兆MAC, 其包含了HNAT硬件地址转换模块；  
+HNAT模块介绍参考: [HNAT对接和使用手册](https://siflower.github.io/2020/09/11/hnat_use_guide/)　　
+GPHY: 表示外围千兆PHY, 包含不同厂家的PHY芯片；  
+GSWITCH: 表示外围千兆SWITCH, 包含不同厂家的SWITCH芯片；  
+支持的外围芯片型号列表见: [支持的外围芯片列表](#支持的外围芯片列表)    
 
 ### 软件服务
 
@@ -50,7 +55,9 @@ graph TB
   title(Siflower Ethernet Service)
   A(Ethernet Driver) --> |provide| B[DPS<br>设备上下线通知]
   A(Ethernet Driver) --> |provide| C[VLAN划分]
-  A(Ethernet Driver) --> |provide| D[Ethtool速度双工设置]
+  A(Ethernet Driver) --> |provide| D[Ethtool<br>速度双工设置]
+  A(Ethernet Driver) --> |provide| E[WAN/LAN自适应]
+  A(Ethernet Driver) --> |provide| F[TS流量统计]
 ```
 
 #### DPS服务介绍
@@ -82,10 +89,21 @@ Wed Aug 26 16:42:44 2020 user.crit : dps_check_newdev_process has finished!
 ```
 在设备插上或者拔出后可以去网页查看设备列表显示是否正常。
 
-### 下一步优化
+#### VLAN划分
 
-2020我们全新的SF19A28芯片已经在路上，届时以太网将新增HNAT模块，吞吐性能将更强，功耗更小，速率更稳定，支持智能硬件加速，智能QoS等全新功能．
-![ethernet_next](/assets/images/ethernet_guide/ethernet_next.png)
+参考: [以太网WAN-LAN划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)  
+
+#### Ethtool速度双工设置
+
+为了支持SWITCH多口ethtool设置，Siflower进行了自有开发，使用方法详细见：[Ethtool使用方法](#ethtool_ops接口)
+
+#### WAN-LAN自适应
+
+参考: [wan-lan自适应开发手册](https://siflower.github.io/2020/09/11/wan_lan_auto_adapt/) 
+
+#### TS流量统计
+
+TS全称为Traffic Statistic，用于针对设备进行流量统计，主要原理是通过netfilter hook点 + hnat硬件转换报文统计进行流量统计, 目前仅支持下载速度显示．
 
 ## 如何基于Siflower的硬件进行二次开发
 
@@ -93,7 +111,7 @@ Wed Aug 26 16:42:44 2020 user.crit : dps_check_newdev_process has finished!
 
 参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
-### 我们对外提供的接口
+### 对外提供的接口
 
 #### 标准接口
 
@@ -216,12 +234,40 @@ static const struct net_device_ops sgmac_netdev_ops = {
 
 **示例：**
 
+- 获取所有接口的帮助信息:  
+  命令:  
+  ```echo help > /sys/kernel/debug/esw_debug```  
+  结果展示如下:  
+  ```
+  echo help > /sys/kernel/debug/esw_debug
+  Attention: all example should append with '>  /sys/kernel/debug/esw_debug'
+  read/write switch reg, no value for read, witch value for write 
+  example: echo rwReg             [addr] [value] ,for realtek switch
+  example: echo rwReg             [addr] [shift] [size] [value] ,for intel switch
+  read/write switch phy reg, no value for read, witch value for write, support both intel/realtek switch
+  example: echo rwPHYReg          [port] [addr] [value]
+  set switch port egress mode, 0 for org, 1 for keep, only support realtek switch now
+  example: echo setPortEgressMode [port] [mode]
+  dump switch port tx/rx count, only support intel switch now
+  example: echo dumpSwitchCount           [port]          
+  clear switch port tx/rx count, only support intel switch now
+  example: echo clearSwitchCount          [port]          
+  enable software multicast function, only support intel switch now
+  example: echo enableMulticastFunc
+  port join/leave mc_ip group, only support intel switch now
+  example: echo setMulticastEntry [port] [type] [mc_ip]
+  dump multicast entries, only support intel switch now
+  example: echo dumpMulticastEntry
+  ```
+
+展示部分intel switch接口使用示例如下：　　
+
 - 获取当前phylink状态：  
   命令：  
-  ```cat /sys/kernel/debug/gsw_debug```  
+  ```cat /sys/kernel/debug/esw_debug```  
   结果展示如下：  
   ```
-  root@OpenWrt:/# cat /sys/kernel/debug/gsw_debug 
+  root@OpenWrt:/# cat /sys/kernel/debug/esw_debug
   check phy link status
   phy0    status 0
   phy1    status 0
@@ -232,29 +278,20 @@ static const struct net_device_ops sgmac_netdev_ops = {
 
 - 读写gswitch内部寄存器：  
   读命令：  
-  ```echo 0 regAddr > /sys/kernel/debug/gsw_debug```  
-  第一个参数为选用此功能，第二个为读取的寄存器地址；
+  ```echo rwReg [addr] [shift] [size] > /sys/kernel/debug/esw_debug```  
+  第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度；
 
   写命令：  
-  ```echo 0 regAddr value > /sys/kernel/debug/gsw_debug```  
-  第一个参数为选用此功能，第二个为写寄存器的地址，第三个参数为写入的值；
+  ```echo rwReg [addr] [shift] [size] [value] > /sys/kernel/debug/esw_debug```  
+   第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度，第五个参数为写入的值；
 
 - 读写gswitch外围通用phy寄存器：  
   读命令：  
-  ```echo 8 port regAddr > /sys/kernel/debug/gsw_debug```  
+  ```echo rwPHYReg [port] [addr] > /sys/kernel/debug/esw_debug```  
   第一个参数为选用此功能，第二个为phy的id，第三个为读取的寄存器地址；
 
   写命令：  
-  ```echo 8 port regAddr value > /sys/kernel/debug/gsw_debug```  
-  第一个参数为选用此功能，第二个为phy的id，第三个为写寄存器的地址，第四个参数为写入的值；
-
-- 读写gswitch外围MMD寄存器：（此功能仅支持intel7084）  
-  读命令：  
-  ```echo 9 port regAddr > /sys/kernel/debug/gsw_debug```  
-  第一个参数为选用此功能，第二个为phy的id，第三个为读取的寄存器地址，如0x1f01e2；
-
-  写命令：  
-  ```echo 9 port regAddr value > /sys/kernel/debug/gsw_debug```  
+  ```echo rwPHYReg [port] [addr] [value] > /sys/kernel/debug/esw_debug```  
   第一个参数为选用此功能，第二个为phy的id，第三个为写寄存器的地址，第四个参数为写入的值；
 
 
@@ -274,5 +311,8 @@ static const struct net_device_ops sgmac_netdev_ops = {
 ### 参考文档
 
 [快速入门](https://siflower.github.io/2020/08/05/quick_start/)
+[HNAT对接和使用手册](https://siflower.github.io/2020/09/11/hnat_use_guide/)
+[以太网WAN-LAN划分指南](https://siflower.github.io/2020/09/05/ethernet_wan_lan_division/)
+[wan-lan自适应开发手册](https://siflower.github.io/2020/09/11/wan_lan_auto_adapt/)
 
 ## FAQ
