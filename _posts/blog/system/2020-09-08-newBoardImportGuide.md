@@ -207,9 +207,12 @@ linux需要增加相应的dts文件和Kconfig选项。
 
 注意：第一次烧录镜像到新板子之后，需要调一下rgmii接口的delay值以及确认switch gpio reset脚gpio
 
-方法参考[外围switch对接和使用手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)
- ```3.1 对接准备``--4 switch的reset  
- ```3.1 对接准备``--7 调整tx/rx delay
+方法参考[外围switch对接和使用手册](https://siflower.github.io/2020/09/11/new_switch_import_guide/)  
+ ```3.1 对接准备``` 第4点 switch的reset   
+ ```3.1 对接准备``` 第7点 调整tx/rx delay
+
+ 设置验证好之后保存相关配置，重新编译镜像烧录即可。
+ 
 ## 项目引用
 
 ### 参考文档
