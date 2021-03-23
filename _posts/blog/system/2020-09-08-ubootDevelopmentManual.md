@@ -394,3 +394,44 @@ Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细�
 
 **Q：uboot烧录失败怎么处理**  
 A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
+
+**Q：uboot中gpio使用例子** 
+A：
+如果想要在uboot中对gpio进行设置，以在uboot代码的common/main.c main_loop函数中加入控制gpio12的代码为例
+
+```
+#define msleep(a)      udelay(a * 1000)
+#define ssleep(a)      msleep(a * 1000)
+/* We come here after U-Boot is initialised and ready to process commands */
+#include <asm/gpio.h>
+void main_loop(void)
+{
+        const char *s; 
+
+        if (gpio_request(12, "sf_gpio")) {  //申请GPIO
+                        printf("Failed to request gpio %d\n",12);
+        }
+        if (gpio_direction_output(12,1)) {  //配置GPIO输入/输出
+                                   printf("Failed to set gpio value %d\n",12);
+        }
+        for (;;) {
+                msleep(1000);
+                gpio_set_value(12,0);     //设置GPIO高低电平
+                msleep(1000);
+                gpio_set_value(12,1);
+        }
+        gpio_free(12);
+        bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
+
+#ifdef CONFIG_VERSION_VARIABLE
+        setenv("ver", version_string);  /* set version variable */
+#endif /* CONFIG_VERSION_VARIABLE */
+
+        cli_init();
+
+        run_preboot_environment_command();
+..
+...
+....
+}   
+```
