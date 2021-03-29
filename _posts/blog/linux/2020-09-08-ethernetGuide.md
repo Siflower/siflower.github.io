@@ -279,11 +279,14 @@ static const struct net_device_ops sgmac_netdev_ops = {
 - 读写gswitch内部寄存器：  
   读命令：  
   ```echo rwReg [addr] [shift] [size] > /sys/kernel/debug/esw_debug```  
-  第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度；
+  第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度；  
 
   写命令：  
   ```echo rwReg [addr] [shift] [size] [value] > /sys/kernel/debug/esw_debug```  
-   第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度，第五个参数为写入的值；
+   第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个为寄存器bit位地址偏移量，第四个为读取的bit位长度，第五个参数为写入的值；  
+
+  示例:  
+  ![intel_reg_rw](/assets/images/switch_img/intel_mdio_rw.png)
 
 - 读写gswitch外围通用phy寄存器：  
   读命令：  
@@ -292,8 +295,51 @@ static const struct net_device_ops sgmac_netdev_ops = {
 
   写命令：  
   ```echo rwPHYReg [port] [addr] [value] > /sys/kernel/debug/esw_debug```  
-  第一个参数为选用此功能，第二个为phy的id，第三个为写寄存器的地址，第四个参数为写入的值；
+  第一个参数为选用此功能，第二个为phy的id，第三个为写寄存器的地址，第四个参数为写入的值；  
 
+  示例:  
+  ![intel_reg_rw](/assets/images/switch_img/intel_rwPHYReg.png)
+
+展示部分realtek switch接口使用示例如下：
+
+- 获取当前phylink状态：  
+  命令：  
+  ```cat /sys/kernel/debug/esw_debug```  
+  结果展示如下：  
+  ```
+  root@OpenWrt:/# cat /sys/kernel/debug/esw_debug
+  check phy link status
+  phy0    status 0
+  phy1    status 0
+  phy2    status 0
+  phy3    status 0
+  phy4    status 0
+  root@OpenWrt:/#
+  ```
+
+- 读写gswitch内部寄存器：  
+  读命令：  
+  ```echo rwReg [addr] > /sys/kernel/debug/esw_debug```  
+  第一个参数表示读写寄存器，第二个为读取的寄存器地址；  
+
+  写命令：  
+  ```echo rwReg [addr] [value] > /sys/kernel/debug/esw_debug```  
+   第一个参数表示读写寄存器，第二个为读取的寄存器地址，第三个参数为写入的值；  
+
+  示例:  
+  ![rtk_reg_rw](/assets/images/switch_img/rtk_mdio_rw.png)
+
+- 读写gswitch外围通用phy寄存器：  
+  读命令：  
+  ```echo rwPHYReg [port] [addr] > /sys/kernel/debug/esw_debug```  
+  第一个参数为选用此功能，第二个为phy的id，第三个为读取的寄存器地址；
+
+  写命令：  
+  ```echo rwPHYReg [port] [addr] [value] > /sys/kernel/debug/esw_debug```  
+  第一个参数为选用此功能，第二个为phy的id，第三个为写寄存器的地址，第四个参数为写入的值；  
+
+  示例:  
+  ![rtk_reg_rw](/assets/images/switch_img/rtk_rwPHYReg.png)
 
 #### 支持的外围芯片列表
 目前Siflower有线网络已支持如下外围芯片，如需增加新的外围设备可联系我们进行支持。
