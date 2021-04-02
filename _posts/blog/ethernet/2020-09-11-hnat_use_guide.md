@@ -126,6 +126,64 @@ Netfilter框架中制定了五个数据包的钩子点，分别是PRE_ROUTING、
 
 详情参考redmine#[6897](http://redmine.siflower.cn/redmine/issues/6897)
 
+### 3.3 debug节点使用
+
+在sf_hnat_debug.c中，sf_hnat_debug_write函数实现了具备debug等功能的节点。在串口执行以下指令：
+
+```
+echo help > /sys/kernel/debug/hnat_debug
+```
+
+即可获取到当前debug节点具备的功能及使用说明：
+
+```
+echo natmode <mode> >  /sys/kernel/debug/gmac_debug
+intro: 0-BASIC_MODE, 1-SYMMETRIC_MODE, 2-FULL_CONE_MODE, 3-RESTRICT_CONE_MODE, 4-PORT_RESTRICT_CONE_MODE
+echo rd_speed >  /sys/kernel/debug/hnat_debug
+echo readl [addr] [number] >  /sys/kernel/debug/hnat_debug
+echo writel [addr] [data] >  /sys/kernel/debug/hnat_debug
+echo tabread [tab_no] [depth] >  /sys/kernel/debug/hnat_debug
+echo tabwrite [tab_no] [depth] [data(5)] >  /sys/kernel/debug/hnat_debug
+intro: dump all entry of table and crc table, 1 for napt, 0 for arp
+echo dump <napt/arp> >  /sys/kernel/debug/hnat_debug
+echo stat  >  /sys/kernel/debug/hnat_debug
+intro: add lan ip and metmask to register incording to register_num 
+echo addlan [register_num] [addr] [netmask] >  /sys/kernel/debug/hnat_debug
+demo: echo addlan 2 0xc0a80400 0xffffff00 > /sys/kernel/debug/hnat_debug
+intro: del lan ip and netmask info incording to register_num
+echo addlan [register_num] >  /sys/kernel/debug/hnat_debug
+demo: echo dellan 3 > /sys/kernel/debug/hnat_debug
+```
+
+根据说明执行echo指令，就可以调用debug节点中实现的函数及功能。3.4中详细介绍了利用debug节点更新lan网段的功能。
+
+### 3.4 lan网段ip更新
+
+#### 3.4.1 实现原理
+
+在hnat.c中，用HWNAT_REG16_CSR到HWNAT_REG23_CSR共8组寄存器存放最8组lan ip的值，HWNAT_REG30_CSR和HWNAT_REG31_CSR共2组寄存器存放对应ip的masklen。debug节点提供了删除和添加lan ip+masklan的指令。
+
+- 在第i个寄存器添加lan信息(i表示寄存器编号，lanhex maskhax为 IP 和mask的十六进制数，echo时会添加0x头)。例如将ip为192.168.4.110，mask为255.255.255.0的lan信息更新到第二个寄存器：
+
+```
+echo "addlan $i 0x$lanhex 0x$maskhax" > /sys/kernel/debug/hnat_debug
+e.g.
+echo "addlan 2 0xc0a8046e 0xffffff00" > /sys/kernel/debug/hnat_debug
+``` 
+
+- 删除第i个寄存器存放的lan信息，例如删除第二个寄存器的lan信息：
+
+```
+echo "dellan $i" > /sys/kernel/debug/hnat_debug 删除第i个寄存器存放的lan信息
+e.g.
+echo "dellan 2" > /sys/kernel/debug/hnat_debug
+```
+
+
+#### 3.4.2 应用实例
+
+在/etc/hotplug.d/iface/05-updatehnatlan脚本中，每当network启动或关闭时，所有interface up和down的信息都会传入/etc/hotplug.d/iface路径下的脚本中，以参数INTERFACE（包括lan、wan等）和ACTION（包括up和down）表示。通过这些信息筛选出lan和guset，并且在up时读取它们的ip和mask信息传入debug节点，down时通过debug节点删除信息，即可实现lan ip实时更新。05-updatehnatlan共支持7个lan和1个guest lan的更新。
+
 ## 4 测试用例
 
 - hnat测试环境与用例（目前为FPGA的测试环境与方法）
