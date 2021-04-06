@@ -126,6 +126,98 @@ Netfilter框架中制定了五个数据包的钩子点，分别是PRE_ROUTING、
 
 详情参考redmine#[6897](http://redmine.siflower.cn/redmine/issues/6897)
 
+### 3.3 debug节点
+
+#### 3.3.1 使用方法
+在sf_hnat_debug.c中，sf_hnat_debug_write函数实现了具备debug等功能的节点。在串口执行以下指令：
+
+```
+echo help > /sys/kernel/debug/hnat_debug
+```
+
+即可获取到当前debug节点具备的功能及使用说明：
+
+```
+echo natmode <mode> >  /sys/kernel/debug/gmac_debug
+intro: 0-BASIC_MODE, 1-SYMMETRIC_MODE, 2-FULL_CONE_MODE, 3-RESTRICT_CONE_MODE, 4-PORT_RESTRICT_CONE_MODE
+echo rd_speed >  /sys/kernel/debug/hnat_debug
+echo readl [addr] [number] >  /sys/kernel/debug/hnat_debug
+echo writel [addr] [data] >  /sys/kernel/debug/hnat_debug
+echo tabread [tab_no] [depth] >  /sys/kernel/debug/hnat_debug
+echo tabwrite [tab_no] [depth] [data(5)] >  /sys/kernel/debug/hnat_debug
+intro: dump all entry of table and crc table, 1 for napt, 0 for arp
+echo dump <napt/arp> >  /sys/kernel/debug/hnat_debug
+echo stat  >  /sys/kernel/debug/hnat_debug
+intro: add/del lan ip and netmask to register incording to register_num
+echo addlan [register_num] [addr] [netmask] >  /sys/kernel/debug/hnat_debug
+demo: echo addlan 2 0xc0a80400 0xffffff00 > /sys/kernel/debug/hnat_debug
+echo dellan [register_num] >  /sys/kernel/debug/hnat_debug
+demo: echo dellan 2 > /sys/kernel/debug/hnat_debug
+intro: show lan ip and netmask in all 8 registers
+echo getlan >  /sys/kernel/debug/hnat_debug
+intro: update wan masklen to hnat and get wanmasklen
+echo updatewanmask [wan_masklen] > /sys/kernel/debug/hnat_debug
+demo: echo updatewanmask 24 > /sys/kernel/debug/hnat_debug
+echo getwanmask > /sys/kernel/debug/hnat_debug
+```
+
+根据说明执行echo指令，就可以调用debug节点中实现的函数及功能。以下三节详细介绍了利用debug节点更新wan/lan信息的功能。
+
+#### 3.3.2 lan网段ip更新
+
+在hnat.c中，用HWNAT_REG16_CSR到HWNAT_REG23_CSR共8组寄存器存放最8组lan ip的值，HWNAT_REG30_CSR和HWNAT_REG31_CSR共2组寄存器存放对应ip的masklen。debug节点提供了删除和添加lan ip+masklan，及查看所有lan ip和mask的指令。
+
+- 在第i个寄存器添加lan信息(i表示寄存器编号，lanhex maskhax为 IP 和mask的十六进制数，echo时会添加0x头)。例如将ip为192.168.4.110，mask为255.255.255.0的lan信息更新到第二个寄存器：
+
+```
+echo addlan $i 0x$lanhex 0x$maskhax > /sys/kernel/debug/hnat_debug
+e.g.
+echo addlan 2 0xc0a8046e 0xffffff00 > /sys/kernel/debug/hnat_debug
+```
+
+- 删除第i个寄存器存放的lan信息，例如删除第二个寄存器的lan信息：
+
+```
+echo dellan $i > /sys/kernel/debug/hnat_debug 删除第i个寄存器存放的lan信息
+e.g.
+echo dellan 2 > /sys/kernel/debug/hnat_debug
+```
+
+- 查看所有lan ip和mask信息：
+
+```
+echo getlan > /sys/kernel/debug/hnat_debug
+```
+
+#### 3.3.3 wanmasklen更新
+
+hnat中还需要知道当前wan口的masklen，并用phnat_priv结构体的wan_masklen元素储存。
+
+- 查看当前wanmasklen
+
+```
+echo getwanmask > /sys/kernel/debug/hnat_debug
+```
+
+- 更新wan口的masklen
+
+```
+echo updatewanmask $wan_masklen > /sys/kernel/debug/hnat_debug
+e.g.
+echo updatewanmask 24 > /sys/kernel/debug/hnat_debug
+```
+
+#### 3.3.4 脚本实例
+
+- **05-updatehnatlan**
+
+在/etc/hotplug.d/iface/05-updatehnatlan脚本中，每当network启动或关闭时，所有interface up和down的信息都会传入/etc/hotplug.d/iface路径下的脚本中，以参数INTERFACE（包括lan、wan等）和ACTION（包括up和down）表示。通过这些信息筛选出lan和guset，并且在up时读取它们的ip和mask信息传入debug节点，down时通过debug节点删除信息，即可实现lan ip实时更新。05-updatehnatlan共支持7个lan和1个guest lan的更新。
+
+- **80-updatewanmask**
+
+与05-updatehnatlan同理，当INTERFACE为wan或wwan时，ACTION为up时，用ubus指令获取到当前wan口masklen，如果非0则进行更新，如果为masklen=32则减一，用masklen=31进行更新。
+
+
 ## 4 测试用例
 
 - hnat测试环境与用例（目前为FPGA的测试环境与方法）
