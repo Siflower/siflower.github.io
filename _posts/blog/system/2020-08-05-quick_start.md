@@ -134,10 +134,18 @@ graph TB;
   ./make.sh a28_evb  
   ```
 
-  首次编译需要通过脚本选择硬件平台进行编译，a28_evb为矽昌A28开发板，更换板型只需要更换此参数  
+  首次编译需要通过脚本选择硬件平台进行编译，a28_evb为矽昌A28开发板，更换板型只需要更换此参数 
+
+  |版型|编译命令|
+  |--|--|
+  |开发板|./make.sh a28_evb|
+  |产品板|./make.sh a28_ac28| 
+
+  如果是新建的版型，使用新建的版型名称编译即可。
+
   **如果编译出错请参考FAQ**
 
-  首次编译成功后，会在编译根目录生成一个如openwrt1806_github_a28_evb_sf19a28_fullmask_rel_1.bin的镜像  
+  首次编译成功后，会在编译根目录生成一个如openwrt1806_SDK_a28_evb_sf19a28_fullmask_rel_.bin的镜像  
   **如果用脚本编译出错后，使用FAQ提供的方法继续编译成功，此时不会生成镜像在根目录，再次使用脚本编译一次则正常生成**
 
 - 后续编译
@@ -234,7 +242,9 @@ graph TB;
 这里提供的镜像只用于验证，后续功能镜像由客户下载SDK，根据自身客制化需求自行编译生成  
 
 - uboot镜像
+  
   uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动（ddr/flash等）
+
 - openwrt镜像 
   
 - 完整的FLASH镜像
@@ -284,7 +294,7 @@ graph TB;
 ##### 2.1.6.2 串口更新
 
 ###### openwrt镜像更新
-如果开发板内部已经有烧录好的uboot，且系统无法正常启动，那么我们只能从uboot阶段进行镜像更新，使用以太网口和串口配合来更新镜像  
+如果开发板内部已经有烧录好的uboot，但系统无法正常启动，那么我们只能从uboot阶段进行镜像更新，使用以太网口和串口配合来更新镜像  
 
 - 在PC端安装一个串口应用，如“SmarTTY”  
 
@@ -347,26 +357,16 @@ graph TB;
 
 ##### 2.1.6.3 IROM download更新
 
-在板子硬件配置上有外置以太网口/usb otg接口时，如果出现以下情况  
+在板子硬件配置上有usb otg接口时，如果出现以下情况  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，里面没有任何内容，需要烧录镜像  
-可以通过Siflower的irom download下载工具将文件下载到FLASH中，支持ETH，USB下载方案
+可以通过Siflower的irom download下载工具将文件下载到FLASH中
 
-- ETH下载
-
-  由于A28芯片支持ETH需要外挂switch芯片，操作方法根据switch芯片类型有所不同，目前支持  
-  Intel switch芯片  
-  Realtek switch芯片
-
-- USB下载
-
-  此方法需要硬件上带usb口且模式需要为OTG
-
-此方法需要专业人士进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
+此方法需要专业人员进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
 
 ##### 2.1.6.4 烧录器更新
 
-在板子硬件配置上无外置以太网口/usb otg接口时，如果出现以下情况  
+在板子硬件配置上无usb otg接口时，如果出现以下情况  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，未烧录过任何镜像  
 需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过FLASH烧录器对flash芯片进行烧录  
@@ -417,7 +417,6 @@ graph TB;
     ```
     sudo minicom
     ```
-
 
     ![minicom_2](/assets/images/quick_image/minicom_2.png)  
 
