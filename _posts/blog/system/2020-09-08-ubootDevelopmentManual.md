@@ -236,38 +236,23 @@ sfa18 # bootm
   
 uboot代码需要向siflower申请gerrit权限，同意开放后需要提供相关邮箱进行账号注册，注册通过后会给到对应的账号以及密码
 
-- 账号激活
+- 账号登录
 
-  - 获取账号后，使用账号密码登陆网站gerrit.siflower.cn:9011
-
-  - 登陆成功后，进入设置页面开始激活
-  
-    ![uboot_get_setting](/assets/images/uboot_development_manual/uboot_get_setting.png)
-
-  - 添加邮箱，点击send verification获取激活链接
-  
-    ![email](/assets/images/uboot_development_manual/email.png)
-
-  - 点击激活连接激活账号，注意需要将10.0.2.10:8080修改为http://gerrit.siflower.cn:9011
-
-    ![verification](/assets/images/uboot_development_manual/verification.png)
-
-  至此完成激活。
+  - 获取账号后，使用账号密码登陆[gerrit网站](gerrit.siflower.cn:9011)
 
 - 获取代码
   
-  - 登陆gerrit.siflower.cn:9011
+  - 登陆gerrit.siflower.cn:9011后
   
-  - 在BROWSE中找到相关项目，获得git http链接
+  - 打开申请列表可以看到代码仓库信息，获取复制下载链接
+
+    ![gerrit1](/assets/images/uboot_development_manual/gerrit1.png)
+
+  - 开始下载代码，下载密码在基本资料，Git密码
   
-    ![browse](/assets/images/uboot_development_manual/browse.png)
+    ![gerrit2](/assets/images/uboot_development_manual/gerrit2.png)
 
-    ![browse2](/assets/images/uboot_development_manual/http_link.png)
-
-  - 开始下载代码，http密码通过点击generate new password获取
-  
-    ![browse3](/assets/images/uboot_development_manual/http_pw.png)
-
+  - 开始下载
 
 #### 编译
 
@@ -393,7 +378,7 @@ Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细�
 ## FAQ
 
 **Q：uboot烧录失败怎么处理**  
-A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom下载、usb烧录，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
+A：uboot烧录失败后无法继续通过uboot更新镜像，可通过irom usb下载，或者摘下flash使用烧录器的方式重新烧录镜像，详细使用方法参考：[快速入门](https://siflower.github.io/2020/08/05/quick_start/)
 
 **Q：uboot中gpio使用例子** 
 A：
