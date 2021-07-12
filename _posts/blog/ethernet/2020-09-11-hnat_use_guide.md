@@ -102,20 +102,20 @@ flow_offloading是Linux内核netfilter模块的配置选项，Netfilter是Linux�
 
 ### 8.1.2 LAN口IP发生变化时，HNAT配置自动更新
 
-LAN口IP被用做hnat判断报文是否需要转发（内网到外网）的依据，也是在DNAT时用做替换报文的sip．因此在LAN口IP发生变化时，HNAT配置信息需要同步更新．这在Openwrt中通过hotplud.d监测iface接口状态变化来实现．在检测到LAN口IP发生变化时，hotplud.d中的监测脚本会调用HNAT驱动提供的debugfs接口将信息更新到驱动中去.
-详细对应的hotplud.d检测脚本位置如下:
+LAN口IP被用做hnat判断报文是否需要转发（内网到外网）的依据，也是在DNAT时用做替换报文的sip．因此在LAN口IP发生变化时，HNAT配置信息需要同步更新．这在Openwrt中通过hnat_update_interface.sh向驱动更新LAN口名称来实现．在网络启动或重启时，脚本会调用HNAT驱动提供的debugfs接口将LAN口名称更新到驱动中去，驱动会根据名称自动跟踪IP的变化。
+详细对应的hnat_update_interface.sh脚本位置如下:
 ```
-root@OpenWrt:/# ls /etc/hotplug.d/iface/05-updatehnatlan 
-/etc/hotplug.d/iface/05-updatehnatlan
+root@OpenWrt:/# ls /usr/bin/hnat_update_interface.sh
+/usr/bin/hnat_update_interface.sh
 ```
 
 ### 8.1.3 WAN口IP发生变化时，HNAT配置自动更新
 
-WAN口IP与NETMASK被用做hnat判断报文是否需要转发（内网到外网）的依据．因此WAN口IP发生变化时，HNAT配置信息也需要同步更新．这在Openwrt中通过hotplud.d监测iface接口状态变化来实现．在检测到WAN口IP发生变化时，hotplud.d中的监测脚本会调用HNAT驱动提供的debugfs接口将信息更新到驱动中去.
-详细对应的hotplud.d检测脚本位置如下:
+WAN口IP与NETMASK被用做hnat判断报文是否需要转发（内网到外网）的依据．因此WAN口IP发生变化时，HNAT配置信息也需要同步更新．这在Openwrt中通过hnat_update_interface.sh向驱动更新WAN口名称来实现．在网络启动或重启时，脚本会调用HNAT驱动提供的debugfs接口将WAN口名称更新到驱动中去，驱动会根据名称自动跟踪IP的变化。
+详细对应的hnat_update_interface.sh脚本位置如下:
 ```
-root@OpenWrt:/# ls /etc/hotplug.d/iface/80-updatewan 
-/etc/hotplug.d/iface/80-updatewan
+root@OpenWrt:/# ls /usr/bin/hnat_update_interface.sh
+/usr/bin/hnat_update_interface.sh
 ```
 
 ### 8.2 HNAT驱动对接接口
@@ -179,19 +179,18 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
   intro: dump all entry of table and crc table, 1 for napt, 0 for arp 
   echo dump <napt/arp> >  /sys/kernel/debug/hnat_debug
   echo stat  >  /sys/kernel/debug/hnat_debug
-  intro: add/del lan ip and netmask to register incording to register_num 
   echo log mode  >  /sys/kernel/debug/hnat_debug
   intro: mode:0 for disbable hnat log, mode:1 for enable hnat log
-  echo addlan [register_num] [addr] [netmask] >  /sys/kernel/debug/hnat_debug
-  demo: echo addlan 2 0xc0a80400 0xffffff00 > /sys/kernel/debug/hnat_debug
-  echo dellan [register_num] >  /sys/kernel/debug/hnat_debug
-  demo: echo dellan 2 > /sys/kernel/debug/hnat_debug
-  intro: show lan ip and netmask in all 8 registers 
-  echo getlan >  /sys/kernel/debug/hnat_debug
-  intro: update wan masklen to hnat and get wanmasklen
-  echo updatewanmask [wan_masklen] > /sys/kernel/debug/hnat_debug
-  demo: echo updatewanmask 24 > /sys/kernel/debug/hnat_debug
-  echo getwanmask > /sys/kernel/debug/hnat_debug
+  echo addifname [is_wan] [index] [ifname] >  /sys/kernel/debug/hnat_debug
+  intro: add interface to monitor ip change. is_wan 0 for lan 1 for wan
+  demo: echo addifname 0 1 br-lan2 > /sys/kernel/debug/hnat_debug
+  echo addlan [index] [addr] [prefix_len] <ifname> >  /sys/kernel/debug/hnat_debug
+  echo addwan [index] [addr] [prefix_len] <ifname> >  /sys/kernel/debug/hnat_debug
+  echo dellan [index] <if_remove_name> >  /sys/kernel/debug/hnat_debug
+  echo delwan [index] <if_remove_name> >  /sys/kernel/debug/hnat_debug
+  echo getlan > /sys/kernel/debug/hnat_debug
+  echo getwan > /sys/kernel/debug/hnat_debug
+
   ```
 
 展示几个最主要的debugsf接口使用方法如下:
