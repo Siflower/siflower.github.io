@@ -23,11 +23,13 @@ ubuntu系统
 ### 1.3 相关背景
 在siflower各个硬件平台下，通过文档介绍修改，可以实现按键功能，或者设置LED状态，完成目标需求
 ### 1.4 功能概述
-本文档详细地说明了siflower平台下可选用的GPIO，以及按键和led灯的配置方法  
+本文档详细地说明了siflower平台下可选用的GPIO用于按键和led灯的配置方法  
 目前siflower openwrt下提供了一个led-button package统一管理siflower不同板型的led和button，  
 将led操作和按键检测等功能封装成函数，只需要文档按照示例修改添加，即可完成相关功能 
-为了节省二次开发的时间，推荐使用led-button package进行添加，本文会对此package的用法做详细说明，
+
 另外本文也提供了使用通用方式配置按键和灯的说明和示例。
+
+**注：led-button仅供XC内部开发使用，SDK不带此package**
 
 ## 2 项目引用
 ### 2.1 参考文档  
@@ -78,7 +80,7 @@ graph TB;
 
 #### 3.2.1.2 openwrt led 配置
 **使用led-button package进行管理**   
-  led-button package是为了统一管理siflower不同板型的led和button而实现的，代码的位置在openwrt源码的package/siflower/bin/led-package目录下  
+  led-button package是为了统一管理siflower不同板型的led和button而实现的，代码在github SDK不开源，其基础就是按照标准的led/button控制实现的  
   如果是新的版型引入，在此之前请确认版型已建立，如果没有请新建版型，siflower版型添加参考[新的版型引入指南](https://siflower.github.io/2020/09/08/newBoardImportGuide/)  
 - 在action.h中根据版型定义行为编号，对使用led-button package的led行为进行了统一管理，具体对编号的使用在led.c中体现  
 ```

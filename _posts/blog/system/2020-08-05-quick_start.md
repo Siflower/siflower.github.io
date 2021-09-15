@@ -29,7 +29,7 @@ topmost: true
 硬件平台、电源线、串口线、网线、  
 
 Siwifi的系统方案源于openwrt开源系统，必须基于GNU/Linux, BSD or MacOSX进行编译  
-为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，ubuntu14.04、ubuntu16.04都是经过详细测试的操作系统版本  
+为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，**ubuntu14.04、ubuntu16.04**都是经过详细测试的操作系统版本，其他系统版本可能会存在编译问题
 windows下安装，参考[虚拟机安装及编译环境配置手册](https://siflower.github.io/2020/08/05/ubuntu_install_complile_env_config_guide/)这里有详细的关于虚拟机安装，ubuntu编译环境配置等步骤
 
 ## 2 快速入门详情
@@ -93,7 +93,9 @@ graph TB;
 
   由于服务器的问题，github下载可能会出现由于下载速率慢造成的下载失败，解决方法参考FAQ  
   如果多次尝试仍然下载不了，请联系邮箱(irving.luo@siflower.com.cn)提供离线版本  
-  **注意：使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码**
+  **注意：**  
+  **1，使用离线版本会存在代码更新不方便的问题，后续仍然需要通过git clone方式下载SDK，方便通过git 指令实时更新代码**
+  **2，注意慎用zip压缩包下载，可能会导致缺少文件，导致编译失败**
 
 #### 2.1.3 源码上传
 
@@ -236,23 +238,19 @@ graph TB;
 
 #### 2.1.6 更新镜像
 
-##### 镜像获取
-
-我们提供一些现有的镜像供客户下载，做demo使用，用于硬件验证  
-这里提供的镜像只用于验证，后续功能镜像由客户下载SDK，根据自身客制化需求自行编译生成  
+##### 镜像获取 
 
 - uboot镜像
   
-  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动（ddr/flash等）
+  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动(ddr/flash/switch等),请联系XC获取
 
 - openwrt镜像 
   
+  使用SDK编译的镜像即为对应的openwrt镜像，可以使用进行烧录更新
+
 - 完整的FLASH镜像
   
-  |版型|ddr+flash|switch|链接|
-  |--|--|--|--|
-  |ac28|16M+64M DDR2|intel|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
-  |evb|16M+128M DDR3|realtek|[uboot下载]()  [openwrt下载]() [完整flash镜像下载]()|
+  参考[PCBA工具使用手册](https://siflower.github.io/2020/09/10/pcba_tool_interface_guide/)FAQ章节PCBA镜像说明
 
 
 ##### 2.1.6.1 网页更新
@@ -294,6 +292,7 @@ graph TB;
 ##### 2.1.6.2 串口更新
 
 ###### openwrt镜像更新
+
 如果开发板内部已经有烧录好的uboot，但系统无法正常启动，那么我们只能从uboot阶段进行镜像更新，使用以太网口和串口配合来更新镜像  
 
 - 在PC端安装一个串口应用，如“SmarTTY”  
@@ -480,7 +479,7 @@ graph TB;
 ![faq2](/assets/images/quick_image/faq2.png)   
 
 A：这个是由于编译指令漏了项目名或者项目名错误。具体支持的版型可以查看make.sh脚本代码中的参数选项。
-例如编译ac28版型：./make.sh ac28 
+例如编译ac28版型：./make.sh a28_ac28
 
 **Q：第一次使用脚本编译出现图示问题，怎么解决？**  
 ![faq3](/assets/images/quick_image/faq3.png)   
@@ -489,10 +488,10 @@ A：这个是由于编译指令漏了项目名或者项目名错误。具体支�
 
 A：出现图示问题是由于第一次脚本编译，有一些package的依赖没有选上导致编译不通过    
 可以尝试在这个状态下继续使用  
-make -j1 V=s继续编译  
-或者make -j4 V=s、 make -j8 V=s，使用多个线程，提高编译速度继续编译    
+```make -j1 V=s```继续编译  
+或者```make -j4 V=s```、 ```make -j8 V=s```，使用多个线程，提高编译速度继续编译    
 
-如果是使用的虚拟机，尝试将虚拟机的内存改大，4G及以上
+**如果是使用的虚拟机，请将虚拟机的内存改大，4G及以上**
 
 **Q：脚本编译的项目如何添加？**  
 
