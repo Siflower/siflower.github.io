@@ -1,7 +1,7 @@
 ---
 layout: post
 title: SPI Nand Flash物料调试指南
-categories: Linux
+categories: LINUX
 description: 介绍如何调试spi nand flash
 keywords: 文档开发
 mermaid: true
