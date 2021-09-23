@@ -108,12 +108,15 @@ siflower 的 openwrt 的 linux4.14.90 已经⽀持如下⼏个⼚家的 spi nand
   CONFIG_DM_SPI相关选项配置为下图
 
   ![uboot](/assets/images/bsp/dm_spi.png)
+  
 CONFIG_SPI_FLASH相关选项配置为下图
 
   ![uboot](/assets/images/bsp/spi_flash.png)
+  
 CONFIG_SPI_NAND 相关配置为下图， 注意 support 的 SPI NAND flash 只能选择⼀个，如果更改型号，请照此⽂档修改config 配置，或者直接修改对应config 配置⽂件。
 
   ![uboot](/assets/images/bsp/config_spi_nand.png)
+  
 * 保存并退出，然后执行 make savedefconfig ，在uboot项目根目录下会得到一个defconfig文件，用该文件覆盖对应版型的config配置文件即可，本例覆盖的是 configs/sfa28_fullmask_p20b_defconfig 文件。
 * 再次执行 ./make.sh sfa28_evb fullmask ，即可得到最终镜像。
  
@@ -129,6 +132,7 @@ CONFIG_SPI_NAND 相关配置为下图， 注意 support 的 SPI NAND flash 只�
 * 修改dts，本例修改的路径为linux代码下的 linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_evb.dts ，修改点如下图
   
   ![openwrt](/assets/images/bsp/dts.png)
+  
   修改后如下图
 
   ![openwrt](/assets/images/bsp/dts-new.png)
