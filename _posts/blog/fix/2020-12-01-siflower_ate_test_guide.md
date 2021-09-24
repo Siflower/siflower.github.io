@@ -132,10 +132,16 @@ ate_cmd wlan1 fastconfig -q
 - Band代表wlan0/wlan1;
 - 带宽与帧带宽相一致。
 
-如综测仪发射20MHz，中心频率为5180的信号，板子端可通过如下指令查看RX接收情况。
+如综测仪发射20MHz，中心频率为5180的信号，板端通过以下指令开始接收和查看RX接收情况
 
 ```
 ate_cmd wlan1 fastconfig -f 5180 -c 5180 -w 0 -u 0 -r
+```
+
+查看结果
+
+```
+ate_cmd wlan1 fastconfig -R 
 ```
 
 控制板子停止RX，使用如下指令：
@@ -241,17 +247,25 @@ ate_cmd wlan1 fastconfig -x
 
 ### 5.3 SIFLOWER 方案手动RX测试
 
-- 板子启动后参照5.1先行让板子进入ATE测试模式；
-- 此时使用综测仪发送要测试的wifi信号；
-- 使用如“ate_cmd wlan1 fastconfig -f 5180 -c 5180 -w 0 -u 0 -r”的命令查看板子RX，注意命令结构f，c，w，u需要与综测仪发射信号参数保持一致。
-
+- 板子启动后参照5.1先行让板子进入ATE测试模式
+- 使用如下命令让板子开始进入接收状态
+  
+ ```
+   ate_cmd wlan1 fastconfig -f 5180 -c 5180 -w 0 -u 0 -r
+ ```
+- 此时使用综测仪发送要测试的wifi信号
+- 使用如下指令查看接收结果
+  
+ ```
+   ate_cmd wlan1 fastconfig -R
+ ```
 测试结果如下图：
 
 ![RX_Result](/assets/images/ate_test/RX_Result.png)
 
-注意：当要控制板子由一个RX状态切换到另一个RX状态，如查看另一个信道或频率的RX情况时，请先在原RX状态下停止板子接收，更改RX参数后再在控制板子发射。
+注意：当要控制板子由一个RX状态切换到另一个RX状态，如查看另一个信道或频率的RX情况时，请先在原RX状态下停止板子接收，更改RX参数后再在控制板子进入接收状态。
 
-- RX停止指令
+- 接收停止指令
   
 ```
 ate_cmd wlan1 fastconfig -k
@@ -263,7 +277,10 @@ ate_cmd wlan1 fastconfig -k
 
 ### 6.1 SIFLOWER ATE TOOL工具获取
 
-获取最新的ATE TOOL工具，请联系我们。
+获取最新的ATE TOOL工具
+链接：[百度网盘](https://pan.baidu.com/s/1K1HJ6kTpb_Hpsm92ozvhow) 
+提取码：SiFi
+
 
 ### 6.2 SIFLOWER ATE TOOL工具使用
 

@@ -67,6 +67,8 @@ mermaid: false
     此虚拟机对应的ubuntu iso镜像  
     [点击下载搭配虚拟机的ubuntu版本](https://pan.baidu.com/s/1hW9ZSpNkHx8FD967P-ZnNA) 提取码：upym   
 
+    **注：提供的默认虚拟机密码为1**
+
 - 如果想要从头开始新建虚拟机和安装一遍Ubuntu，请参考下文步骤新建虚拟机，在虚拟机中安装Ubuntu
 
 ### 下载ubuntu版本
@@ -74,7 +76,7 @@ mermaid: false
 点击[ubuntu下载](https://ubuntu.com/download/desktop)，进入官网下载相应的ubuntu-desktop版本  
 提前将ubuntu版本iso下载好，后续新建虚拟机时会用到
 
-**为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，ubuntu14.04、ubuntu16.04都是经过详细测试的操作系统版本**  
+**为了更顺利的进行开发，我们推荐使用ubuntu作为默认的编译环境，ubuntu14.04、ubuntu16.04都是经过详细测试的操作系统版本，使用其它系统版本ubuntu可能会带来其它的编译问题**  
 
 ### VMware新建虚拟机
 

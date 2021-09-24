@@ -27,26 +27,26 @@ mermaid: true
 |仪器|型号|
 |---|---|
 |极致汇仪|WT200、WT208、WT208C|
-|莱特波特|IQflex、IQxel80、IQxel智|
+|莱特波特|IQflex、IQxel80、IQxel智、IQxStream-5G|
 |安捷伦|E6640A|
 
 **注：如果有其他测试仪器的对接需求，可以另行提出需求，由我们提供支持。**
 
 ### 1.2 开发环境
 
-工具为使用Visual Studio 2015平台开发的（c++ Windows Forms） PC端Windows UI界面工具，适用于烧录具有pcba镜像的siflower方案芯片的产品，要求板端运行在uboot模式下且进入PCBA测试流程。
+工具为使用Visual Studio 2015平台开发的（c++ Windows Forms） PC端Windows UI界面工具
 
 ### 1.3 相关背景
 
-为保证产品RF性能达到设计指标要求及满足大批量快速生产要求，需要开发产线生产测试工具对产品RF进行校准以及对产品其它基本功能进行测试。
+为保证产品RF性能达到设计指标要求及满足大批量快速生产要求，需要开发产线生产测试工具对产品RF进行校准以及对产品其它基本功能进行测试。适用于烧录具有pcba镜像的siflower方案芯片的产品，要求板端运行在uboot模式下且进入PCBA测试模式。
 
 ### 1.4 功能概述
 
 #### 1.4.1 工具目录介绍
 
 **工具下载地址**  
-百度网盘下载链接：(待添加)  
-提取码：(待添加)  
+百度网盘下载链接：((https://pan.baidu.com/s/1QYY5-15HS0rkT2SZHD1BYQ)  
+提取码：(sodw)  
 
 测试工具文件夹名称为PCBA_Release，大小大约为500MB左右，主要有以下文件：  
 SF_PCBA_TEST.exe：运行程序  
@@ -97,13 +97,15 @@ sf_setup文件夹：主要包含测试的配置文件
 
     |内容|含义|
     |---|---|
+    |soc_version|芯片型号sf19a28,sf16a18|
     |flash_size|Flash大小|
+    |flash_type|flash类型：0 : nor flash 1: nand flash|
     |wifi_lb=external_PA|2.4G RF链路外置PA类型，如是内置PA，修改为internal_PA|
     |wifi_hb=external_PA|5G RF链路外置PA类型，如是内置PA，修改为internal_PA|
     |wlan=switch|测试wlan_port为外接类型switch/phy(A18外接千兆phy时这里写gmac)|
     |gmac=rgmii|测试wlan_port外接类型为千兆phy或者switch时为rgmii,为百兆phy/switch时为rmii|
     |pmu_button=0|0：没有PMU按键；1：有PMU按键|
-    |eth_port_list=0x56|switch 测试网口配置 0x56即0x01010110(对应为port0作为wan 1 2 3作为lan)|
+    |eth_port_list=0x56|switch 测试网口配置 0x56即0x01010110(对应为port0作为wan 1 2 3作为lan)需要设置配测网口的时候将此项设置为0xfffffff|
     |switch_eth_led_num=0x56|switch 测试网口灯数量，必须与eth_port_list保持一致|
     |gpio_button=60 -1 -1 -1|GPIO按键的GPIO号，-1表示没有|
     |gpio_button_value=0 0 0 0|GPIO按键测试值，0和1有效，gpio_button中为-1的这里也无效|
@@ -151,6 +153,8 @@ sf_setup文件夹：主要包含测试的配置文件
     |func_test_time=1|功能测次数，默认为1 最大为2，主要用于二次测试功能测试|
     |nft_test=1|1：进行NFT测试 0：不做NFT测试(做打流测试)|
     |wifi_to_func_test=0|1：测试完wifi后连续功能测试; 0：不连续测试|
+    |wifi_test_pass_earse_pcba=1|1：wifi测试完后解锁PCBA  0：不解锁PCBA|
+    |func_test_pass_earse_pcba=0|1：功能测试完后解锁PCBA  0：不解锁PCBA|
 
 - wifi_limit.txt配置说明
     wifi_limit.txt配置文件包含测试目标功率设置，测试EVM标准，测试接收灵敏度标准，接收指标，**对于标准参数，不得随意修改**，可根据产品实际开发情况设置合适的目标功率。
@@ -546,6 +550,104 @@ checkinfo 目前检查的信息有
  ![img16](/assets/images/pcba_test_image/img16.png)
 
 ## 4 FAQ
+
+**Q:PCBA镜像和生产镜像的关系？**
+A:
+- 产测镜像
+  
+  简称带PCBA的镜像。该镜像主要用于工厂生产，需要与PC端的测试软件配合使用，如果板端未烧录带PCBA镜像的产测镜像是无法结合工具进行测试的  
+  最终用于生产的uboot和openwrt镜像由客户自己生成，pcba镜像由矽昌根据对应的硬件规格提供，最终根据flash大小打包成一个完整的烧录镜像  
+  完整的产测镜像即为 uboot+openwrt+pcba，在flash分区如下：  
+
+  ![img17](/assets/images/pcba_test_image/img17.png)  
+
+  pcba-test为flash最后的512KB，用于存放pcba镜像。正常系统启动时不存在这个分区，仅供pcba测试使用。在pcba测试结束后，该分区会作为系统的rootfs-data使用。  
+  用户可以按照此分区划分将三个文件进行打包，自行操作时请往factory分区写入“PCBT”标志，写入位置参考[FLASH分区开发手册](https://siflower.github.io/2020/09/08/flashPartitionGuide/)  
+  
+  另外也可以使用siflower image_maker工具
+
+- image_maker工具制作生产镜像
+  
+  利用脚本制作完整的镜像时，脚本会往flash factory分区写一个“PCBT”标志，uboot启动时检测到这个标志，会跳转到PCBA模式，此时可以配合PCBA工具开始wifi校准，功能测试等，所有完成之后会擦除这个标志，下次启动就进入正常模式。
+
+  请在Linux环境下使用该工具执行sf-makeimage.sh脚本。**工具请联系矽昌获取**  
+  执行sf-makeimage.sh脚本需要2个参数：项目名称和flash大小。  
+  下面以p10h为例，项目名称为p10h，flash大小为8M  
+
+  1、需要将三个bin复制到本目录下：  
+  uboot镜像：uboot_rmaster_ac28_fullmask_4.2.14.bin。在uboot目录下编译生成的镜像，名字中需带uboot和ac28。  
+  openwrt镜像：openwrt1806_master_ac28_fullmask_rel_4.2.18.bin。在openwrt目录下编译生成的镜像，名字中需带openwrt和ac28。  
+  PCBA镜像：pcba_master_ac28_fullmask_4.0.0_1643db3.bin。在uboot目录下编译生成的镜像，名字中需带pcba和ac28。  
+
+  2、保证名字中有ac28且有uboot，openwrt和pcba的3个镜像都有且只有一个，脚本中会有查重检测。比如本目录下如果有openwrt1806_master_ac28_fullmask_rel_4.2.18.bin和openwrt1806_master_ac28_fullmask_rel_4.2.17.bin两个openwrt ac28镜像，那么运行脚本时会报错：too many openwrt image found!!!  
+
+  3、执行：sh sf-makeimage.sh ac28 8  
+
+  运行成功的最后会有如下log：  
+  the final bin is ac28_output_20210711.bin
+
+**Q:MAC地址使用情况？**
+A:
+  比如从A8:5A:F3:00:00:00到A8:5A:F3:FF:FF:FF为矽昌通信公司申请到的MAC地址，客户可以使用自己的
+  每个产品使用10个MAC地址，这10个MAC地址将被如下使用：
+  1个WAN口使用，1个LAN口使用，4个2.4G使用，4个5G使用
+  在驱动中需要保证2.4G和5G所用的第一个MAC地址被4整除，所以10个MAC地址分配的顺序有如下两种可能：
+  1. MAC地址以0，4，8，C结尾，比如A8:5A:F3:00:00:00
+   
+   |**2.4G**|**5G**|**LAN**|**WAN**|
+   |--|--|--|--|
+   |A8:5A:F3:00:00:00-A8:5A:F3:00:00:03|A8:5A:F3:00:00:04-A8:5A:F3:00:00:07|A8:5A:F3:00:00:08|A8:5A:F3:00:00:09|
+
+  2. MAC地址以2，6，A，E结尾，比如A8:5A:F3:00:00:0A
+   
+   |**LAN**|**WAN**|**2.4G**|**5G**|
+   |--|--|--|--|
+   |A8:5A:F3:00:00:0A|A8:5A:F3:00:00:0B|A8:5A:F3:00:00:0C-A8:5A:F3:00:00:0F|AA8:5A:F3:00:00:10-A8:5A:F3:00:00:13|
+
+  计算公式如下：
+  烧录的MAC地址为MAC0；
+  2.4g_mac_offset = ( 4 - ( MAC0 % 4 ) ) % 4
+  5g_mac_offset = 2.4g_mac_offset + 4
+  其中%为取余运算。
+  通过这样的计算，可以获得2.4G和5G的MAC地址，从而得到2.4G和5G的ssid。
+
+  **所以准备路由产品生产mac地址时需要注意：MAC地址的最后一位需要被4整除；两个相邻的MAC地址之间相差10**
+
+  3. wifi MAC地址具体分配和查看
+   
+   wifi所用的起始mac地址可以通过factory分区查看:
+   - 2.4G 
+
+   ```
+   cat /sys/devices/platform/factory-read/macaddr_lb
+   ```
+
+   - 5G 
+
+   ```
+   cat /sys/devices/platform/factory-read/macaddr_hb
+   ```
+
+   每个WiFi会各用到4个mac地址 ，即以起始地址开始的4个地址
+   以烧录A8:5A:F3:09:80:1C 这个mac地址为举例，板子起来后通过命令读取
+   macaddr_lb : A8:5A:F3:09:80:1C
+   macaddr_hb : A8:5A:F3:09:80:20
+
+   所以2.4G 用到的mac地址为 A8:5A:F3:09:80:1C~ A8:5A:F3:09:80:1F
+   第一个80:1C使用作为2.4G ssid名称，
+   第二个80:1D用作租赁网络2.4G的mac地址 
+   第三个80:1E用作访客网络2.4G的mac地址
+   第四个80:1F即为2.4G的实际mac地址，可以通过ifconfig查看到。
+
+   5G用到的mac地址为 A8:5A:F3:09:80:20~ A8:5A:F3:09:80:23
+   第一个80:20使用作为5G ssid名称
+   第二个80:21用作租赁网络5G的mac地址
+   第三个80:22用作访客网络5G的mac地址
+   第四个80:23即为5G的实际mac地址，可以通过ifconfig查看到
+
+   所以WiFi实际的mac地址：(可以通过ifconfig查看)
+   cat /sys/devices/platform/factory-read/macaddr_lb的值+3即为 2.4G的mac地址
+   cat /sys/devices/platform/factory-read/macaddr_hb的值+3即为 5G的mac地址
 
 **Q:wifi校准测试常见问题有哪些?**
 A:

@@ -635,3 +635,9 @@ A： 当出现mdio读写不通时，可以使用示波器测量gmac和phy/switch
 - Q：当配置初始化之后，数据tx/rx不通时如何处理？
 
 A： 当出现数据不通时，可以调整对应的tx/rx delay，使用devmem命令调试gmac芯片中预留的tx/rx delay寄存器。
+
+- Q：软重启网口没有link，而断电重启不会出现此现象是什么问题？
+
+A：软重启会先down以太网接口，此时驱动会disable all phy，interface up后会重新enable all phy；如果发现uboot阶段，所有网口依旧没有link，说明uboot中没有进行switch 的hw reset（uboot阶段通过gpio触发），reset后网口会恢复默认配置；而断电重启不会有此流程，所以不会出现此现象；
+   需要确认uboot中CONFIG_SFA18_ESWITCH_RST_GPIO的配置， 这是一个用户可以修改的宏，表示的是switch hw reset对应的GPIO number，不同客户使用我们芯片时，硬件接的GPIO number可能是不一样的需要对照硬件改为对应的gpio num  
+   即硬件switch hw reset对应的gpio为11, 则CONFIG_SFA18_ESWITCH_RST_GPIO 需要配置为11

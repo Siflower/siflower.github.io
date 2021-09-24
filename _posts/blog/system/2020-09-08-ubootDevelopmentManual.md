@@ -238,7 +238,7 @@ uboot代码需要向siflower申请gerrit权限，同意开放后需要提供相�
 
 - 账号登录
 
-  - 获取账号后，使用账号密码登陆[gerrit网站](gerrit.siflower.cn:9011)
+  - 获取账号后，使用账号密码登陆[gerrit网站](gerrit.siflower.cn:9001)
 
 - 获取代码
   
@@ -307,19 +307,19 @@ sf16a18/sf19a28 evb开发板。
 
 #### 烧录步骤
 
-①板子接串口，重启进入uboot，回车进入command模式，输入命令httpd 192.168.1.1 （或者其它和PC同网段的ip），回车，界面如下：  
-![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)  
-②电脑网线接板子上的第一个网口，最左侧的网口，在evb和p10上都是lan口的第一个网口。  
-③浏览器地址根据不同的需求输入不同的网址，如下表，以192.168.1.1为例：
+1. 板子接串口，重启进入uboot，回车进入command模式，输入命令httpd 192.168.1.1 （或者其它和PC同网段的ip），回车，界面如下：  
+ ![uboot_httpd](/assets/images/uboot_development_manual/uboot_httpd.png)  
+2. 电脑网线接板子上的网口。  
+ 浏览器地址根据不同的需求输入不同的网址，如下表，以192.168.1.1为例：
 
-| 网址 |	功能 | 适合文件 |
-| - | - | - |
-| 192.168.1.1 | 烧录firmware | *sysupgrade.bin, uImage-initramfs.lzma, uImage.lzma |
-| 192.168.1.1/uboot.html | 烧录纯uboot | 	uboot_full.img (慎用) |
+ | 网址 |	功能 | 适合文件 |
+ | - | - | - |
+ | 192.168.1.1 | 烧录firmware | *sysupgrade.bin, uImage-initramfs.lzma, uImage.lzma |
+ | 192.168.1.1/uboot.html | 烧录纯uboot | 	uboot_full.img (慎用) |
 
-正常的烧录界面如下：
-![uboot_html](/assets/images/uboot_development_manual/uboot_html.png)
-④烧录完毕会自动重启  
+ 正常的烧录界面如下：
+ ![uboot_html](/assets/images/uboot_development_manual/uboot_html.png)
+3. 烧录完毕会自动重启  
  
 
 
@@ -331,6 +331,7 @@ uboot引入新版型主要涉及到新版型配置文件改动，以太网驱动
 #### 配置文件适配
 
 - 增加对应版型的配置文件夹，如uboot/board/siflower/sfa28_ac28/，目录内容如下：
+  
   ```
   qin@ubuntu:~/uboot$ ls board/siflower/sfa28_ac28/
   Kconfig  MAINTAINERS  Makefile
@@ -420,3 +421,42 @@ void main_loop(void)
 ....
 }   
 ```
+
+**Q：如何修改cpu clk** 
+A：
+cpu clk = CPU_PLL / 分频比
+CPU_PLL的计算方式如下：（我们的外部晶振一般是40MHZ频率）
+1. 配置PLL
+ PLL计算的分频公式见下图。  
+ Fref ：参考时钟，一般为外部晶振频率。  
+ Refdiv：参考时钟，分频参数。  
+ Fbdiv：升频参数，实现整数部分。  
+ Frac：升频参数，实现小数部分。（小数部分暂不支持，使用的时候忽略）  
+ Postdiv1：升频后，再做分频参数1。  
+ Postdiv2：升频后，再做分频参数2。  
+
+ ![clk1](/assets/images/uboot_development_manual/clk1.jpg)
+
+ parmmeter寄存器参数如下，CM_PLL_BASEADDR=0x19E01000
+
+ ![clk2](/assets/images/uboot_development_manual/clk2.jpg)
+
+2. 配置cpu clk分频比
+ 寄存器信息如下， CM_CFG_BASEADDR=0x19E01500  
+
+ ![clk3](/assets/images/uboot_development_manual/clk3.jpg)
+
+ 注意该寄存器配置的分频比应该为寄存器里的值加1  
+ 0-> 1分频  
+ 1-> 2分频  
+ 2-> 3分频  
+
+3. uboot中代码的位置
+- 修改PLL,代码路径  
+ uboot/bare_spl/common/clk.c  
+ 修改如下红框的位置， 此处为修改PLL
+
+ ![clk4](/assets/images/uboot_development_manual/clk4.jpg)
+
+- 修改分频比  
+ 默认为2分频，如有需要，请自行在合适位置修改， 通过配置前面所述配置分频比的寄存器。
