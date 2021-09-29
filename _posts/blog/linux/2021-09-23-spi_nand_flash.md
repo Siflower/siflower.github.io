@@ -30,17 +30,19 @@ ubuntu系统
 ### 1.4 支持列表
 
 Siflower目前支持的SPI Nand Flash型号如下表：
-| 型号 | 厂商 | 大小 |
-|---|---|---|
-|W25N01GVZEIG|Winbond|1Gbit|
-|W25N01GV2E2G5PG|Winbond|1Gbit|
-|W25N01GVxxxG/T/R|Winbond|1Gbit|
-|MX35LF1GE4AB|Macronix|1Gbit|
+
+|       型号       |   厂商   | 大小  |
+| :--------------: | :------: | :---: |
+|  W25N01GVZEIG  | Winbond  | 1Gbit |
+|W25N01GV2E2G5PG | Winbond  | 1Gbit |
+|W25N01GVxxxG/T/R| Winbond  | 1Gbit |
+|  MX35LF1GE4AB  | Macronix | 1Gbit |
 
 ## 2 新物料的调试
 ### 2.1 uboot修改
 
 该步骤用于在uboot下添加新的nand flash物料。
+
 * 首先查看 drivers/mtd/spi-nand/Kconfig 文件，确定是否有对应厂商的支持，有则忽略此步。本例对应厂商支持在文件中已有，若无则仿照如下形式添加。 
 
   ![uboot](/assets/images/bsp/Kconfig.png)
@@ -66,7 +68,9 @@ Siflower目前支持的SPI Nand Flash型号如下表：
 ### 2.2 openwrt修改
 
 siflower 的 openwrt 的 linux4.14.90 已经⽀持如下⼏个⼚家的 spi nand flash ，分别是 micron, macronix, winbond, icmax, esmt, toshiba , gigadevice。
+
 如果要添加新的⼚商，请参照 linux-4.14.90-dev/linux-4.14.90/drivers/mtd/nand/spi/ ⽬录下的已⽀持⼚商的代码并结合 https://www.kernel.org/doc/html/latest/driver-api/mtdnand.html 编写相关驱动，这部分是 kernel 驱动开发标准流程，不做详细介绍。
+
 本⽂档不说明如何去写驱动，故后⾯只会就如何添加已⽀持⼚商的新的型号的flash 展开说明。
 
 * 首先添加已支持厂商的新的spi nand flash，确定厂商的型号，然后添加对应的flash型号，本例添加的是MACRONIX厂商的spi nand flash，所以编辑代码的路径为linux-4.14.90-dev/linux-4.14.90/drivers/mtd/nand/spi/macronix.c。
@@ -74,9 +78,15 @@ siflower 的 openwrt 的 linux4.14.90 已经⽀持如下⼏个⼚家的 spi nand
   查看是否有对应型号的spi nand flash 的支持，如果有则忽略，没有则添加，添加的形式如下：
   ![openwrt](/assets/images/bsp/macronix_spinand.png)
 
-  新增型号还需要在 linux-4.14.90-dev/linux-4.14.90/include/linux/mtd/spinand.h 新增厂商。
+  新增型号需要在代码中新增厂商：
 
+  1. linux-4.14.90-dev/linux-4.14.90/include/linux/mtd/spinand.h
+   
   ![openwrt](/assets/images/bsp/spi-nand-manufacturers.png)
+
+  2. linux-4.14.90-dev/linux-4.14.90/drivers/mtd/nand/spi/spi_nand_core.c
+
+  ![openwrt](/assets/images/bsp/spi-nand-core.png)
 
 ## 3 配置环境
 
@@ -89,12 +99,19 @@ siflower 的 openwrt 的 linux4.14.90 已经⽀持如下⼏个⼚家的 spi nand
   ![uboot](/assets/images/bsp/sf_make.png)
 
   执行 ./make.sh sfa28_evb fullmask ，应用一个已知版型的config配置。
+
 * 执行 make menuconfig进行配置，修改config配置文件， 主要修改点如下：
+  
   删除配置CONFIG_CMD_SF
+
   选择配置CONFIG_SPI_NAND
+
   选择配置CONFIG_CMD_SPI_NAND
+
   CONFIG_DEFAULT_DEVICE_TREE 修改为 "sfa28_fullmask_nand"
+
   CONFIG_SYS_EXTRA_OPTIONS 修改为 "SPI_NAND_BOOT"
+
   CONFIG_DM_SPI相关选项配置为下图
 
   ![uboot](/assets/images/bsp/dm_spi.png)
@@ -108,17 +125,25 @@ siflower 的 openwrt 的 linux4.14.90 已经⽀持如下⼏个⼚家的 spi nand
   ![uboot](/assets/images/bsp/config_spi_nand.png)
 
 * 保存并退出，然后执行 make savedefconfig ，在uboot项目根目录下会得到一个defconfig文件，用该文件覆盖对应版型的config配置文件即可，本例覆盖的是 configs/sfa28_fullmask_p20b_defconfig 文件。
+
 * 再次执行 ./make.sh sfa28_evb fullmask ，即可得到最终镜像。
  
 ### 3.2 openwrt环境配置
 
 * 先执行 ./make.sh a28_evb ，从而应用一个已有版型的config配置。
+
 * 执行 make kernel_menuconfig ，修改config配置如下
+  
   删除配置CONFIG_MTD_SPI_NOR
+
   选择配置 CONFIG_MTD_NAND
+
   选择配置 CONFIG_MTD_NAND_SPI
+
   选择配置 CONFIG_JFFS2_FS_WRITEBUFFER，并在此基础上选中"Remove cleanmarker when spi nand flash was used"这个选项。
+
   保存退出
+
 * 修改dts，本例修改的路径为linux代码下的 linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_evb.dts ，修改点如下图
   
   ![openwrt](/assets/images/bsp/dts.png)
