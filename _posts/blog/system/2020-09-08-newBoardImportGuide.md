@@ -53,11 +53,11 @@ siflower芯片相关配置在target/linux/siflower目录下。
 其中sf19a28-fullmask 目录代表了量产芯片sf19a28的配置目录  
 ![sf19a28-fullmask](/assets/images/new_board_guide/sf19a28-fullmask.png)
 
-**config-4.14_evb_v5**  
+**config-4.14_ac28_v5**  
 表示了不同版型对应kernel config，此文件由make kernel_menuconfig 生成  
 
-**base-files-SF16A18-EVB-V5**  
-表示针对EVB-V5这个版型，需要预留在rootfs下的文件
+**base-files-SF19A28-AC28-V5**  
+表示针对AC28-V5这个版型，需要预留在rootfs下的文件
 
 **profiles**
 该目录下面存放每个版型对应的mk文件，这边可以增加一些配置，在编译过程中生效，包含选择软件包和config项，这里制定了**版型的名称**和描述内容。
@@ -65,12 +65,12 @@ siflower芯片相关配置在target/linux/siflower目录下。
 **base-files** 
 目录用于存放用户希望预先存放到rootfs下指定路径的文件
 
-![sf16a18-basefile](/assets/images/new_board_guide/sf16a18-basefile.png)
+![sf19a28-basefile](/assets/images/new_board_guide/sf19a28-basefile.png)
 
 >该目录下文件路径和rootfs下一致，在相应路径下防止文件，编译完成后，体现到rootfs中，
 该目录下文件对于所有siflower 版型**通用**。
 
-target/linux/siflower 目录下的sf16a18_evb_v5_fullmask_def.config 为config文件，为对应版型的openwrt文件配置。
+target/linux/siflower 目录下的sf19a28_ac28_v5_fullmask_def.config 为config文件，为对应版型的openwrt文件配置。
 
 >config 文件为在编译根目录下使用make menuconfig 选择不同openwrt软件模块后生成
 后文实例中会具体介绍。
@@ -82,61 +82,61 @@ kernel中有关版型的配置为dts配置部分，kernel本身config，在openw
 
 linux-4.14.90/arch/mips/boot/dts/siflower/ 为siflower dts所在路径位置。
 
->sf16a18_full_mask.dtsi 为所有siflower 芯片通用dts配置项
-sf16a18_fullmask_evb_v5.dts为evb_v5版型配置项。
+>sf19a28_full_mask.dtsi 为所有siflower 芯片通用dts配置项
+sf19a28_fullmask_ac28_v5.dts为ac28_v5版型配置项。
 
 ### Openwrt新版型引入示例
 
-下文为增加一个SF16A18芯片型号，板型名为EVB_V5的新版型的示例。
+下文为增加一个SF19A28芯片型号，板型名为AC28_V5的新版型的示例。
 
 #### Openwrt 增加配置
 
 ##### 通用配置引入
 
-- 首先在target/linux/siflower/sf16a18-fullmask/profiles 目录下新建对应的mk文件。
+- 首先在target/linux/siflower/sf19a28-fullmask/profiles 目录下新建对应的mk文件。
   修改所有相应的名称为指定型号，需要和文件名统一，注意大小写。
 
-  ![evb-v5-mk](/assets/images/new_board_guide/evb-v5-mk.png)
+  ![ac28-v5-mk](/assets/images/new_board_guide/ac28-v5-mk.png)
 
-- 根据需要，决定是否建立target/linux/siflower/sf16a18-fullmask/base-files-SF16A18-EVB-V5 目录，放置额外文件,注意文件夹名称统一。  
-  ![evb-v5-basefile](/assets/images/new_board_guide/evb-v5-basefile.png)
+- 根据需要，决定是否建立target/linux/siflower/sf19a28-fullmask/base-files-SF19A28-AC28-V5 目录，放置额外文件,注意文件夹名称统一。  
+  ![ac28-v5-basefile](/assets/images/new_board_guide/ac28-v5-basefile.png)
 
-- 在target/linux/siflower/sf16a18-fullmask/目录下复制其他版型的kernel config文件作为新板型的kernel config文件，后续在kernel部分会进行修改。  
-  ![evb-v5-kconfig](/assets/images/new_board_guide/evb-v5-kconfig.png)
+- 在target/linux/siflower/sf19a28-fullmask/目录下复制其他版型的kernel config文件作为新板型的kernel config文件，后续在kernel部分会进行修改。  
+  ![ac28-v5-kconfig](/assets/images/new_board_guide/ac28-v5-kconfig.png)
 
 - 下面进入target/linux/siflower 目录
   复制其他版型的 openwrt config文件，后续进行修改。
 
-  ![evb-v5-config](/assets/images/new_board_guide/evb-v5-config.png)
+  ![ac28-v5-config](/assets/images/new_board_guide/ac28-v5-config.png)
 
 - 进入根目录
   这一步我们修改make.sh, 增加对于新版型的编译指令，如下：
   ```
-  ac20_sjby)
-      target_board=target/linux/siflower/sf16a18_ac20_fullmask_gmac_sjby.config
+  ac28)
+      target_board=target/linux/siflower/sf19a28_ac28_fullmask_def.config
       ;;
-  evb_v5)
-      target_board=target/linux/siflower/sf16a18_evb_v5_fullmask_def.config
+  ac28_v5)
+      target_board=target/linux/siflower/sf19a28_ac28_v5_fullmask_def.config
       ;;
   ```
 
 - 将拷贝的openwrt config配置变成默认配置，并进行差异化配置。
-  ![evb-v5-copy1](/assets/images/new_board_guide/evb-v5-copy1.png)
+  ![ac28-v5-copy1](/assets/images/new_board_guide/ac28-v5-copy1.png)
 
 - 如下界面中选择新添加的版型。
-  ![evb-v5-menuconfig](/assets/images/new_board_guide/evb-v5-menuconfig.png)
+  ![ac28-v5-menuconfig](/assets/images/new_board_guide/ac28-v5-menuconfig.png)
   保存配置后并退出。  
 
   **注意：如果make menuconfig选择时没有新版型选项，请在openwrt根目录下，删除tmp/ 和 .config**  
   **然后重新拷贝新建版型配置为 .config,再进行make menuconfig即可**
 
 - 保存最终配置  
-  ![evb-v5-copy2](/assets/images/new_board_guide/evb-v5-copy2.png)
+  ![ac28-v5-copy2](/assets/images/new_board_guide/ac28-v5-copy2.png)
   将生成的config文件覆盖回target目录下的文件，使配置永久保存。
 
 ##### 差异配置引入
 
-在target/linux/siflower/sf16a18-fullmask/下有各个版型的差异化配置，如base-files-SF16A18-EVB-V5，其包含了不同版型的差异化配置，如生成network配置文件的关键脚本01_network，因为硬件差异其配置可能略有不同。  
+在target/linux/siflower/sf19a28-fullmask/下有各个版型的差异化配置，如base-files-SF19A28-AC28-V5，其包含了不同版型的差异化配置，如生成network配置文件的关键脚本01_network，因为硬件差异其配置可能略有不同。  
 
 network和wireless两个配置文件是新版型引入的关键配置，因为其决定了产品有线和无线的可用性，是产品的关键所在，所以了解其生成和配置差异尤为重要。  
 其中关于上述2个配置文件的详细内容和参数说明可参考：[config文件配置手册](https://siflower.github.io/2020/09/11/config_setting/)  
@@ -176,29 +176,29 @@ linux需要增加相应的dts文件和Kconfig选项。
 - 首先进入linux-4.14.90/arch/mips/boot/dts/siflower/目录
 增加新的dts文件，根据版型修改dts文件内容。
 
-![evb-v5-dts](/assets/images/new_board_guide/evb-v5-dts.png)
+![ac28-v5-dts](/assets/images/new_board_guide/ac28-v5-dts.png)
 
 编辑此目录下的Makefile文件，建立dts文件对应宏选项
 
-![evb-v5-dtsMK](/assets/images/new_board_guide/evb-v5-dtsMK.png)
+![ac28-v5-dtsMK](/assets/images/new_board_guide/ac28-v5-dtsMK.png)
 
 - 进入linux-4.14.90/arch/mips/siflower 目录
 
 新增新dts对应Kconfig的配置项。
-![evb-v5-dtsKconfig](/assets/images/new_board_guide/evb-v5-dtsKconfig.png)
+![ac28-v5-dtsKconfig](/assets/images/new_board_guide/ac28-v5-dtsKconfig.png)
 
 - 最后回到**openwrt根目录**下使用命令
   
-![evb-v5-kmconfigCMD](/assets/images/new_board_guide/evb-v5-kmconfigCMD.png)
+![ac28-v5-kmconfigCMD](/assets/images/new_board_guide/ac28-v5-kmconfigCMD.png)
 
 在下图中选择对应的新的DTS，并且保存退出
 
-![evb-v5-kmconfig](/assets/images/new_board_guide/evb-v5-kmconfig.png)
+![ac28-v5-kmconfig](/assets/images/new_board_guide/ac28-v5-kmconfig.png)
 
 #### 编译新版型镜像
 
 保存相关文件，回到openwrt根目录，这个时候可以通过执行
-![evb-v5-compile](/assets/images/new_board_guide/evb-v5-compile.png)
+![ac28-v5-compile](/assets/images/new_board_guide/ac28-v5-compile.png)
 可以编译出对应新配置版型的镜像。
 
 #### 烧录编译出来的镜像
@@ -234,23 +234,23 @@ linux需要增加相应的dts文件和Kconfig选项。
 ```mermaid
 graph TB
   title(新增板型配置编译流程图)
-  A(./make.sh evb_v5) --> |make.sh| B[cp target/linux/siflower/sf16a18_evb_v5_fullmask_def.config .config]
+  A(./make.sh a28_ac28_v5) --> |make.sh| B[cp target/linux/siflower/sf19a28_ac28_v5_fullmask_def.config .config]
   B --> C[make -j32 V=s]
   C --> D[include/target.mk]
   D --> |CONFIG_TARGET_PROFILE| E[PROFILE]
-  E --> |board_info| F[target/linux/siflower/sf16a18-fullmask/profiles/sf16a18-evb-v5.mk]
+  E --> |board_info| F[target/linux/siflower/sf19a28-fullmask/profiles/sf19a28-ac28-v5.mk]
   subgraph 新板型Openwrt配置编译图
   F --> G[package/base-files/Makefile]
-  G --> H[target/linux/siflower/sf16a18-fullmask/base-files-SF16A18-EVB-V5]
+  G --> H[target/linux/siflower/sf19a28-fullmask/base-files-SF19A28-AC28-V5]
   end
-  E --> |board_info| I[target/linux/siflower/sf16a18-fullmask/config-4.14_evb_v5]
+  E --> |board_info| I[target/linux/siflower/sf19a28-fullmask/config-4.14_ac28_v5]
   subgraph 新板型Kernel配置编译图
-  I --> |CONFIG_DT_SF16A18_FULLMASK_EVB_V5=y| J[linux-4.14.90/arch/mips/boot/dts/siflower/sf16a18_fullmask_evb_v5.dts]
+  I --> |CONFIG_DT_SF19A28_FULLMASK_AC28_V5=y| J[linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask_ac28_v5.dts]
   J --> L[linux-4.14.90/arch/mips/boot/dts/siflower/Makefile<br>linux-4.14.90/arch/mips/siflower/Kconfig]
   end
-  H --> M[bin/targets/siflower/openwrt-siflower-sf16a18-fullmask-squashfs-sysupgrade.bin]
+  H --> M[bin/targets/siflower/openwrt-siflower-sf19a28-fullmask-squashfs-sysupgrade.bin]
   L --> M
-  M --> N(cp bin/targets/siflower/openwrt-siflower-sf16a18-fullmask-squashfs-sysupgrade.bin openwrt_master_evb_v5_fullmask_rel_.bin)
+  M --> N(cp bin/targets/siflower/openwrt-siflower-sf19a28-fullmask-squashfs-sysupgrade.bin openwrt_master_a28_ac28_v5_fullmask_rel_.bin)
 ```
 
 ### 关键点
