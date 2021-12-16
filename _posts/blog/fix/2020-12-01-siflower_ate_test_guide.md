@@ -108,10 +108,10 @@ mermaid: true
 - 传输间隔代表Short GI或者Long GI,分别用0和1表示;
 - gain代表TX功率发射等级，0~31可选;
 
-如想要控制板子做11ac，中心频率为5510，速率为MCS9，功率等级为30的短距发射，命令结构如下：
+如想要控制板子做11ac 40M ，5500信道，速率为MCS9，功率等级为30的短距发射，命令结构如下：
 
 ```
-ate_cmd wlan1 fastconfig  -l 4096 -f 5510 -c 5510 -w 2 -u 2 -m 4 -i 9 -g 0 -p 30  -y
+ate_cmd wlan1 fastconfig  -l 1024 -f 5500 -c 5510 -w 2 -u 2 -m 4 -i 9 -g 0 -p 30  -y
 ```
 
 如控制板子停止TX，使用如下指令：
@@ -120,7 +120,7 @@ ate_cmd wlan1 fastconfig  -l 4096 -f 5510 -c 5510 -w 2 -u 2 -m 4 -i 9 -g 0 -p 30
 ate_cmd wlan1 fastconfig -q
 ```
 
-注意停止2.4G与5G 时wlan参数不同。
+**注意：停止2.4G与5G 时wlan参数不同。**
 
 ### 4.2 RX测试命令
 
@@ -231,18 +231,37 @@ ate_cmd fastconfig -q
 注意：当要控制板子由一个TX状态切换到另一个TX状态，如查看另一个信道或频率的TX情况时，请先在原TX状态下停止板子发射，更改TX参数后再在控制板子发射。
 
 
-- 单音指令
+- 单载波指令
  
-如果需要发送单载波，比如5500信道的单载波，使用如下命令
+如果需要发送单载波
+1. 比如5G天线1路5500信道的80M带宽的单载波，使用如下命令
 
 ```
-ate_cmd wlan1 fastconfig -f 5500 -c 5530 -w 3 –u 3 –p 31 –o
+ate_cmd wlan1 fastconfig -f 5500 -c 5530 -w 3 –u 3 –p 31 -V 65 –o
 ```
+**注意：**  
+**-V 65 代表 ant0**
+
+**-V 66 代表 ant1**
+
+**采样的时候需要和中心频率一致**
 
 停止发送单载波
 
 ```
 ate_cmd wlan1 fastconfig -x
+```
+
+2. 比如2.4G天线2路的2437信道40M带宽单载波，使用如下命令
+
+```
+ate_cmd wlan0 fastconfig -f 2437 -c 2437 -w 2 –u 2 –p 31 -V 66 –o
+```
+
+停止发送单载波
+
+```
+ate_cmd wlan0 fastconfig -x
 ```
 
 ### 5.3 SIFLOWER 方案手动RX测试
@@ -334,7 +353,7 @@ ate_cmd wlan1 fastconfig -k
 
 ### 6.3 退出测试模式
 
-当要退出测试模式时，在串口工具界面输入“sfwifi reset fmac”命令，即可推出测试模式。
+当要退出测试模式时，在串口工具界面输入“sfwifi reset fmac”命令，即可退出ate测试模式。
 
 ## 7 异常处理
 

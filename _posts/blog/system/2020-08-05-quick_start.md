@@ -227,7 +227,7 @@ graph TB;
   删除目录/bin和/build_dir以及/staging_dir和/toolchain（=交叉编译工具）和/logs的内容。“Dirclean”是您的基本“全面清理”操作。
 
   3)make distclean
-  将编译或配置的所有内容都删除，并删除所有已下载的提要内容和程序包源。
+  将编译或配置的所有内容都删除，并删除所有已下载的提要内容和程序包源。**此指令谨慎使用**
 
   4）make target/linux/clean
   清理linux对象。
@@ -356,20 +356,20 @@ graph TB;
 
 ##### 2.1.6.3 IROM download更新
 
-在板子硬件配置上有usb otg接口时，如果出现以下情况  
+在板子硬件配置上**有usb otg接口**时，如果出现以下情况  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，里面没有任何内容，需要烧录镜像  
-可以通过Siflower的irom download下载工具将文件下载到FLASH中
+可以通过Siflower的irom usb download下载工具将文件下载到FLASH中
 
 此方法需要专业人员进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
 
 ##### 2.1.6.4 烧录器更新
 
-在板子硬件配置上无usb otg接口时，如果出现以下情况  
+在板子硬件配置上**无usb otg接口**时，如果出现以下情况  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，未烧录过任何镜像  
-需要根据flash型号大小以及ddr型号，制作完整的flash镜像，通过FLASH烧录器对flash芯片进行烧录  
-具体操作方法请联系邮箱(irving.luo@siflower.com.cn)  
+需要根据flash型号大小以及ddr型号，制作完整的flash镜像或者uboot镜像，通过FLASH烧录器对flash芯片进行烧录  
+
 
 #### 2.1.7 串口调试
 

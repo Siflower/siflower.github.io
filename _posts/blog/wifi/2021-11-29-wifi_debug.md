@@ -196,7 +196,7 @@ rc节点主要用于查看sta的tx和rx收发包速率情况，在使用该节�
   - R ：该程序目前正在运作，或者是可被运作；
   - S ：该程序目前正在睡眠当中 (可说是 idle 状态啦！)，但可被某些讯号(signal) 唤醒。
   - T ：该程序目前正在侦测或者是停止了；
-  - Z ：该程序应该已经终止，但是其父程序却无法正常的终止他，造成 zombie (疆尸) 程序的状态
+  - Z ：该程序应该已经终止，但是其父程序却无法正常的终止他，造成 zombie (僵尸) 程序的状态
 - COMMAND：表示该进程的运行指令；
   ![ps](/assets/images/wifi_debug/ps.png)
 
@@ -235,10 +235,10 @@ rc节点主要用于查看sta的tx和rx收发包速率情况，在使用该节�
 ### 5.1 寄存器使用方法
 
 - 读：demmev  [寄存器物理地址]  
-  如：devmem  0x1110b35c
+  如：devmem  0x1110b35c  
 ![read](/assets/images/wifi_debug/read.png)
 - 读：demmev  [寄存器物理地址]  32  [要写入的值]
-  如：devmem 0x1110b35c 32 0x00010001
+  如：devmem 0x1110b35c 32 0x00010001  
 ![write](/assets/images/wifi_debug/write.png)
 
 ### 5.2 调整CCA门限
@@ -252,21 +252,21 @@ rc节点主要用于查看sta的tx和rx收发包速率情况，在使用该节�
 - 调整CCA门限  
 相关寄存器：2.4G 0x1110b3ac   5G 0x1790b3ac
 该寄存器中bit 0 - 7 为CCA20PRISETHRDBM（能量检测Energy Detection）、 bit 12 - 19为INBDCCA20PPOWMINDBM（载波侦听Carrier Sense），通过修改其值去调整门限，注意CCA20PRISETHRDBM要比INBDCCA20PPOWMINDBM大3个db。
-将2.4G对应的值上调，示例
+将2.4G对应的值上调，示例  
 ![CCA](/assets/images/wifi_debug/CCA.png)
 
 ### 5.3 动态降带宽
 
 相关寄存器：2.4G 0x11080310  5G 0x17080310
 该寄存器中bit 3为dropToLowerBW，通过修改其值来打开和关闭降带宽功能，默认关闭，设为1为关闭，设为0为开启。
-示例：
+示例:  
 ![bw](/assets/images/wifi_debug/bw.png)
 
 ### 5.4 调整TX传输
 
 相关寄存器：2.4G 0x11100860    5G 0x17900860
 该寄存器中 bit 20 - 23为20BW的时域窗口、 bit 24 - 27为40BW的时域窗口、 bit28 - 31为80BW的时域窗口，针对当前ap的带宽调节相应的时域窗口（数值越大，吞吐应越高），查看对tx有无改善。
-将2.4G 20BW时的时域窗口从0改为1，示例：
+将2.4G 20BW时的时域窗口从0改为1，示例:  
 ![tx](/assets/images/wifi_debug/tx.png)
 
 
