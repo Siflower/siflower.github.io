@@ -45,7 +45,7 @@ mermaid: true
 #### 1.4.1 工具目录介绍
 
 **工具下载地址**  
-百度网盘下载链接：((https://pan.baidu.com/s/1QYY5-15HS0rkT2SZHD1BYQ)  
+百度网盘下载链接：(https://pan.baidu.com/s/1QYY5-15HS0rkT2SZHD1BYQ)   
 提取码：(sodw)  
 
 测试工具文件夹名称为PCBA_Release，大小大约为500MB左右，主要有以下文件：  
@@ -146,12 +146,15 @@ sf_setup文件夹：主要包含测试的配置文件
     |user4_5g_port=4|user 4 5G口，1～4有效值。1对应RF1，依次类推|
     |bypass_2g_rx=0|0:不跳过2.4G RX测试；1：跳过2.4G RX测试|
     |bypass_5g_rx=0|0:不跳过5G RX测试；1：跳过5G RX测试|
+    |bypass_2g_tx=0|0:不跳过2.4G TX测试；1：跳过2.4G TX测试|
+    |bypass_5g_7x=0|0:不跳过5G TX测试；1：跳过5G TX测试|
     |wt200=0|0：不使用wt200；1:使用wt200|
     |func_test_priority=1|功能测试优先级，与wifi_test_priority比较，如果大于则先function测试，再进行WiFi测试|
     |wifi_test_priority=2|wifi测试优先级，与func_test_priority比较，如果大于则先wifi校准测试，再进行function测试|
     |wifi_or_func_macaddr=0|1：在功能测试站烧录mac地址，在WiFi测试站跳过扫码;0：在WiFi测试站烧录mac地址  在功能测试站跳过扫码|
     |func_test_time=1|功能测次数，默认为1 最大为2，主要用于二次测试功能测试|
     |nft_test=1|1：进行NFT测试 0：不做NFT测试(做打流测试)|
+    |pcbt_dbg=1|1：向被测板子写入PCBT标志  0：不写入，此项生产测试时必须为1|
     |wifi_to_func_test=0|1：测试完wifi后连续功能测试; 0：不连续测试|
     |wifi_test_pass_earse_pcba=1|1：wifi测试完后解锁PCBA  0：不解锁PCBA|
     |func_test_pass_earse_pcba=0|1：功能测试完后解锁PCBA  0：不解锁PCBA|
@@ -164,6 +167,18 @@ sf_setup文件夹：主要包含测试的配置文件
     ![limit2](/assets/images/pcba_test_image/wifi_limit2.png)
 
     ![limit3](/assets/images/pcba_test_image/wifi_limit3.png)
+
+- test_flow.txt配置说明
+  
+    test_flow配置文件是用与配置TX校准以及RX测试，实际需要的信道/模式/速率  
+
+  - WiFi校准可配置2.4G/5G校准的信道，实际校准**各模式最高速率不能修改**
+  
+    ![test_flow1](/assets/images/pcba_test_image/test_flow1.png)
+
+  - WiFi RX测试配置可配置测试信道和各个信道测试的模式速率
+  
+    ![test_flow2](/assets/images/pcba_test_image/test_flow2.png)
 
 ## 2 工具使用环境
 
@@ -179,15 +194,17 @@ sf_setup文件夹：主要包含测试的配置文件
   
  - 搭建wifi校准环境
 
-    如仪器为极致汇仪仪器，与仪器连接的电脑网卡IP为：192.168.20.10，此IP与产品通信，不得更改；另外在同一张网卡上新增与仪器同一网段的IP，192.168.10.25；
+    如仪器为极致汇仪WT208，与仪器连接的电脑网卡IP为：192.168.20.10，此IP与产品通信，不得更改；另外在同一张网卡上新增与仪器同一网段的IP，192.168.10.25；
     同一张网卡上增加同产品网段IP，192.168.4.xx  
     相同仪器ETH-1连接待产品1wan口,仪器ETH-2连接待测产品2wan口,其余类推  
     测试时一个RF口接一台待测产品，与ETH相对应  
     ![itest_ip](/assets/images/pcba_test_image/itest_ip.png)  
 
-    如使用莱特波特仪器，测试电脑除主板网卡外需要增加1-2张网卡，增加一张网卡即增加测试一个产品，最多可同时测试两块待测板  
+    如果是极致汇仪WT200,需要使用两张网卡，一张网卡连接仪器，设置仪器同一网段IP; 另一张网卡连接产品板，设置IP 192.168.4.2，并且config.ini 打开wt200配置为1；  
+
+    如使用莱特波特IQ仪器，测试电脑除主板网卡外需要增加1-2张网卡，增加一张网卡即增加测试一个产品，最多可同时测试两块待测板  
     其中一张电脑网卡连接仪器，另外网卡连接对应待测板，连接待测产品1网卡IP设定为:192.168.4.2；连接待测产品2网卡IP设定为:192.168.5.3  
-    在每张网卡上增加一个仪器同一网段ip:192.168.100.15  
+    在每张网卡上增加一个仪器同一网段ip:192.168.100.xx  
     测试时一个RF口接一台待测产品  
     ![iq_ip](/assets/images/pcba_test_image/iq_ip.png)  
     
@@ -232,7 +249,7 @@ sf_setup文件夹：主要包含测试的配置文件
   线损测试接线示意图如下  
   ![cable_return](/assets/images/pcba_test_image/cable_return.png)
 
-- 打开工具wifi校准测试，初始化成功后点击窗口1(窗口1对应RF1)“线损校准”按钮
+- 打开工具wifi校准测试，初始化成功后，以窗口1为例(窗口1对应RF1)，点击每个“线损校准”按钮，分别校准四路线损
   ![btn_loss](/assets/images/pcba_test_image/btn_loss.png)
 
 - 开启线损校准
@@ -241,15 +258,20 @@ sf_setup文件夹：主要包含测试的配置文件
 - 线损校准结束
   ![end_loss](/assets/images/pcba_test_image/end_loss.png)
 
+  注意：每校准一路线损需要PCBA工具重新开关一次才能进行第二路线损校准，工具设计是强制测试一路线损后关闭工具检查无误后再进行下一路线损测试，如此循环直至线损测试结束，防止测试过程线损异常导致批量性返工
+       如果测试完2.4G_ANT1 线损未关闭工具继续测试5G_ANT0，连续测试会导致前面的线损值清零。
+
 - 测试结果保存
   
   RF1测试结果会保存到wifi_atten_dut_1.txt文件中  
   其中wifi_atten_dut_1.txt对应端口1的线损校准值，具体内容如下图：  
+  CHAIN0-CHAIN3 分别表示2.4G_ANT0/2.4G_ANT1/5G_ANT0/5G_ANT1线损值  
+
   ![loss](/assets/images/pcba_test_image/loss.png)
 
 - 线损文件说明
   wifi_atten_dut_1.txt到wifi_atten_dut_4.txt，记录了不同RF端口到板端的线损值  
-  Fixed attenation为不易量测的夹具RF探针估计衰减值，原则上2.4G估计0.5db左右，5G估计0.8db左右，需要手动填写到此文件中  
+  Fixed attenation为不易量测的夹具RF探针估计衰减值，需要估算后，手动填写到此文件中  
   Delta attenation为仪器量测的仪器RF端口到板端馈线线损值，量测时仪器RF1与RF2对接，点击一拖四wifi校准界面1工位线损测试按钮，测试完成线损值保存在wifi_atten_dut_1.txt  
   点击点击一拖四wifi校准界面2工位线损测试按钮，测试完成线损值保存在wifi_atten_dut_2.txt，RF3与RF4到板端线损量测方法一致  
 
@@ -456,7 +478,7 @@ IQ仪器，与PC相连，PC端IP设为192.168.10.254,该仪器测试支持最多
 
     ![img8](/assets/images/pcba_test_image/img8.png)
 
-  - 先测功能再测wifi
+  - 先测功能再测wifis
 
     ![img7](/assets/images/pcba_test_image/img7.png)
 
@@ -551,7 +573,7 @@ checkinfo 目前检查的信息有
 
 ## 4 FAQ
 
-**Q:PCBA镜像和生产镜像的关系？**
+**Q:PCBA镜像和生产镜像的关系？**  
 A:
 - 产测镜像
   
@@ -568,30 +590,31 @@ A:
 
 - image_maker工具制作生产镜像
   
-  利用脚本制作完整的镜像时，脚本会往flash factory分区写一个“PCBT”标志，uboot启动时检测到这个标志，会跳转到PCBA模式，此时可以配合PCBA工具开始wifi校准，功能测试等，所有完成之后会擦除这个标志，下次启动就进入正常模式。
+  利用脚本制作完整的镜像时，脚本会往flash factory分区固定位置写一个“PCBT”标志，uboot启动时检测到这个标志，会跳转到PCBA模式，此时可以配合PCBA工具开始wifi校准，功能测试等，所有完成之后会擦除这个标志，下次启动就进入正常模式。  
 
   请在Linux环境下使用该工具执行sf-makeimage.sh脚本。**工具请联系矽昌获取**  
   执行sf-makeimage.sh脚本需要2个参数：项目名称和flash大小。  
-  下面以p10h为例，项目名称为p10h，flash大小为8M  
+  下面以ac28为例，项目名称为ac28，flash大小为16M  
 
   1、需要将三个bin复制到本目录下：  
-  uboot镜像：uboot_rmaster_ac28_fullmask_4.2.14.bin。在uboot目录下编译生成的镜像，名字中需带uboot和ac28。  
-  openwrt镜像：openwrt1806_master_ac28_fullmask_rel_4.2.18.bin。在openwrt目录下编译生成的镜像，名字中需带openwrt和ac28。  
+  uboot镜像：uboot_master_ac28_fullmask_4.2.14.bin。在uboot目录下编译生成的镜像，名字中需带uboot和ac28。  
+  openwrt镜像：openwrt1806_master_ac28_fullmask_rel_1.0.1.bin。在openwrt目录下编译生成的镜像，名字中需带openwrt和ac28。  
   PCBA镜像：pcba_master_ac28_fullmask_4.0.0_1643db3.bin。在uboot目录下编译生成的镜像，名字中需带pcba和ac28。  
 
-  2、保证名字中有ac28且有uboot，openwrt和pcba的3个镜像都有且只有一个，脚本中会有查重检测。比如本目录下如果有openwrt1806_master_ac28_fullmask_rel_4.2.18.bin和openwrt1806_master_ac28_fullmask_rel_4.2.17.bin两个openwrt ac28镜像，那么运行脚本时会报错：too many openwrt image found!!!  
+  2、保证名字中有ac28且有uboot，openwrt和pcba的3个镜像都有且只有一个，脚本中会有查重检测。比如本目录下如果有openwrt1806_master_ac28_fullmask_rel_4.2.18.bin和openwrt1806_master_ac28_fullmask_rel_4.2.17.bin两个openwrt ac28镜像  
+     那么运行脚本时会报错：too many openwrt image found!!!  
 
-  3、执行：sh sf-makeimage.sh ac28 8  
+  3、执行：sh sf-makeimage.sh ac28 16  
 
   运行成功的最后会有如下log：  
-  the final bin is ac28_output_20210711.bin
+  the final bin is ac28_output_20210711.bin  
 
-**Q:MAC地址使用情况？**
-A:
-  比如从A8:5A:F3:00:00:00到A8:5A:F3:FF:FF:FF为矽昌通信公司申请到的MAC地址，客户可以使用自己的
-  每个产品使用10个MAC地址，这10个MAC地址将被如下使用：
-  1个WAN口使用，1个LAN口使用，4个2.4G使用，4个5G使用
-  在驱动中需要保证2.4G和5G所用的第一个MAC地址被4整除，所以10个MAC地址分配的顺序有如下两种可能：
+**Q:MAC地址使用情况？**  
+A:  
+  比如从A8:5A:F3:00:00:00到A8:5A:F3:FF:FF:FF为矽昌通信公司申请到的MAC地址，客户可以使用自己的  
+  每个产品使用10个MAC地址，这10个MAC地址将被如下使用  
+  1个WAN口使用，1个LAN口使用，4个2.4G使用，4个5G使用  
+  在驱动中需要保证2.4G和5G所用的第一个MAC地址被4整除，所以10个MAC地址分配的顺序有如下两种可能:  
   1. MAC地址以0，4，8，C结尾，比如A8:5A:F3:00:00:00
    
    |**2.4G**|**5G**|**LAN**|**WAN**|
@@ -604,12 +627,12 @@ A:
    |--|--|--|--|
    |A8:5A:F3:00:00:0A|A8:5A:F3:00:00:0B|A8:5A:F3:00:00:0C-A8:5A:F3:00:00:0F|AA8:5A:F3:00:00:10-A8:5A:F3:00:00:13|
 
-  计算公式如下：
-  烧录的MAC地址为MAC0；
-  2.4g_mac_offset = ( 4 - ( MAC0 % 4 ) ) % 4
-  5g_mac_offset = 2.4g_mac_offset + 4
-  其中%为取余运算。
-  通过这样的计算，可以获得2.4G和5G的MAC地址，从而得到2.4G和5G的ssid。
+  计算公式如下：  
+  烧录的MAC地址为MAC0；  
+  2.4g_mac_offset = ( 4 - ( MAC0 % 4 ) ) % 4  
+  5g_mac_offset = 2.4g_mac_offset + 4  
+  其中%为取余运算。  
+  通过这样的计算，可以获得2.4G和5G的MAC地址，从而得到2.4G和5G的ssid。  
 
   **所以准备路由产品生产mac地址时需要注意：MAC地址的最后一位需要被4整除；两个相邻的MAC地址之间相差10**
 
@@ -649,8 +672,8 @@ A:
    cat /sys/devices/platform/factory-read/macaddr_lb的值+3即为 2.4G的mac地址
    cat /sys/devices/platform/factory-read/macaddr_hb的值+3即为 5G的mac地址
 
-**Q:wifi校准测试常见问题有哪些?**
-A:
+**Q:wifi校准测试常见问题有哪些?**  
+A:  
 - 工具初始化失败
     请检查仪器IP地址是否与配置文件config配置文件中一致  
     检查测试电脑网卡IP设置，详细见上文工具使用注意  
@@ -682,8 +705,8 @@ A:
     检查产品RX链路是否异常  
     检查屏蔽箱屏蔽效果是否不好  
 
-**Q:WIFI耦合测试常见问题有哪些?**
-A:
+**Q:WIFI耦合测试常见问题有哪些?**  
+A:  
 - 工具初始化失败
     请检查仪器IP地址是否与配置文件config配置文件中一致  
     检查测试电脑网卡IP设置，详细见上文工具使用注意
@@ -702,8 +725,8 @@ A:
     检查产品天线位置是否变动  
     天线焊接异常
 
-**Q:手动测试常见问题有哪些？**
-A：
+**Q:手动测试常见问题有哪些？**  
+A:    
 - 工具初始化失败
     检查测试电脑网卡IP设置，详细见上文工具使用注意
 - 没有检测到设备

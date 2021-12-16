@@ -37,7 +37,7 @@ CPU时钟是计算机中最小的时间单位，更小的时钟周期意味着�
 cpu clk = CPU_PLL / 分频比  
 频分比默认为二分频  
 计算公式如下图：  
-![计算公式](/assets/images/uboot_development_manual/CPUfomula.png)  
+![计算公式](/assets/images/uboot_development_manual/CPUformula.png)  
 
 > Fref ：参考时钟，一般为外部晶振频率，一般是40MHZ  
 > Refdiv：参考时钟，分频参数。  
@@ -48,9 +48,10 @@ cpu clk = CPU_PLL / 分频比
 
 在函数中，各个参数所对应的比特位。++并且要注意，分子部分要<=3200Mhz++
 
-Refdiv| Postdiv2|Postdiv1|Frac|Fbdiv
----|---|---|---|---|---|
-[47:42] | [41:39]|[38:36]|[35:12]|[11:0]|
+| Refdiv | Postdiv2 | Postdiv1 | Frac | Fbdiv |
+|----|----|----|----|----|
+| [47:42] | [41:39] | [38:36] | [35:12] | [11:0] |
+
 ### 具体代码  
 ![文件代码](/assets/images/uboot_development_manual/uboot_code.png)  
 
@@ -58,11 +59,11 @@ Refdiv| Postdiv2|Postdiv1|Frac|Fbdiv
 调用set_pll_ratio_with_params函数来设置pll。  
 函数原型：set_pll_ratio_with_params(int pll_type, unsigned long long pll_para);  
 其中，第一个参数表示不同pll的不同地址，0代表cpu_pll  
-地址| 类型|对应数值|
----|---|----|
-0x19E0_1000|cpu_pll|0
-0x19E0_1040|ddr_pll|1
-0x19E0_1080|cmn_pll|2
+|地址| 类型|对应数值|
+|---|---|----|
+|0x19E0_1000|cpu_pll|0|
+|0x19E0_1040|ddr_pll|1|
+|0x19E0_1080|cmn_pll|2|
 
 
 第二个参数，例如0x49000000028，共44位,“49”在36-43位，可以设置Refdiv,Postdiv2,Postdiv1三个参数  
@@ -91,14 +92,14 @@ cpu_clk的地址如下
 2-> 3分频  
 
 parmmeter寄存器参数如下：CM_PLL_BASEADDR=0x19E01000  
-bit|偏移地址|说明|
----|---|----|
-int_pll_para[7:0]| CM_PLL_BASEADDR+0x04|parameter signals for PLL|
-int_pll_para[15:8] | CM_PLL_BASEADDR+0x04|parameter signals for PLL|
-int_pll_para[15:8] |CM_PLL_BASEADDR+0x08|parameter signals for PLL|
-int_pll_para[23:16] | CM_PLL_BASEADDR+0x0C|parameter signals for PLL|
-int_pll_para[31:24] | CM_PLL_BASEADDR+0x010|parameter signals for PLL|
-int_pll_para[39:32] | CM_PLL_BASEADDR+0x014|parameter signals for PLL|
-int_pll_para[47:40] | CM_PLL_BASEADDR+0x018|parameter signals for PLL|  
+| bit | 偏移地址 | 说明 |
+|---|---|----|
+| int_pll_para[7:0] | CM_PLL_BASEADDR+0x04|parameter signals for PLL|
+| int_pll_para[15:8] | CM_PLL_BASEADDR+0x04|parameter signals for PLL|
+| int_pll_para[15:8] |CM_PLL_BASEADDR+0x08|parameter signals for PLL|
+| int_pll_para[23:16] | CM_PLL_BASEADDR+0x0C|parameter signals for PLL|
+| int_pll_para[31:24] | CM_PLL_BASEADDR+0x010|parameter signals for PLL|
+| int_pll_para[39:32] | CM_PLL_BASEADDR+0x014|parameter signals for PLL|
+| int_pll_para[47:40] | CM_PLL_BASEADDR+0x018|parameter signals for PLL|  
 
 ## FAQ
