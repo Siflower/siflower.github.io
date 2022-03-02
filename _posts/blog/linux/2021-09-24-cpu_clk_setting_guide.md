@@ -60,7 +60,7 @@ cpu clk = CPU_PLL / 分频比
 函数原型：set_pll_ratio_with_params(int pll_type, unsigned long long pll_para);  
 其中，第一个参数表示不同pll的不同地址，0代表cpu_pll  
 |地址| 类型|对应数值|
-|---|---|----|
+|----|----|----|
 |0x19E0_1000|cpu_pll|0|
 |0x19E0_1040|ddr_pll|1|
 |0x19E0_1080|cmn_pll|2|
@@ -93,10 +93,10 @@ cpu_clk的地址如下
 
 parmmeter寄存器参数如下：CM_PLL_BASEADDR=0x19E01000  
 | bit | 偏移地址 | 说明 |
-|---|---|----|
+|----|----|----|
 | int_pll_para[7:0] | CM_PLL_BASEADDR+0x04|parameter signals for PLL|
 | int_pll_para[15:8] | CM_PLL_BASEADDR+0x04|parameter signals for PLL|
-| int_pll_para[15:8] |CM_PLL_BASEADDR+0x08|parameter signals for PLL|
+| int_pll_para[15:8] | CM_PLL_BASEADDR+0x08|parameter signals for PLL|
 | int_pll_para[23:16] | CM_PLL_BASEADDR+0x0C|parameter signals for PLL|
 | int_pll_para[31:24] | CM_PLL_BASEADDR+0x010|parameter signals for PLL|
 | int_pll_para[39:32] | CM_PLL_BASEADDR+0x014|parameter signals for PLL|
