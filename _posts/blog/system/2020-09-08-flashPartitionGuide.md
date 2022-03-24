@@ -274,29 +274,42 @@ openwrt分区信息存储在dts中，dts路径为linux-4.14.90-dev/linux-4.14.90
 
 ##### 系统起来之后
 
-* mtd命令修改
+* mtd命令修改  
+
+串口下，通过```cat /proc/mtd ```命令可以获取分区信息，如下：  
+1. 通过mtd命令可以升级对应分区镜像
+  mtd升级对应分区镜像，命令如下：    
+![mtd-write.png](/assets/images/flash_partition_guide/mtd-write.png)
+
+2. 通过mtd命令擦除对应分区内容  
+```
+mtd erase /dev/mtd5
+```
+
+* dd命令修改  
   
-  通过mtd命令可以升级对应分区镜像；
+  通过dd命令修改对应分区对应位置的数据内容：  
 
-  串口下，通过```cat /proc/mtd ```命令可以获取分区信息，如下：
-
-![mtd-partition](/assets/images/flash_partition_guide/mtd-partition.png)
-
-  mtd升级对应分区镜像，命令如下：  
-
-![mtd-write](/assets/images/flash_partition_guide/mtd-write.png)
-
-* dd命令修改
-  
+  ```
+  1. 使用dd命令将分区内容读取出来：
+  dd if=/dev/mtd5 of=/tmp/mtd5_file (可以搭配bs count skip等参数配合读取指定位置指定长度的数据)
+  2. 使用hexdump打印出对应数据：
+  hexdump /tmp/mtd5_file (可以搭配 -n -s 等参数选择打印数据长度和位置)
+  3. 使用dd命令修改分区内容：
+  dd if=/tmp/source_file of=/dev/mtd5 (可以搭配bs count skip等参数确定写入数据位置大小)
+  ```  
   通过dd命令可以对应修改factory分区具体位置的内容，如修改镜像进入PCBA模式命令如下：
-
-  ```printf "PCBT"| dd of=/dev/mtdblock3 bs=1 count=4 seek=23```
   
-  Linux下详细的dd命令使用方法可以使用```man dd```获取。
-
-* debugfs节点修改
+  ```
+  printf "PCBT"| dd of=/dev/mtdblock3 bs=1 count=4 seek=23
+  ```   
   
-  ```/sys/kernel/debug/sfax8_factory_read```目录下提供有部分debugfs节点，可以对应修改查看部分分区内容，如下：
+  Linux下详细的dd命令使用方法可以使用```man dd```获取。   
+
+
+* debugfs节点修改   
+  
+  ```/sys/kernel/debug/sfax8_factory_read```目录下提供有部分debugfs节点，可以对应修改查看部分分区内容，如下：   
   ![factory-debugfs](/assets/images/flash_partition_guide/factory-debugfs.png)
 
 
