@@ -297,7 +297,7 @@ ate_cmd wlan1 fastconfig -k
 ### 6.1 SIFLOWER ATE TOOL工具获取
 
 获取最新的ATE TOOL工具
-链接：[百度网盘](https://pan.baidu.com/s/1K1HJ6kTpb_Hpsm92ozvhow) 
+链接：（链接：https://pan.baidu.com/s/14LajR5d10XVy52ZDWXfsiQ)
 提取码：SiFi
 
 

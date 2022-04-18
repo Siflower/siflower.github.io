@@ -145,6 +145,7 @@ irom中gmac模块通过函数get_data_from_spl来读取patch文件中的数据�
 - patch使用说明
 
 1、 通过uboot使用patch
+
 irom_patch_default.txt中的数据会在编译uboot时，由代码checksum将其存放在uboot镜像中的对应位置，checksum.c代码位置如下，同目录下的checksum为checksum.c gcc编译生成。
 
 ```
@@ -274,35 +275,54 @@ uboot中gmac和switch的代码存放在
 uboot/drivers/net/sfa18_gmac.c
 ```
 
-switch对接：
-每个switch中有多个phy的接口，根据switch的说明书可以查看读写单个phy中通用phy寄存器的方法。
+**1，switch对接：**  
+每个switch中有多个phy的接口，根据switch的说明书可以查看读写单个phy中通用phy寄存器的方法。  
 对接新的switch或phy，只需要在函数sf_gmac_register中增加对phy id的判断（用来区分不同的switch或phy），并且增加初始化函数（一般为设置cpu port为1000M全双工，按switch要求进行初始化）、设置tx/rx delay即可。
 对应代码如下（以intel switch为例）：
 
 ```
-gsw_reg_rd(priv,(PHY_ADDR_0_ADDR_OFFSET - 1),
-				PHY_ADDR_0_ADDR_SHIFT,
-				PHY_ADDR_0_ADDR_SIZE, &pa);//intel switch获取phy寄存器的地址
-md.nAddressReg = PHY_IDENTIFY_1;//首先读取通用phy寄存器 PHY_IDENTIFY_1
-md.nAddressDev = pa;
-GSW_MDIO_DataRead(priv, &md);
-phy_id |= md.nData << 16;
+if(!chip_id) {
+        gsw_reg_rd(priv, 0xFA11, 0, 16, (unsigned int*)&chip_id);
 
-md.nAddressReg = PHY_IDENTIFY_2;//然后读取通用phy寄存器 PHY_IDENTIFY_2
-GSW_MDIO_DataRead(priv, &md);
-phy_id |= md.nData;//两者组合成为完整的phy id
-
-if (phy_id == 0xd565a409) {//判断是否为该型号的switch
-		// intel giga switch
-		priv->gswitch = 1;
-		intel_rgmii_init(priv, 5);//进行switch的初始化
-		gsw_reg_wr(priv, PCDU_5_TXDLY_OFFSET,
-				PCDU_5_TXDLY_SHIFT,
-				PCDU_5_TXDLY_SIZE,
-				2);//设置delay
+        …………
+    } else if (chip_id == 0x2003) {
+        // intel giga switch
+        priv->gswitch = 1;
+        intel_rgmii_init(priv, 5);
+#if defined(CONFIG_SOC_SFA28_MPW0)
+        gsw_reg_wr(priv, PCDU_5_TXDLY_OFFSET,
+                    PCDU_5_TXDLY_SHIFT,
+                    PCDU_5_TXDLY_SIZE,
+                    2);
+    }
 ```
 
-phy对接：
+其中：
+
+```
+gsw_reg_rd(priv, 0xFA11, 0, 16, (unsigned int*)&chip_id)
+```
+
+该函数用于读取寄存器的值，0xFA11为chip_id使用寄存器，一般在芯片手册说明。这里读取寄存器的值之后赋值给chip_id，目的是从下方的多个if函数中判断不同switch。第一次调试需要手动打印出变量chip_id取得值，然后后续才在if判断中写入。  
+和gsw_reg_wr函数一样，里面会调用相同函数
+
+```
+sgmac_mdio_write(priv->bus, intel_phy_addr, 0, SMDIO_WRADDR, ro);
+```
+
+其中的intel_phy_addr是switch的phy_addr，通过源码可以查看，需要自行确认调整。  
+intel_rgmii_init(priv, 5);  
+用于对rgmii的初始化，5为rgmii_port0，可从源码查找。  
+
+![phy_addr](/assets/images/switch_img/phy_addr.png)
+
+总体来说，uboot里面只需要提供一个读写寄存器的接口函数 和初始化rgmii接口的函数。  
+读写正常， rgmii初始化正常之后，调节tx/rx delay。参考对接准备中的第7点。  
+先调节tx delay，从0x00调到0xff，httpd给板子设定ip后，在板子上ping设定同网段静态ip的PC，在PC上抓包，直到抓到板子发出的报文，说明tx通了。  
+
+**注意：若仍旧失败，可以使用switch的tx/rx delay调节方法，通过寄存器的读写函数如gsw_reg_wr，查找芯片手册对应的tx/rx对应寄存器以及对应比特位，将值设置为0，重新开始找正确的delay值。**
+
+**2，phy对接：**
 
 如果读取phyid判断外接的为phy，那么phy的初始化可以按照通用流程，配置速度双工、设置软件reset等完成配置。如果这个phy有其他的初始化要求，进行相应的配置即可。
 
@@ -368,30 +388,36 @@ sgmac_probe调用sfax8_get_gswitch_type检查phy id来确定型号（与uboot中
 
 ```
 sgmac_open:
- if (priv->gswitch == INTEL7084)
- {
-         intel_rgmii_init(5);//初始化，一般为配置cpu port为1000M全双工
-         intel_port_rgmii_dalay_set(5, 1, 0);//设置tx/rx delay
-         intel7084_enable_all_phy();//使能phy端口
- }
+        if (priv->phydev->phy_id == xxx){ 
+        ……
+        priv->pesw_priv->init(priv->eswitch_pdev);
+        //cpu port初始化，一般配置1000M 全双工
+        priv->pesw_priv->pesw_api->enable_all_phy(priv->pesw_priv);
+        //使能phy端口
+        ……
+        }
+
 sgmac_stop：
-if (priv->gswitch == INTEL7084)
-         intel7084_disable_all_phy(); //关闭phy端口
+        priv->pesw_priv->pesw_api->disable_all_phy();//关闭phy端口
 ```
 
 其中配置开启关闭端口函数，当重新配置板子的ip时，如果phy连接不断开，与之相连的pc不会改变ip。重启端口可以使得phy重新连接，从而使连接的pc重新获取ip
 
-2. ethtool部分只需要在函数gsw_read_phy_reg和gsw_write_phy_reg中增加对应型号switch读写phy寄存器的api即可。
-在sf_gswitch_ethtool.c中，以函数gsw_read_phy_reg为例，在函数中加入intel switch的phy读写函数即可：
+2. ethtool部分
+在sf_gmac/src/sf_eswitch_ethtool.c中，以接口形式对应。
 
 ```
-if (priv->gswitch == INTEL7084)
-{
-	parm.nAddressDev = phyNo;
-	parm.nAddressReg = phyReg;
-	intel7084_phy_rd(&parm);
-	phyData = parm.nData;
-}
+struct ethtool_ops eswitch_ethtool_ops = { 
+    .get_settings       = gsw_get_settings,
+    .set_settings       = gsw_set_settings,
+    .get_drvinfo        = gsw_get_drvinfo,
+    .get_sset_count     = gsw_get_sset_count,
+    .get_ethtool_stats  = gsw_get_ethtool_stats,
+    .get_strings        = gsw_get_strings,
+    .get_link       = ethtool_op_get_link,
+    .nway_reset     = gsw_nway_reset,
+    .get_ringparam      = gsw_get_ringparam,
+};     
 ```
 
 具体ethtool使用参考[有线网络和服务介绍](https://siflower.github.io/2020/09/08/ethernetGuide/)
@@ -402,9 +428,16 @@ if (priv->gswitch == INTEL7084)
 
 ```
 sgmac_open:
-priv->phydev = of_phy_connect(ndev, priv->phy_node, sgmac_adjust_link, 0,PHY_INTERFACE_MODE_RGMII);
+if (priv->phy_node){
+    ……
+        priv->phydev = of_phy_connect(ndev, priv->phy_node, sgmac_adjust_link,
+                0, PHY_INTERFACE_MODE_RGMII);
+    ……
+}  
 sgmac_stop:
-phy_disconnect(priv->phydev);
+struct sgmac_priv *priv = netdev_priv(ndev);
+     if (priv->phy_node)
+         phy_disconnect(priv->phydev);
 ```
 
 - sf_gswitch部分
@@ -443,35 +476,63 @@ gswitch-y   += $(SFAX8_INTEL_API_OBJS) //编译gswitch模块包含对应源码
 新的switch函数对接需要用到位于sf_gswitch/src/sf_gswitch.h的结构体sfax8_gswitch_api_t
 
 ```
-struct sfax8_gswitch_api_t {
-	struct switch_dev_ops *ops; //内核提供的switch设备函数
-	void (*init)( struct sfax8_gsw *gsw); //switch初始化函数
-	void (*deinit)( struct sfax8_gsw *gsw); //swicth卸载函数
-	int (*check_phy_linkup)(int port); //检查switch端口的连接状态
+struct sf_eswitch_api_t {
+#ifdef CONFIG_SWCONFIG
+    struct switch_dev_ops *ops;
+#endif
+    void (*vender_init)( struct sf_eswitch_priv *eswitch_priv);
+    void (*vender_deinit)( struct sf_eswitch_priv *eswitch_priv);
+    void (*led_init)( int led_mode);
+    void (*ifg_init)(void);
+    void (*enable_all_phy)(struct sf_eswitch_priv *pesw_priv);
+    void (*disable_all_phy)(void);
+    int (*check_phy_linkup)(int port);
+    u32 (*get_cpu_port_rx_mib)(void);
+    int (*set_cpu_port_self_mirror)(struct sf_eswitch_priv *pesw_priv, int port, int enable);
+    int (*getAsicReg)(unsigned int reg, unsigned int *pValue);
+    int (*setAsicReg)(unsigned int reg, unsigned int pValue);                                                                          
+    int (*getAsicPHYReg)(unsigned int phyNo, unsigned int phyAddr, unsigned int *pRegData);
+    int (*setAsicPHYReg)(unsigned int phyNo, unsigned int phyAddr, unsigned int pRegData);
 };
 ```
 
-在intel7084_src/src/sf_intel7084_ops.c中完成对应函数的编写，sf_gswitch/src/sf_gswitch.c中同样依据sfax8_get_gswitch_type检查phy id来确定型号，并且选择使用对应switch的函数和相应的参数，硬件参数一般由具体的硬件型号确定
+在intel7084_src/src/sf_intel7084_ops.c中完成对应函数的编写，sf_eswitch_driver.c根据chip_id来确定型号，并且选择使用对应switch的函数和相应的参数，硬件参数一般由具体的硬件型号确定  
+sf_intel7084_ops.c中注册函数：  
 
 ```
-sf_intel7084_ops.c中注册函数：
-struct sfax8_gswitch_api_t intel7084_api = {
-	.ops = &gswitch_switch_ops,//switch设备函数中主要包括端口的vlan配置
-	.init = intel7084_init,//switch初始化函数，一般由switch厂商提供
-	.deinit = intel7084_deinit,//swicth卸载函数，设置软件reset
-	.check_phy_linkup = intel7084_check_phy_linkup,//检查switch的phy端口的连接状态
+struct sf_eswitch_api_t intel7084_api = {
+#ifdef CONFIG_SWCONFIG
+    .ops = &intel7084_switch_ops,//switch设备函数㕜主要包括端口的vlan配置
+#endif
+    .vender_init = intel7084_init,//switch初始化函数，厂商源码提供
+    .vender_deinit = intel7084_deinit,//switch卸载函数，设置软件reset
+    ……
+    .getAsicReg = sf_intel_getAsicReg,
+    .setAsicReg = sf_intel_setAsicReg,
+    .dumpmac = intel7084_dumpmac,
 };
-
-sf_gswitch.c中gswitch_probe：
- if (gsw->gswitch_type == INTEL7084) {
-	gsw_api = &intel7084_api; //选择对应switch的api函数
-	gsw->num_port = INTEL_PHY_PORT_NUM; //当前外接端口数量
-	swdev->ports = INTEL_SWITCH_PORT_NUM; //总端口数量
-	swdev->cpu_port = RGMII_PORT0; //cpu port的端口号
-}
 ```
 
-除了.init .deinit.check_phy_linkup这3个函数， 在结构体 switch_dev_ops中存放了配置switch vlan功能的函数，switch_dev_ops为内核提供的标准switch设备的结构体，其中的内容如下。
+/openwrt-18.06/package/kernel/sf_eswitch/src/sf_eswitch_driver.c中  
+unsigned char sf_eswitch_init_swdev函数:
+
+```
+  intel7084_mdio_rd(0xFA11, 0, 16, &chip_id);
+        //和uboot里一样读chip_id，所以需要前面先调通
+        ……
+        if(chip_id == INTEL7084_ID){
+            pesw_priv->model = INTEL7084;
+            pesw_priv->pesw_api = &intel7084_api;
+            pesw_priv->port_list = SWITCH_PORT_LIST;
+#ifdef CONFIG_SWCONFIG
+            pswdev->ports = INTEL_SWITCH_PORT_NUM;
+            pswdev->cpu_port = RGMII_PORT0;                                                                                                                       
+#endif
+            break;
+        }   
+```
+
+除了.init .deinit.check_phy_linkup这3个函数，在intel7084_src/src/sf_intel7084_ops.c中结构体 switch_dev_ops中存放了配置switch vlan功能的函数，switch_dev_ops为内核提供的标准switch设备的结构体，其中的内容如下。
 
 ```
 struct switch_dev_ops gswitch_switch_ops = {
@@ -594,7 +655,7 @@ qos测试通过qos模块提供的debug_fs接口进行，以intel switch为例，
 测试环境：intel switch lan口连接三个设备A、B、C，由A、B向C跑udp iperf（100M），
 将intel switch与C相连的口设置为100M（A、B发包速率不到1000M），进行测试。
 
-SP（Strict Priority）测试：
+**SP（Strict Priority）测试：**
 
 1、iptable给A的数据流配置dscp优先级，命令：
 iptables -A POSTROUTING -t mangle -p udp --dport 5001 -j DSCP --set-dscp 0x2A
@@ -611,7 +672,7 @@ echo rule 1 > /sys/kernel/debug/qos_debug
 4、A、B跑流，由于A映射到队列2，B为默认队列0，
 所以C优先收到A的数据流
 
-WFQ（Weighted Fair Queuing）测试：
+**WFQ（Weighted Fair Queuing）测试：**
 
 1、echo change_algo 1 > /sys/kernel/debug/qos_debug
 选择调度策略WFQ
@@ -626,6 +687,44 @@ echo rule 1 > /sys/kernel/debug/qos_debug
 配置dscp 0到队列0权重3（B），配置dscp 0x2a到队列2权重5（A），
 跑流C收到的数据为A：B = 5：3
 
+- 不同switch速度配置
+
+1，设置intel7084 switch port5（RGMII口）速度双工：
+
+```
+1000M全双工：
+echo rwReg 0xf410 0 16 0x32a5 > sys/kernel/debug/esw_debug
+100M全双工：
+echo rwReg 0xf410 0 16 0x2aa5 > sys/kernel/debug/esw_debug
+10M全双工：
+echo rwReg 0xf410 0 16 0x22a5 > sys/kernel/debug/esw_debug
+```
+
+2，设置siflower gmac（RGMII口）速度双工：
+
+```
+1000M全双工：
+devmem 0x10800000 32 0x02140C8C
+100M全双工：
+devmem 0x10800000 32 0x0214CC8C
+10M全双工：
+devmem 0x10800000 32 0x02148C8C
+```
+
+3，设置rtk8367 switch port16（RGMII口）速度双工：
+
+```
+1000M全双工：
+echo rwReg 0x1d11 0x7700 > sys/kernel/debug/esw_debug
+echo rwReg 0x1311 0x1076 > sys/kernel/debug/esw_debug
+100M全双工：
+echo rwReg 0x1d11 0x7680 > sys/kernel/debug/esw_debug
+echo rwReg 0x1311 0x1075 > sys/kernel/debug/esw_debug
+10M全双工：
+echo rwReg 0x1d11 0x7600 > sys/kernel/debug/esw_debug
+echo rwReg 0x1311 0x1074 > sys/kernel/debug/esw_debug
+```
+
 ## 5 FAQ
 
 - Q：当mdio读写不通时如何处理？
@@ -638,6 +737,6 @@ A： 当出现数据不通时，可以调整对应的tx/rx delay，使用devmem�
 
 - Q：软重启网口没有link，而断电重启不会出现此现象是什么问题？
 
-A：软重启会先down以太网接口，此时驱动会disable all phy，interface up后会重新enable all phy；如果发现uboot阶段，所有网口依旧没有link，说明uboot中没有进行switch 的hw reset（uboot阶段通过gpio触发），reset后网口会恢复默认配置；而断电重启不会有此流程，所以不会出现此现象；
-   需要确认uboot中CONFIG_SFA18_ESWITCH_RST_GPIO的配置， 这是一个用户可以修改的宏，表示的是switch hw reset对应的GPIO number，不同客户使用我们芯片时，硬件接的GPIO number可能是不一样的需要对照硬件改为对应的gpio num  
+A：软重启会先down以太网接口，此时驱动会disable all phy，interface up后会重新enable all phy；如果发现uboot阶段，所有网口依旧没有link，说明uboot中没有进行switch 的hw reset（uboot阶段通过gpio触发），reset后网口会恢复默认配置；而断电重启不会有此流程，所以不会出现此现象;  
+   需要确认uboot中CONFIG_SFA18_ESWITCH_RST_GPIO的配置， 这是一个用户可以修改的宏，表示的是switch hw reset对应的GPIO number，不同客户使用我们芯片时，硬件接的GPIO number可能是不一样的需要对照硬件改为对应的gpio_num,
    即硬件switch hw reset对应的gpio为11, 则CONFIG_SFA18_ESWITCH_RST_GPIO 需要配置为11
