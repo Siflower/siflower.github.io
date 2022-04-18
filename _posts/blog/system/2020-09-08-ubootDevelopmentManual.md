@@ -367,6 +367,27 @@ uboot引入新版型主要涉及到新版型配置文件改动，以太网驱动
 Siflower Uboot支持多种物料对接，包含不同DDR和Flash型号，详细参考：[Flash和DDR物料调试指南](https://siflower.github.io/2020/09/03/ddr_flash/)
 
 
+### DDR通用参数使用配置
+现在uboot代码中支持较为普遍的1G和2G容量的DDR3，以及512M和1G容量的DDR2。分别参照《JEDEC Standard No.79-3A》协议标准文档和《JEDEC Standard No.79-2F》协议标准文档，进行时序参数整理和DDR通用代码实现。
+在编译时，按照实际使用的物料容量在编译选择脚本文件sf_make.sh中进行对应ddr选择：   
+1Gb ddr3物料：   
+``` 
+[ -z $ddr3 ] && ddr3=ddr3_1gcommon
+```
+2Gb ddr3物料：  
+```
+[ -z $ddr3 ] &&; ddr3=ddr3_2gcommon
+```
+512Mb ddr2物料： 
+```
+[ -z $ddr2 ] && ddr2=ddr2_512mcommon
+```
+1Gb ddr3物料： 
+```
+[ -z $ddr2 ] &&; ddr2=ddr2_1gcommon
+```
+
+
 ## 项目引用
 
 ### 参考文档

@@ -6,7 +6,7 @@ description: 介绍wifi调试相关命令
 keywords: wifi
 mermaid: true
 ---
-# WiFi双频合一使用手册
+# WiFi调试
 
 **目录**
 * TOC
