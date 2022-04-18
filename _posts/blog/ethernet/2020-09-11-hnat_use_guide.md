@@ -123,6 +123,7 @@ root@OpenWrt:/# ls /usr/bin/hnat_update_interface.sh
 在网卡驱动接口函数中（net_device_ops）可以注册驱动的offload函数，这样当一条数据流建立起来之后，内核会调用驱动中对应的flowoffload函数，将数据流nat所需的信息下发到驱动中，从而完成hnat模块相关的配置。
 
 以太网驱动中对应的flowoffload接口如下:
+
 ```
 static const struct net_device_ops sgmac_netdev_ops = {
     .../*其他函数*/
@@ -134,16 +135,17 @@ static const struct net_device_ops sgmac_netdev_ops = {
 如果要将信息配置到hnat模块中，则需要使用hnat提供的注册函数sf_hnat_ops_register获取hnat的接口，并调用hnat中的offload接口将nat信息传递给hnat模块。详细请参考redmine#[6775](http://redmine.siflower.cn/redmine/issues/6775)
 
 以太网驱动中调用hnat offload接口实现如下:
+
 ```
 int sgmac_ndo_flow_offload(enum flow_offload_type type,
-        struct flow_offload *flow,
-        struct flow_offload_hw_path *src,
-        struct flow_offload_hw_path *dest)
-{
-#ifdef CONFIG_SFAX8_HNAT_ENABLE
-	g_priv->hnat_out_ops->ndo_flow_offload(type, flow, src, dest);//将网卡驱动得到的nat信息传递给hnat模块
-#endif
-    return 0;
+				struct flow_offload *flow,
+				struct flow_offload_hw_path *src,
+				struct flow_offload_hw_path *dest) {
+			struct net_device * pndev = src->dev;
+
+
+			struct sgmac_priv *priv = netdev_priv(pndev);
+			return priv->phnat_priv->ndo_flow_offload(priv->hnat_pdev, type, flow, src, dest);//将网卡驱动得到的nat信息传递给hnat模块
 }
 ```
 
@@ -156,6 +158,12 @@ int sgmac_ndo_flow_offload(enum flow_offload_type type,
 对应实现的具体代码目录如下：
 linux-4.14.90-dev/linux-4.14.90/net/netfilter/
 
+以下为HNAT异步增删处理，简要介绍，详情请参考[HNAT异步增删流程]()  
+两个内核 workqueue 用于异步处理表项:  
+1、 flow_offload_hw_work 为内核添加和删除硬加速表项的 workqueue。  
+2、nf_flow_offload_work_gc 为内核遍历整个加速表的 workqueue。  
+如果某条软加速表项标记了 TEARDOWN ，内核会调用 flow_offload_del 删除。如果要删除的是硬加速表项，内核会先使用 nf_flow_offload_hw_del 删除硬件表项，然后在下一次 gc 中根据标志位决定是否删除软件表项（只有确定硬加速表项删除后才会删除软加速表项）  
+异步处理后，驱动只需要标记该软加速表项为 HW_DEAD ，然后等待超时后由内核 gc workqueue 删除软加速表项。
 
 ## 9 HNAT对接调试方法
 
@@ -164,9 +172,9 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 **示例：**
 
 - 获取所有接口的帮助信息:  
-  命令:  
-  ```echo help > /sys/kernel/debug/hnat_debug```  
+  命令:  ```echo help > /sys/kernel/debug/hnat_debug```  
   结果展示如下:  
+
   ```
   echo help > sys/kernel/debug/hnat_debug
   echo natmode <mode> >  /sys/kernel/debug/gmac_debug
@@ -194,44 +202,53 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
   ```
 
 展示几个最主要的debugsf接口使用方法如下:
+
 - 开启hnat debug log
-  hnat debug log主要打印hnat entry添加/删除时候的信息以及辅助判断的诊断信息.
-  开启命令:  
-  ```echo log 1 > /sys/kernel/debug/hnat_debug```
-  关闭命令:  
-  ```echo log ０ > /sys/kernel/debug/hnat_debug```
-  结果展示如下:
+  hnat debug log主要打印hnat entry添加/删除时候的信息以及辅助判断的诊断信息.  
+  开启命令:  ```echo log mode(mode == 1/2/3) > /sys/kernel/debug/hnat_debug```  
+  关闭命令:  ```echo log 0 > /sys/kernel/debug/hnat_debug```   
+  结果展示如下:  
+
   ```
-    root@OpenWrt:/# [97156.424722] hnat offload ADD type=0 
-    [97156.428381] !!!!!!!!!!!!!!!!!!!!!flow_offload flags=0x1 timeout=0x0 l4 proto= 0x6 l3proto=0x2 
-    [97156.437176] ORIGINAL: src:[192.168.4.246:52418] -> dest:[45.124.126.250:443]
-    [97156.444255] REPLY: src:[45.124.126.250:443] -> dest:[10.0.5.19:52418]
-    [97156.450773] src=========
-    [97156.453336] ==================hw path flags=0x1 vlan_proto=0x0 vlan_id=0x0 pppoe_sid=0x0 devname=wlan1
-    [97156.462752]  src_mac=10:16:88:60:de:b1 dst_mac=92:71:ee:11:ca:e4  
-    [97156.469038] dest=========
-    [97156.471691] ==================hw path flags=0x3 vlan_proto=0x81 vlan_id=0x2 pppoe_sid=0x0 devname=eth0
-    [97156.481100]  src_mac=10:16:88:60:de:b2 dst_mac=44:1a:fa:8c:fc:33  
-    [97156.487413] [hnat notice]find wifi ndev  exist, index 6 ndev 86e0c000
-    [97156.494236] [hnat notice]sf_hnat_search_vlan search success index 0 is_add 1 vlan_id 4006
-    [97156.502526] [hnat notice]sf_hnat_search_vlan search success index 1 is_add 1 vlan_id 2
-    [97156.510560] [hnat notice]sf_hnat_search_rt_pub_net search success index 0
-    [97156.517426] [hnat notice]inat index 0, enat index 0
-    [97156.522319] [hnat notice]sf_hnat_search_dip search success index 0, ref_count 206
-    [97156.529904] [hnat notice]sf_hnat_search_dip search success index 1, ref_count 206
-    [98086.143033] [hnat notice]sf_hnat_search_napt_by_pflow search success index 206
-    [98086.150347] [hnat notice]del INAT hash index 1
-    [98086.150347]  
-    [98086.150364] [hnat notice]del ENAT hash index 0
-    [98086.150364]  
-    [98086.156501] >>>>>>>>hnat delete entry success!!!<<<<<<<<<
+    root@OpenWrt:/# echo log 1 > /sys/kernel/debug/hnat_debug
+	  root@OpenWrt:/# [ 7870.644711] [hnat info] is_inat 1 add tbl 1 index 362 hash ptr 0
+	  [ 7870.650846] [hnat info] is_inat 0 add tbl 1 index 100 hash ptr 0
+	  [ 7870.656902] add napt 3 valid 1
+  	root@OpenWrt:/# echo log 0 > /sys/kernel/debug/hnat_debug
+
+	  root@OpenWrt:/# echo log 2 > /sys/kernel/debug/hnat_debug
+	  root@OpenWrt:/# [ 7910.646568] hnat offload ADD type=0 
+	  [ 7910.650178] !!!!!!!!!!!!!!!!!!!!!flow_offload flags=0x49 	timeout=0xba8a0 l4 proto= 0x6 l3proto=0x 
+	  [ 7910.659542] ORIGINAL: src:[192.168.6.100:44480] -> dest:[23.29.105.232:80]
+	  [ 7910.666540] REPLY: src:[23.29.105.232:80] -> dest:[192.168.5.203:44480]
+	  [ 7910.673156] src=========
+	  [ 7910.675723] ==================hw path flags=0x3 vlan_proto=0x81 vlan_id=0x1 pppoe_sid=0x0 devname0
+  	[ 7910.685061]  src_mac=00:9d:7d:86:20:08 dst_mac=b0:83:fe:9a:2e:f4
+	  [ 7910.691384] dest=========
+	  [ 7910.694151] ==================hw path flags=0x3 vlan_proto=0x81 vlan_id=0x2 pppoe_sid=0x0 devname0
+	  [ 7910.703711]  src_mac=00:9d:7d:86:20:09 dst_mac=a8:5a:f3:00:3a:98 
+	  [ 7910.710237] [hnat notice]sf_hnat_search_vlan search success index 0 is_add 1 vlan_id 1
+	  [ 7910.718230] [hnat notice]sf_hnat_search_vlan search success index 1 is_add 1 vlan_id 2
+	  [ 7910.726292] [hnat notice]sf_hnat_search_rt_pub_net search success index 0
+	  [ 7910.733148] add napt 3 valid 1
+	  [ 7910.736287] [hnat notice]sf_hnat_search_dip search success index 0, ref_count 14
+	  [ 7910.743707] [hnat notice]sf_hnat_search_dip search success index 1, ref_count 14
+	  [ 7920.565252] [hnat log]  del napt index  3
+	  [ 7920.569316] del napt  3 valid 0
+	  root@OpenWrt:/# echo log 0 > /sys/kernel/debug/hnat_debug
+
+	  root@OpenWrt:/# echo log 8 > /sys/kernel/debug/hnat_debug
+	  root@OpenWrt:/# [ 8049.053989] [hnat log] get lansubnet 0 prefix 24 ip 6406a8c0
+	  [ 8049.059797] [hnat log] get wansubnet 0 prefix 24 ipcb05a8c0
+	  root@OpenWrt:/# echo log 0 > /sys/kernel/debug/hnat_debug
   ```
 
 - 读取hnat转换计数
-  读取hnat SNAT和DNAT报文计数以及dump当前hnat部分寄存器值．
-  命令:  
-  ```echo stat > /sys/kernel/debug/hnat_debug```
+  
+  读取hnat SNAT和DNAT报文计数以及dump当前hnat部分寄存器值．  
+  命令: ```echo stat > /sys/kernel/debug/hnat_debug```  
   结果展示如下:
+
   ```
     root@OpenWrt:/# echo stat > sys/kernel/debug/hnat_debug 
     [99013.647334] napt full count 0 udp aging count 0 napt hash full 0 dip hash full 0
@@ -283,35 +300,48 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 
 - dump实际设置到寄存器表项中的内容
   dump flowoffload entry实际设置到hant table寄存器中的值，主要用于检测debug entry设置是否正确．
-  命令：　　
-  ```echo dump 1 > /sys/kernel/debug/hnat_debug```
+  命令：```echo dump 1 > /sys/kernel/debug/hnat_debug```  
   结果展示如下:
+
   ```
-    root@OpenWrt:/# echo dump 1 > sys/kernel/debug/hnat_debug
-    [  508.154219] #current napt num 1 tcp 0 udp 1
-    [  508.158571] ####napt key, napt_index 0
-    [  508.162342] sf_hnat_dump_napt_key===========start flow 0x872bfd00
-    [  508.162360] src:[192.168.4.152:44116] -> dest:[192.168.100.100:5001]
-    [  508.174969] smac b0:83:fe:ac:8e:91 vlanid 1 
-    [  508.174969]  router src  mac 10:16:88:78:71:ea
-    [  508.183760] dmac 44:1a:fa:8c:fc:33  vlanid 2 
-    [  508.183760]  router dest mac 10:16:88:78:71:eb
-    [  508.192691] router:[10.0.5.31:44116]
-    [  508.196312] pppoe sid  0x0  proto 1 cur_ppoe_en 0
-    [  508.201151] valid = 1 src_vlan_index 0 dest_vlan_index 1
-    [  508.206630] rt_pub_net_index = 0 src_dip_index 0 dest_dip_index 1
-    [  508.212774] ppphd_index = 0 dnat_to_host 0 is_dip_rt_ip_same_subnet 0
-    [  508.219333] sf_hnat_dump_napt_key===========end
-    [  508.219350] ####napt table
-    [  508.226790] >>>>>>>>read table no = 6:
-    [  508.230575] data0 = 0x64 64 a8 c0
-    [  508.233894] data1 = 0x89 13 98 04
-    [  508.237347] data2 = 0xa8 c0 54 ac
-    [  508.240709] data3 = 0x40 c5 0a 08
-    [  508.244036] data4 = 0x00 00 00 00
-    [  508.247482] data5 = 0x00 00 00 00
-    [  508.250841] data6 = 0x00 00 00 00
-    [  508.254168] >>>>>>>>read table no = 6 end
+    root@OpenWrt:/# echo dump 1 > /sys/kernel/debug/hnat_debug
+	  [  925.355501] #current napt num 13 tcp 9 udp 4
+	  [  925.359917] # hash full  0 dip hash full   0 add fail 0 update_flow 0  crc_clean 0
+	  [  925.367512] nf dump total 13 tcp 9 udp 4 
+	  [  925.371569] udp ageing  0  full ageing 0
+	  [  925.375511] ####napt key, napt_index 1
+	  [  925.379379] src:[192.168.6.100:55396] -> dest:[113.96.232.230:443]
+	  [  925.385584] smac b0:83:fe:9a:2e:f4 vlanid 1 
+	  [  925.385584]  router src  mac 00:9d:7d:86:20:08
+	  [  925.394391] dmac a8:5a:f3:00:3a:98  vlanid 2 
+	  [  925.394391]  router dest mac 00:9d:7d:86:20:09
+	  [  925.403284] router:[192.168.5.203:55396]
+	  [  925.407228] pppoe sid  0x0  proto 0 cur_ppoe_en 0
+	  [  925.412026] valid = 1 src_vlan_index 0 dest_vlan_index	 1
+	  [  925.417371] rt_pub_net_index = 0 src_dip_index 0 dest_dip_index 1
+	  [  925.423570] ppphd_index = 0 dnat_to_host 0 is_dip_rt_ip_same_subnet 0
+	  [  925.430137] lan_index = 0 wan_index 0
+	  [  925.433832] sf_hnat_dump_napt_key===========end
+	  [  925.433844] ####napt table
+	  [  925.441189] >>>>>>>>read table no = 6:
+	  [  925.444970] data0 = 0xe6 e8 60 71
+	  [  925.448292] data1 = 0xbb 01 64 06
+	  [  925.451705] data2 = 0xa8 c0 64 d8
+	  [  925.455052] data3 = 0x40 86 0d 00
+	  [  925.458375] data4 = 0x00 00 00 00
+	  [  925.461788] data5 = 0x00 00 00 00
+	  [  925.465127] data6 = 0x00 00 00 00
+	  [  925.468440] >>>>>>>>read table no = 6 end
+	  [  925.472495] napt crc table
+	  [  925.475210] >>>>>>>>read table no = 0:
+	  [  925.478967] data0 = 0x01 00 10 00
+	  [  925.482381] data1 = 0x00 00 00 00
+	  [  925.485712] data2 = 0x00 00 00 00
+	  [  925.489026] data3 = 0x00 00 00 00
+	  [  925.492443] data4 = 0x00 00 00 00
+	  [  925.495777] data5 = 0x00 00 00 00
+	  [  925.499093] data6 = 0x00 00 00 00
+	  [  925.502525] >>>>>>>>read table no = 0 end
     ...
   ```
 
@@ -413,6 +443,17 @@ gmac压力拷机测试，wlan看腾讯短视频，lan wan进行iperf 100M tcp打
 2. 测试仪发出的UDP非分片报文ip头中的flag为0，hnat把该报文当做了分片报文进入了分片报文处理流程，对于128B以下的小包，目前分片缓存老化定时器设置的0x2000偏大不合适；
 解决：将分片缓存老化定时寄存器0x10806064和0x1080606c的值调整到0x1500，即43us后，不再出现丢包现象。
 
+
+**问题五：硬件在进行NAT转化时，对UDP没有做特殊处理**
+
+**现象：**  
+用户在使用淘宝消消乐、淘金币等游戏时，出现了页面加载不出来，关闭硬加速后恢复，通过控制加速表项学习确认UDP表项导致。抓包分析游戏过程交互为QUIC协议报文，在UDP硬加速学习流程控制端口为443的流不进硬加速后问题不在出现。当只有udp数据包且port = 443 端口的时候流入硬加速的时候，通过打印log发现udp流在进入硬加速的时候显示checksum=0，禁用checksum = 0的流进入硬加速，发现游戏可以正常运行没有卡顿，由此得知在硬加速处理的过程中，当checksum=0的时候做了某些处理。
+
+**根因：**  
+当udp checksum=0的数据进入时是不需要校验会被协议栈bypass，然而硬件做的是增量计算，如果只改动port，会在原有正确的checksum进行差分值计算并且添加上去，而我们硬件没有对udp checksum=0的数据做特殊处理，导致了硬件没有考虑到udp checksum =0 的数据而进行了增量计算，使得checksum=0变成了checksum!=0，所以接收不到来自server发送过来的报文。
+
+**解决：**  
+通过软件进行过滤过掉 udp checksum=0的状态，只有udp checksum != 0的状态的时候，当收到了来自client和server发送的报文，才会进入硬件加速，如果只接受到了一端的报文则不进入硬加速，预留了一个可以进行UDP checksum==0进入的5001端口，用于进行iperf跑流。具体问题分析请参考：淘宝消消网络延迟问题
 
 ## 11 项目引用
 

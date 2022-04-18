@@ -45,8 +45,8 @@ mermaid: true
 #### 1.4.1 工具目录介绍
 
 **工具下载地址**  
-百度网盘下载链接：(https://pan.baidu.com/s/1QYY5-15HS0rkT2SZHD1BYQ)   
-提取码：(sodw)  
+百度网盘下载链接：(https://pan.baidu.com/s/1GK6fo73ay9otvQV_vCX2zQ)
+提取码：SiFi
 
 测试工具文件夹名称为PCBA_Release，大小大约为500MB左右，主要有以下文件：  
 SF_PCBA_TEST.exe：运行程序  
@@ -250,16 +250,18 @@ sf_setup文件夹：主要包含测试的配置文件
   ![cable_return](/assets/images/pcba_test_image/cable_return.png)
 
 - 打开工具wifi校准测试，初始化成功后，以窗口1为例(窗口1对应RF1)，点击每个“线损校准”按钮，分别校准四路线损
+  
   ![btn_loss](/assets/images/pcba_test_image/btn_loss.png)
 
 - 开启线损校准
+  
   ![start_loss](/assets/images/pcba_test_image/start_loss.png)
 
 - 线损校准结束
+  
   ![end_loss](/assets/images/pcba_test_image/end_loss.png)
 
-  注意：每校准一路线损需要PCBA工具重新开关一次才能进行第二路线损校准，工具设计是强制测试一路线损后关闭工具检查无误后再进行下一路线损测试，如此循环直至线损测试结束，防止测试过程线损异常导致批量性返工
-       如果测试完2.4G_ANT1 线损未关闭工具继续测试5G_ANT0，连续测试会导致前面的线损值清零。
+  注意：需要依次校准2.4G_ant1，2.4G_ant2,5G_ant1,5G_ant2射频线的线损值，后续连接板子也需要意义对应
 
 - 测试结果保存
   
@@ -297,13 +299,16 @@ sf_setup文件夹：主要包含测试的配置文件
 
 
 - 仪器初始化成功
+  
  ![it_init](/assets/images/pcba_test_image/it_init.png)
 
 - 勾选对应窗口跳过扫码
+  
   **注:如果配置在wifi测试站写入mac地址，则不勾选跳过，扫描条码后开始测试**   
  ![skip](/assets/images/pcba_test_image/skip.png)
 
 - 给板子上电，等待1~2s,开始测试
+  
  ![start_test](/assets/images/pcba_test_image/start_test.png)
 
 - 测试成功
@@ -322,12 +327,14 @@ sf_setup文件夹：主要包含测试的配置文件
 ##### 2.2.2.1 WIFI 耦合测试功率设置
 
 wifi耦合测试目标功率需与产品校准目标功率设置保持一致(即wifi_limit配置文件中的目标功率)，考虑实际环境空气衰减，馈线衰减补偿困难，业界允许上下限4db range，如wifi校准目标功率设定18dbm，wifi耦合测试同信道同速率耦合量测功率为（14,22）；测试时可取少许待测产品（10pcs）左右测试后取平均值补偿环境线损+空气衰减；也可制作耦合板使用网络分析仪进行回路量测  
-测试后的值填入config.ini的NFT_cable_loss  
+测试后的值填入config.ini的NFT_cable_loss
+
 ![ntf_loss](/assets/images/pcba_test_image/nft_loss.png)
 
 ##### 2.2.2.2 WIFI 耦合测试流程
 
-耦合测试需要使用iTest/IQ仪器配合耦合测试板进行使用  
+耦合测试需要使用iTest/IQ仪器配合耦合测试板进行使用
+
  ![nft_board](/assets/images/pcba_test_image/nft_board.png)
 
 iTest仪器，在测试前需要保证仪器正常工作，与PC相连，PC端IP设为192.168.100.254。  
