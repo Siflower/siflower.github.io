@@ -38,6 +38,7 @@ SPL是介于芯片内部rom程序与uboot之间的一个BootLoader，其主要�
 在U-boot开源程序中，本身是包含SPL选项的。FULLMASK版本将芯片内部ram减少到了64KB，不足以同时支持Uboot-spl的rom+ram的需求，因此采用了一份裸机实现的bare_spl。  
 Bare_spl相比于原Uboot-spl更加简单可控，也可以同样实现引导uboot的功能。同时，bare_spl也同时支持mpw0和mpw1芯片，并且减少了存储空间，为flash优化、分区的重新定义提供了支持。  
 SPL的流程如下（uboot-spl和bare-spl实现主要功能一致）：  
+
 ```mermaid
 graph TB
   title(SPL 流程图)
@@ -49,6 +50,7 @@ graph TB
   F -->  G[跳转到uboot]
   G -->  H[uboot]
 ```
+
 在bare_spl中，A18会默认支持三种boot device：spi-flash，sd card，emmc。按照spi>sd>emmc的优先级，只要检测到device存在，spl便会自动从其启动。因此如果想要在同时包含spi-flash与sd的板子中，使用sd作为device存放uboot镜像，需要定义SKIP_SPI_FLASH。由于spi与emmc存在复用关系，因此不会同时存在。Uboot-spl需要在编译阶段就指定使用哪一种boot device。而A28目前仅支持一种boot device：spi-flash，依据读取flash型号决定使用nand falsh还是nor flash。  
 SPL与uboot相同，引导的镜像需要包含一个uimage的header，其中会包含所引导镜像的类型。因此，SPL不只可以引导uboot，进而启动内核，还可以引导pcba测试程序。   
 
@@ -62,7 +64,9 @@ Uboot的流程图如下：
 init_sequence_r中主要是进行了各个模块驱动的初始化，网络的初始化和一些其他准备工作，比如环境变量的初始化等。在准备结束后，uboot最终会进入一个main_loop，进行控制台的初始化。此时uboot提供了一个3s的倒计时，如果不在时间内从控制台（默认串口）进行输入，则会进入自动启动流程，根据预设的环境变量参数，进行引导启动；如果有输入，就可以停下来进入控制台，与uboot进行交互。此时uboot会根据输入的命令情况进行解析并执行。命令具体的使用和介绍见后文。  
 
 ### 2.2 uboot源码整体框架
-下面简要整理了uboot源码中主要文件和文件夹的大致功能描述：  
+
+下面简要整理了uboot源码中主要文件和文件夹的大致功能描述:
+
 | 文件路径 | 功能描述 |
 |---|---|
 | bare_spl | 初始化ddr，系统管理器，时钟，以及加载uboot镜像文件 |
@@ -72,7 +76,7 @@ init_sequence_r中主要是进行了各个模块驱动的初始化，网络的�
 | |**start.S**：是U-boot启动时执行的第一个文件，它主要做最早期的系统初始化，代码重定向和设置系统堆栈，为进入U-boot第二阶段的C程序奠定基础。|
 | | **u-boot.lds**：链接脚本文件，对于代码的最后组装非常重要。 |
 | board/siflower/ | 对应开发板相关文件 |
-| common | 与处理器体系结构无关的通用代码，U-boot的命令解析代码/common/command.c、所有命令的上层代码**cmd_*.c**、U-boot环境变量处理代码env_*.c等都位于该目录下 |
+| common | 与处理器体系结构无关的通用代码，U-boot的命令解析代码/common/command.c、所有命令的上层代码**cmd.c**、U-boot环境变量处理代码env.c等都位于该目录下 |
 | drivers | 包含几乎所有外围芯片的驱动，网卡、USB、串口、LCD、Nand Flash等等 |
 | disk  fs net | 支持CPU无关的重要子系统：|
 |  | 磁盘驱动的分区处理代码 | 
@@ -87,10 +91,13 @@ init_sequence_r中主要是进行了各个模块驱动的初始化，网络的�
 | httpd | 以太网驱动，httpd服务，主要用于在uboot中进行镜像文件更新 |
 
 ### 2.3 Siflower uboot个性化设计  
-#### uboot以太网网页烧录镜像更新功能  
+
+#### uboot以太网网页烧录镜像更新功能 
+
 主要功能是用于在uboot命令行中，使用http协议进行开发板镜像文件更新（包含了uboot和kernel镜像文件的两种更新方式），详见《# U-boot移植应用开发手册》以太网烧录章节描述。  
 
-#### bare_spl 框架设计  
+#### bare_spl 框架设计
+
 为了节约内存空间独立设计的裸机代码，主要功能为初始化ddr，系统管理器，时钟，以及加载uboot。在fullmask中，启动设备支持使用norflash和nandflash两种类型。  
 
 ####  模块节能设置  
@@ -99,18 +106,29 @@ init_sequence_r中主要是进行了各个模块驱动的初始化，网络的�
 ## 3 uboot操作指令
 
 ### 3.1 添加uboot命令  
+
 1.在uboot下建立 cmd/命令.c 文件；  
+
 ![2](/assets/images/uboot_code_framework/2.png)  
+
 2.用 U_BOOT_CMD 来定义命令；  
+
 ![3](/assets/images/uboot_code_framework/3.png)  
+
 对应参数分别为：name：命令名；maxargs：命令的最大参数个数；repeatable：是否自动重复（按Enter键是否会重复执行）；command：该命令对应的响应函数指针；usage：简短的使用说明；help：较详细的使用说明。  
-3.在 cmd/命令.c 文件中实现命令的操作 do_命令 的函数；  
+
+3.在 cmd/命令.c 文件中实现命令的操作do命令函数 
+
 ![4](/assets/images/uboot_code_framework/4.png)  
+
 4.将 cmd/命令.c 添加到 cmd/Makefile 中；  
+
 ![5](/assets/images/uboot_code_framework/5.png)  
+
 5.重新编译并烧录uboot镜像。
 
 ### 3.2 uboot下现有命令及描述
+
 | 命令 | 描述 |
 | ------ | ------ |
 | ？ | alias for 'help' |
