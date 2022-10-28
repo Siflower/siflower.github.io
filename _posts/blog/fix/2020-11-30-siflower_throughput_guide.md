@@ -57,51 +57,6 @@ Chariot 由两部分组成：控制端 Console 和远端 Endpoint，两者都可
 
 IxChariot软件安装分为软件Console端安装及Endpoint端安装。
 
-#### 3.3.1 IxChariot软件Console端安装
-
-电脑初次安装 IxChariot大约需要 10 分钟左右，全部按照默认选择，直到安装完成，会出现下图界面，点击Finish 完成安装。
-
-![install_finished](/assets/images/throughput/install_finished.png)
-
-此时Ixchariot还是不能使用，需要破解方可。方法如下：  
-以管理员权限运行IxChariot-6.70.44-Crack 文件（此运行前一定要将电脑端的杀毒软件全部关闭），如下图。
-
-![Crack_IxChariot_1](/assets/images/throughput/Crack_IxChariot_1.png)
-
-点击Patch,如下图所示：
-
-![Crack_IxChariot_2](/assets/images/throughput/Crack_IxChariot_2.png)
-
-此时找到程序安装目录，选中并打开AppsLM.dll 文件，这样就完成破解了。
-
-![Crack_IxChariot_3](/assets/images/throughput/Crack_IxChariot_3.png)
-
-然后再运行桌面上的IxChariot快捷图标，进入IxChariot Test界面，如下图：
-
-![Open_IxChariot](/assets/images/throughput/Open_IxChariot.png)
-
-#### 3.3.2 IxChariot软件Endpoint端安装
-
-软件Endpoint端可以安装在路由器，也可安装在PC及手机端。
-
-##### 3.3.2.1 路由器端安装Endpoint
-
-打开路由器的串口工具，按照如图6步骤进行安装。（在此之前需要先安装winSCP，将Endpoint安装包上传至路由器的根目录下，具体操作步骤参考文末附录）
-
-![endpoint_router](/assets/images/throughput/endpoint_router.png)
-
-##### 3.3.2.2 PC端安装Endpoint
-
-需要注意的是Win 7 和XP 安装用的是不同版本的endpoint 软件,需要根据电脑系统位数选择相应的工具版本进行安装，另外建议任意pc端都安装上Console和Endpoint。
-
-![PC_Endpoint_Install](/assets/images/throughput/PC_Endpoint_Install.png)
-
-##### 3.3.2.2 手机端安装Endpoint
-
-手机上安装Endpoint软件如下图：
-
-![Mobile_Endpoint_Install](/assets/images/throughput/Mobile_Endpoint_Install.png)
-
 ### 3.4 IxChariot软件使用
 
 进入主程序界面后，选择Add Pair ，也就是增加一条通道，如下图所示：
