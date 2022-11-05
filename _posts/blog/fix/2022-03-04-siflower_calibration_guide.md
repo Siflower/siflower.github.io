@@ -50,14 +50,14 @@ pcba校准在uboot下进行，是一段运行在uboot下的特殊程序，专门
       5G  
       CH36/CH64/CH149信道的11a_54M、11ac_20M_MCS8，11ac_40M_MCS9，11ac_80M_MCS9
 
-      校准的信道可以通过配置文件配置
+      校准的信道、模式可以通过配置文件配置
       ```
 
       3，校准逻辑
-      首先按照wifi_limit.txt中配置的目标功率，通过调节gain值，校准每个频点，满足evm标准和目标功率门限，即将此gain值作为校准值保存
-      然后依次校准完所有模式的速率最高点，再通过test_power_index.txt设置的偏移值完成同一模式下未校准的速率的gain值，这样就完成一个信道的校准值
-      下一步相同band信道校准值进行copy，完成整个校准分区值
-      最后将完整的校准值写入校准分区保存
+      1) 首先按照wifi_limit.txt中配置的目标功率，通过调节gain值，校准每个频点，满足evm标准和目标功率门限，即将此gain值作为校准值保存
+      2) 然后依次校准完所有模式的速率最高点，再通过test_power_index.txt设置的偏移值完成同一模式下未校准的速率的gain值，这样就完成一个信道的校准值
+      3) 相同band信道校准值进行copy，完成整个校准分区值，依次是2.4G_1,2.4G_2,5G_1,5G_2
+      4) 最后将完整的校准值写入校准分区保存
       
       4，校准结果查看
       每个板子校准pass/fail的结果会分别保存到pass_log和fail_log目录，可以对应查看  
@@ -70,7 +70,7 @@ pcba校准在uboot下进行，是一段运行在uboot下的特殊程序，专门
 ate_cmd作为siflower方案射频测试的控制命令，可以基于此命令对射频性能进行测试，也可以基于此命令的强大功能开发校准工具
 
 - 进入ate模式
-- 
+
 在使用ate_cmd指令之前，需要先使用ate_init指令进行初始化，让板子进入ate模式，也可以在初始化时增加参数对天线进行控制
 
 ```
@@ -98,7 +98,7 @@ ate_init hb2  //打开hb2
 1，在ate_init进入ate模式后，选择任意信道模式发送调制信号如：2412_11n_20M_mcs7
 
 ```
-ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 31 -y
+ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 15 -y
 ```
 
 2，使用综测仪测量频偏值
@@ -136,7 +136,7 @@ ate_cmd wlan0 fastconfig -q
 
 如发送ANT1_2412信道11n,40M带宽，mcs7信号的指令为
 ```
-ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 31 -y
+ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 15 -y
 ```
 这个指令可以控制板子2.4G常发，如果仪器测量的结果不满足需求，则调整-p后面的gain值参数来调整发射功率
 
@@ -166,7 +166,7 @@ ate_cmd wlan1 fastconfig -q
 
 ### 3.3 校准步骤
 
-- 1，板子上电，系统启动完成后使用ate_init初始化；完成晶振校准，并且写入WiFi version
+- 1，板子上电，系统启动完成后使用ate_init初始化；完成晶振校准写入XO值，并且写入WiFi version
 
 - 2，板子通过ate_cmd指令进行TX发送；
 
@@ -203,14 +203,15 @@ ate_cmd手动校准示例，
 
 ![power_offset](/assets/images/siflower_calibration/power_offset.png)
 
-**注：gain_offset.txt中的offset值可以按照客户板子实际情况进行调整偏移量** 
+**注：gain_offset.txt中的offset值可以按照客户板子实际测试情况进行调整偏移量，然后生成一个客户自己的偏移值文档放入软件对应位置即可** 
 
-6, 存入txt文件的校准值检验
+6, 综测，即存入txt文件的校准值检验
 如读取5G ant2 powe_save_ant2.txt保存值常发校验
 
 ```ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5180 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 203 -y```
 
-只需要将-p 后面的参数固定**203**，使用ate_cmd常发时，就会去对应的power_save_ant文件中拿取对应位置的gain值进行常发。可用于验证即将写入值的准确性，实现综测功能
+只需要将-p 后面的参数固定**203**，使用ate_cmd常发时，就会去对应的power_save_ant.txt文件中拿取对应位置的gain值进行常发。  
+可用于验证即将写入值的准确性，实现综测功能
 
 7，写入factory校准分区
 
@@ -233,23 +234,23 @@ ate_cmd手动校准示例，
 ### 3.4 ate_cmd 其它功能
 
 - 读单个频点的校准值
-- 
+
 ate模式下使用 如```ate_cmd read pow 2412 0 0 0```读取2412/11b_20Mhz/1Mbps的校准值  
 解释：ate_cmd save pow为固定参数 后面4个参数为 channel bw mode rate  
 
 - 写单个频点的校准值
 
-ate模式下使用```ate_cmd save pow 31 2412 0 0 0``则将2412/11b_20Mhz/1Mbps的校准值写入31  
+ate模式下使用```ate_cmd save pow 15 2412 0 0 0``则将2412/11b_20Mhz/1Mbps的校准值写入15    
 解释：ate_cmd save pow为固定参数 后面五个参数为 gain channel bw mode rate
 
 - 初始化power_save_ant1.txt/power_save_ant2.txt
 
-可以使用```ate_cmd init_power_save```即可初始化power_save_ant1.txt为初始全部为零的状态
+可以使用```ate_cmd init_power_save```即可初始化power_save_ant1.txt为初始全部为零的状态，校准之前需先做这一步操作。
 
 - 读取/保存XO值
   
-使用```ate_cmd save value```(value为XO值，十六进制)即可保存XO校准值到factory分区  
-使用```ate_cmd read XO_value```)即可读取factory分区保存的XO校准值
+使用```ate_cmd save value```(value为XO值，十六进制)即可保存XO校准值到factory分区)    
+使用```ate_cmd read XO_value```即可读取factory分区保存的XO校准值
 
 - 读取/保存校准温度
 
@@ -281,7 +282,7 @@ ate_cmd wlan1 fastconfig -T 0xcc 打开hb2
 - 前面2kB为系统信息使用，后面为WiFi校准值保存
 
 |说明|addr|length|
-|--|--|--|--|
+|--|--|--|
 |系统信息分区起始地址|0x90000|2048|
 |wifi version值起始地址|0x90800|2|
 |xo校准值起始地址|0x90802|2|
@@ -293,7 +294,7 @@ ate_cmd wlan1 fastconfig -T 0xcc 打开hb2
 - 校准值
 
 目前默认使用双路校准表，gain值范围是0~15；
-旧版本使用单路校准表功率范围是0~31；
+旧版本使用单路校准表功率范围是0~31；(已弃用)
 
 校准值实际写入值，以2.4G_ANT1和5G_ANT1为例：
 
@@ -336,7 +337,7 @@ ate_cmd wlan1 fastconfig -T 0xcc 打开hb2
 |139|减少0.5db||ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -p 139 -y| 15.5 |
 |10|减少0.5db||ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -p 10 -y| 14.5 |
 |...|...||...| ... |
-|0|减少0.55db||ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -p 0 -y| 5 |
+|0|减少0.5db||ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -p 128 -y| 4.5 |
 
 ## 总结
 
@@ -344,48 +345,49 @@ ate_cmd wlan1 fastconfig -T 0xcc 打开hb2
 
 ## 附录
 
-- ate_cmd手动校准指令集
-**11b:**
-①校准2.4g 1路 11b_11M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 31 -y 
-校准2.4g 2路 11b_11M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 31 -y
-②校准2.4g 1路 11b_11M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 30 -y
-校准2.4g 2路 11b_11M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 30 -y
-③校准2.4g 1路 11b_11M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 30 -y
-校准2.4g 2路 11b_11M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 30 -y
-**11n_20m:**
-①校准2.4g 1路 11n_20M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y
-校准2.4g 2路 11n_20M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y
-②校准2.4g 1路 11n_20M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y
-校准2.4g 2路 11n_20M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 1 -u 1 -m 2 -i 7 -g 0 -B 2 -p 26 -y
-③校准2.4g 1路 11n_20M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y
-校准2.4g 2路 11n_20M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 1 -u 1 -m 2 -i 7 -g 0 -B 2 -p 26 -y
-**11n_40m:**
-①校准2.4g 1路 11n_40M 2422 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2422 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y
-校准2.4g 2路 11n_40M 2422 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2422 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y
-②校准2.4g 1路 11n_40M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y
-校准2.4g 2路 11n_40M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y
-③校准2.4g 1路 11n_40M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y
-校准2.4g 2路 11n_40M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y
+ate_cmd手动校准指令集
 
-**11ac_20:**
-①校准5g 1路 11ac_20M_mcs8 5180 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5180 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_20M_mcs8 5180 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5180 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_20M_mcs8 5320 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5320 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_20M_mcs8 5320 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5320 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_20M_mcs8 5745 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5745 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_20M_mcs8 5745 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5745 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y
-**11ac_40:**
-①校准5g 1路 11ac_40M_mcs9 5190 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5190 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_40M_mcs9 5190 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5190 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_40M_mcs9 5330 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5310 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_40M_mcs9 5330 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5310 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_40M_mcs9 5755 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5755 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-准5g 2路 11ac_40M_mcs9 5755 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5755 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y
-**11ac_80:**
-①校准5g 1路 11ac_80M_mcs9 5210 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_80M_mcs9 5210 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_80M_mcs9 5350 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5290 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_80M_mcs9 5350 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5290 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y
-①校准5g 1路 11ac_80M_mcs9 5775 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5775 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y
-校准5g 2路 11ac_80M_mcs9 5775 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5775 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y
+**11b:**  
+①校准2.4g 1路 11b_11M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 31 -y  
+校准2.4g 2路 11b_11M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 31 -y  
+②校准2.4g 1路 11b_11M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 30 -y  
+校准2.4g 2路 11b_11M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 30 -y  
+③校准2.4g 1路 11b_11M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 0 -u 0 -m 0 -i 3 -g 0 -B 1 -p 30 -y  
+校准2.4g 2路 11b_11M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 0 -u 0 -m 0 -i 3 -g 0 -B 2 -p 30 -y  
+**11n_20m:**  
+①校准2.4g 1路 11n_20M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y  
+校准2.4g 2路 11n_20M 2412 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2412 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y  
+②校准2.4g 1路 11n_20M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y  
+校准2.4g 2路 11n_20M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 1 -u 1 -m 2 -i 7 -g 0 -B 2 -p 26 -y  
+③校准2.4g 1路 11n_20M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 1 -u 1 -m 2 -i 7 -g 0 -B 1 -p 26 -y  
+校准2.4g 2路 11n_20M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 1 -u 1 -m 2 -i 7 -g 0 -B 2 -p 26 -y  
+**11n_40m:**  
+①校准2.4g 1路 11n_40M 2422 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2422 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y  
+校准2.4g 2路 11n_40M 2422 ate_cmd wlan0 fastconfig -l 1024 -f 2412 -c 2422 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y  
+②校准2.4g 1路 11n_40M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y  
+校准2.4g 2路 11n_40M 2437 ate_cmd wlan0 fastconfig -l 1024 -f 2437 -c 2437 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y  
+③校准2.4g 1路 11n_40M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 2 -u 2 -m 2 -i 7 -g 0 -B 1 -p 27 -y  
+校准2.4g 2路 11n_40M 2462 ate_cmd wlan0 fastconfig -l 1024 -f 2462 -c 2462 -w 2 -u 2 -m 2 -i 7 -g 0 -B 2 -p 27 -y  
+
+**11ac_20:**  
+①校准5g 1路 11ac_20M_mcs8 5180 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5180 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_20M_mcs8 5180 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5180 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_20M_mcs8 5320 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5320 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_20M_mcs8 5320 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5320 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_20M_mcs8 5745 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5745 -w 1 -u 1 -m 4 -i 8 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_20M_mcs8 5745 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5745 -w 1 -u 1 -m 4 -i 8 -g 0 -B 2 -p 6 -y  
+**11ac_40:**  
+①校准5g 1路 11ac_40M_mcs9 5190 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5190 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_40M_mcs9 5190 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5190 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_40M_mcs9 5330 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5310 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_40M_mcs9 5330 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5310 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_40M_mcs9 5755 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5755 -w 2 -u 2 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+准5g 2路 11ac_40M_mcs9 5755 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5755 -w 2 -u 2 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
+**11ac_80:**  
+①校准5g 1路 11ac_80M_mcs9 5210 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_80M_mcs9 5210 ate_cmd wlan1 fastconfig -l 1024 -f 5180 -c 5210 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_80M_mcs9 5350 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5290 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_80M_mcs9 5350 ate_cmd wlan1 fastconfig -l 1024 -f 5320 -c 5290 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
+①校准5g 1路 11ac_80M_mcs9 5775 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5775 -w 3 -u 3 -m 4 -i 9 -g 0 -B 1 -p 6 -y  
+校准5g 2路 11ac_80M_mcs9 5775 ate_cmd wlan1 fastconfig -l 1024 -f 5745 -c 5775 -w 3 -u 3 -m 4 -i 9 -g 0 -B 2 -p 6 -y  
   

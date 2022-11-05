@@ -58,7 +58,7 @@ Siflower提供Pinctrl的Linux Driver, 该Driver符合Linux标准的Pinctrl子系
 大部分时候, 我们只需要会配置linux的dts中与Pinctrl和GPIO相关的内容即可满足需求, 如果本章的内容没有解决问题, 可以查阅后续章节, 通过理解linux的驱动的实现细节, 从而解决问题. 下面就Pinctrl和GPIO的dts相关配置做详细描述.
 ## 3.1. DTS中配置Pinctrl
 ### 3.1.1. Pinctrl的配置　
-Pinctrl驱动的主要工作就是配置GPIO的模式,从而实现不同的功能, 以下内容摘取自SF19A28 FULLMASK芯片的DTS, 仅用作演示.
+Pinctrl驱动的主要工作就是配置GPIO的模式,从而实现不同的功能, 以下内容摘取自SF19A2890 FULLMASK芯片的DTS, 仅用作演示.
 ```
 代码参考:linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask.dtsi
 
@@ -137,7 +137,7 @@ sfax8, pins候的四个参数从左到右分别代表的意义如下:
 我们使用pcfg_pull_pin_default即可, 也就是说上下拉参数使用系统默认的(上拉)
 
 ### 3.1.2. Pinctrl的使用
-pinctrl在配置好了之后,还需要在对应的模块中声明,才会生效. 以下内容摘取自SF19A28 FULLMASK芯片的DTS, 仅用作演示.
+pinctrl在配置好了之后,还需要在对应的模块中声明,才会生效. 以下内容摘取自SF19A2890 FULLMASK芯片的DTS, 仅用作演示.
 ```
 代码参考:linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask.dtsi
 
@@ -190,7 +190,7 @@ CONFIG_PINCTRL_SFAX8=y
 
 ## 3.2. DTS中配置GPIO
 ### 3.2.1. GPIO的配置
-Siflower的GPIO的驱动是在Pinctrl驱动中统一管理的,在DTS中GPIO的描述也是在Pinctrl的范围内. 以下内容摘取自SF19A28 FULLMASK芯片的DTS, 仅用作演示.
+Siflower的GPIO的驱动是在Pinctrl驱动中统一管理的,在DTS中GPIO的描述也是在Pinctrl的范围内. 以下内容摘取自SF19A2890 FULLMASK芯片的DTS, 仅用作演示.
 ```
 代码参考:linux-4.14.90-dev/linux-4.14.90/arch/mips/boot/dts/siflower/sf19a28_fullmask.dtsi
 

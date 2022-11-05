@@ -315,11 +315,11 @@ mtd erase /dev/mtd5
 
 ### Flash启动顺序
 
-Siflower硬件在上电后，主要从Flash中读取信息进行初始化，依据外围设备的不同和存储信息不通启动顺序也略有不同，以A28为例详细启动顺序如下：
+Siflower硬件在上电后，主要从Flash中读取信息进行初始化，依据外围设备的不同和存储信息不通启动顺序也略有不同，以SF19A2890为例详细启动顺序如下：
 
 ```mermaid
 graph TB
-  title(SF19A28芯片启动顺序)
+  title(SF19A2890芯片启动顺序)
   A(上电) --> B[执行IROM代码]
   B --> C[从Flash中读取ID]
   C --> D[Nor Flash]

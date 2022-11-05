@@ -15,7 +15,7 @@ mermaid: true
 
 # 1. 介绍
 
-Siflower的芯片提供一些PAD脚，这些PAD脚可以配置为不同的功能,本文提供了Siflower sf19a28 fullmaks芯片的IOMUX Table
+Siflower的芯片提供一些PAD脚，这些PAD脚可以配置为不同的功能,本文提供了Siflower sf19a2890 fullmaks芯片的IOMUX Table
 
 ## 1.1. 适用人员
 
@@ -25,9 +25,9 @@ Siflower的芯片提供一些PAD脚，这些PAD脚可以配置为不同的功能
 - 可以正常编译通过的Siflower SDK环境
   该环境的搭建请参考[快速入门](https://siflower.github.io/2020/08/05/quick_start)
 
-# 2. SF19A28 fullmask IOMUX Table
+# 2. SF19A2890 fullmask IOMUX Table
 
-下面的表格就是Siflower的SF19A28 fullmask的IOMUX表格, 在该表格中会说明Siflowr的每一个可以配置的PAD的支持配置成那些模式. 
+下面的表格就是Siflower的SF19A2890 fullmask的IOMUX表格, 在该表格中会说明Siflowr的每一个可以配置的PAD的支持配置成那些模式. 
 
 | Index | Pin Name        | Default Mode | GPIO\_MODE | FUNC\_MODE0                       | FUNC\_MODE1 | FUNC\_MODE2 | FUNC\_MODE3        |
 |-------|-----------------|--------------|------------|-----------------------------------|-------------|-------------|--------------------|
@@ -189,4 +189,4 @@ in Pin脚的电平状态有如下
 | hi     | 高电平       |
 
 # FAQ
-本文主要是提供Siflower的IOMUX Table, 关于IOMUX的具体应用请参考[Pinctrl 和 GPIO 使用手](https://siflower.github.io/2020/07/30/pinctrl_gpio)
+本文主要是提供Siflower的IOMUX Table, 关于IOMUX的具体应用请参考[Pinctrl 和 GPIO 使用手册](https://siflower.github.io/2020/07/30/pinctrl_gpio)

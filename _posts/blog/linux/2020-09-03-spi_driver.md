@@ -79,7 +79,7 @@ CPOL和CPHA相互组合可组成4种不同的模式，mode可记为(CPOL,CPHA)�
 
 # 3. SSP
 ## 3.1. Overview
-sf19A28有3个独立的同步串行接口（SSP）。SSP是一个用于同步串行通信，支持Motorola SPI, Microwire 和TI三种数据格式的master或slave接口。数据输入输出时会各自先进入一个缓冲区，每个缓冲区最多可存放64个16 bit的数据。数据通过SSPTXD输出SSP，通过SSPRXD输入SSP。Clock prescaler 模块可以对时钟频率进行调节。我们通常也直接称之为SPI。
+SF19A2890有3个独立的同步串行接口（SSP）。SSP是一个用于同步串行通信，支持Motorola SPI, Microwire 和TI三种数据格式的master或slave接口。数据输入输出时会各自先进入一个缓冲区，每个缓冲区最多可存放64个16 bit的数据。数据通过SSPTXD输出SSP，通过SSPRXD输入SSP。Clock prescaler 模块可以对时钟频率进行调节。我们通常也直接称之为SPI。
 
 ![figure4 SSP block diagram](/assets/images/bsp/spi_4.png)  
 图 4：SSP block diagram

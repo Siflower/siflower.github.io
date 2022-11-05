@@ -21,7 +21,7 @@ mermaid: true
 
 ## 开发与测试环境
 
-Siflower开发板/产品板测试环境镜像选择A28镜像。
+Siflower开发板/产品板测试镜像。
 
 ## 相关背景
 
