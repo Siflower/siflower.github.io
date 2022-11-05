@@ -50,7 +50,7 @@ siflower芯片相关配置在target/linux/siflower目录下。
 其中sf16a18-fullmask 目录代表了量产芯片sf16a18的配置目录  
 ![sf16a18-fullmask](/assets/images/new_board_guide/sf16a18-fullmask.png)
 
-其中sf19a28-fullmask 目录代表了量产芯片sf19a28的配置目录  
+其中sf19a28-fullmask 目录代表了量产芯片sf19a2890的配置目录  
 ![sf19a28-fullmask](/assets/images/new_board_guide/sf19a28-fullmask.png)
 
 **config-4.14_ac28_v5**  
@@ -87,7 +87,7 @@ sf19a28_fullmask_ac28_v5.dts为ac28_v5版型配置项。
 
 ### Openwrt新版型引入示例
 
-下文为增加一个SF19A28芯片型号，板型名为AC28_V5的新版型的示例。
+下文为增加一个SF19A2890芯片型号，板型名为AC28_V5的新版型的示例。
 
 #### Openwrt 增加配置
 

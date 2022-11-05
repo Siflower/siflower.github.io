@@ -27,7 +27,7 @@ mermaid: true
 
 ## 2.1. USB驱动目录结构
 
-drivers/usb目录下有很多个子文件夹，具体每个文件夹的介绍可参看该目录下的README文件。对于A28来讲，最重要的是core文件夹和dwc2文件夹，其中core是USB驱动的核心代码，dwc2是USB Controller的驱动代码，包含host和gadget两种模式。
+drivers/usb目录下有很多个子文件夹，具体每个文件夹的介绍可参看该目录下的README文件。对于SF19A2890来讲，最重要的是core文件夹和dwc2文件夹，其中core是USB驱动的核心代码，dwc2是USB Controller的驱动代码，包含host和gadget两种模式。
 
 ## 2.2. USB系统架构
 
@@ -656,7 +656,7 @@ drivers/usb/core/hub.c:
 ```
 我们看到，`hub_probe`函数里就是针对hub这个interface来进行的特定操作（`Hub_probe`里最重要的就是`INIT_WORK`和`hub_configure`函数，这两个函数的具体作用会在下面注册root_hub里讲到，此处先略过），当该函数成功返回之后，就表明interface设备和interface驱动匹配上了。再次回到`usb_set_configuration`函数里，由一个for循环来对所有的interface都执行一次`device_add`，interface设备有可能能找到驱动，也有可能找不到合适的驱动，因此返回error之后使用的是continue来继续添加下一个，而不是直接报错退出。没有找到驱动的设备可以在有新驱动添加进系统的时候再次进行匹配。当所有的interface设备都添加完成之后，`generic_probe`函数返回0，USB设备probe完成，新设备添加完毕。
 ## 2.6. USB Host Controller驱动
-现在，让我们回到子系统刚初始化完成的时候。此时，usb_bus注册完成，还有一个设备驱动`usb_generic_driver`和一个接口驱动`hub_driver`。为了与别的USB设备进行通信，我们还需要一个USB controller，对于A28来说我们使用的是DesignWare USB 2.0 Hi-Speed On-The-Go，一个可以在主从模式间进行切换的controller。有了controller自然也要有对应的驱动，其驱动位于drivers/usb/dwc2目录下，这个驱动是一个platform_driver，会在扫描设备树的时候进行匹配并执行对应的probe。
+现在，让我们回到子系统刚初始化完成的时候。此时，usb_bus注册完成，还有一个设备驱动`usb_generic_driver`和一个接口驱动`hub_driver`。为了与别的USB设备进行通信，我们还需要一个USB controller，对于SF19A2890来说我们使用的是DesignWare USB 2.0 Hi-Speed On-The-Go，一个可以在主从模式间进行切换的controller。有了controller自然也要有对应的驱动，其驱动位于drivers/usb/dwc2目录下，这个驱动是一个platform_driver，会在扫描设备树的时候进行匹配并执行对应的probe。
 ### 2.6.1. dwc2_platform_driver
 ```cpp
     static const struct of_device_id dwc2_of_match_table[] = {

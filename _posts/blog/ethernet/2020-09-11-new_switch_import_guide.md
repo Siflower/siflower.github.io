@@ -26,7 +26,7 @@ mermaid: true
 
 - 简介
 
-GMAC是SF19A28芯片中的一个模块，属于数据链路层，GMAC外部可以对接PHY芯片和SWITCH芯片。其中PHY芯片属于物理层，SWITCH芯片通常包含多个PHY可以用于收发数据包。GMAC和PHY/SWITCH芯片一起构成了SF19A28的以太网部分。
+GMAC是SF19A2890芯片中的一个模块，属于数据链路层，GMAC外部可以对接PHY芯片和SWITCH芯片。其中PHY芯片属于物理层，SWITCH芯片通常包含多个PHY可以用于收发数据包。GMAC和PHY/SWITCH芯片一起构成了SF19A2890的以太网部分。
 
 - vlan简介
 
@@ -36,7 +36,7 @@ vlan全称为虚拟局域网，虚拟局域网是一组逻辑上的设备和用�
 
 - switch与gmac工作介绍
 
-如下图所示，在当前SF19A28中，只有GMAC网卡被注册为eth0，为了实现WAN-LAN的功能，在eth0的基础上划分了eth0.1和eth0.2两个虚拟网卡分别做为LAN和WAN。当接收时，GMAC收到带有vlan头的数据包并上送，系统会根据数据包中不同的vlan id区分LAN和WAN，vlan 1的数据包会剥除vlan头送到LAN，vlan 2的数据包会剥除vlan头送到WAN。当发送时，系统发送的普通数据包在经过虚拟网卡eth0.1和eth0.2后也会带上vlan tag，发送到switch的cpu port。
+如下图所示，在当前SF19A28909090909090909090中，只有GMAC网卡被注册为eth0，为了实现WAN-LAN的功能，在eth0的基础上划分了eth0.1和eth0.2两个虚拟网卡分别做为LAN和WAN。当接收时，GMAC收到带有vlan头的数据包并上送，系统会根据数据包中不同的vlan id区分LAN和WAN，vlan 1的数据包会剥除vlan头送到LAN，vlan 2的数据包会剥除vlan头送到WAN。当发送时，系统发送的普通数据包在经过虚拟网卡eth0.1和eth0.2后也会带上vlan tag，发送到switch的cpu port。
 
 ![jekyll_exec](/assets/images/switch_img/gmac_switch.png)
 
