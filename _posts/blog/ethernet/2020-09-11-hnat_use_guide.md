@@ -57,7 +57,7 @@ HNAT子系统主要针对GMAC外挂千兆交换芯片的应用场景，实现LAN
 * 支持以太网加速
   * hnat模块可以将转换后的数据包上送host或重新发出，通常情况下hnat在处理完来自switch的数据包之后（wan/lan），会转发回switch（lan/wan），这就是以太网部分的加速功能。
 * 支持wifi加速功能
-  * 根据配置，hnat模块同样可以对来自wifi侧的数据包进行snat加速，将wifi的数据包发送到wan。将wan->wifi的数据包dnat转换后从switch上送到host，再由host发送给wifi，这样可以hnat模块就可以实现对wifi的加速，提高wifi的性能。详细流程请参考：[以太网到wifi加速流程介绍](http://www.tapd.cn/tapdm/51395132/app/index?type=wiki&id=1151395132001001343&corpid=wpKeYIEAAAVn4KtICppdqV93VqZXg5vg&agentid=1000004) 
+  * 根据配置，hnat模块同样可以对来自wifi侧的数据包进行snat加速，将wifi的数据包发送到wan。将wan->wifi的数据包dnat转换后从switch上送到host，再由host发送给wifi，这样可以hnat模块就可以实现对wifi的加速，提高wifi的性能。详细流程请参考：[以太网到wifi加速流程介绍](https://siflower.github.io/2022/03/11/hnat_snat_acceleration_guide/) 
 * 支持不同HNAT模式；
   * hnat模块通过全局设置可以支持不同模式的nat，包括Basic NAT、Symmetric NAT、Restricted cone NAT、Port-Restricted cone NAT、Full cone NAT，根据需求可以选择不同的nat模式，当前默认为Symmetric NAT。 
 * 支持最大1024条NAPT表；
