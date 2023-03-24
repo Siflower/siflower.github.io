@@ -13,7 +13,7 @@ permalink: /about/
 
 ## 联系
 
-- 邮箱： phoenix.shen@silower.com.cn
+- 邮箱： phoenix.shen@siflower.com.cn
 - 微信： Siflower
 - GIthub： Siflower
 
