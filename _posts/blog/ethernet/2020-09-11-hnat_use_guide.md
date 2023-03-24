@@ -25,15 +25,15 @@ mermaid: true
 
 ## 3 相关背景
 
-- nat是网络地址转换的缩写，是IP数据包在通过路由器或防火墙时重写来源IP地址或目的IP地址的技术。这种技术主要用于多台主机只通过一个公有IP地址访问互联网的情况。nat又分为SNAT和DNAT两种，其中SNAT是源地址转换，DNAT是目的地址转换。SNAT是当内部主机要访问公网上的服务时，内部主机会主动发起连接，并由路由器或防火墙将内部地址（源地址）转换成公有ip。DNAT是路由器或防火墙的网关接收到公网返回的数据，将目的地址从路由器或防火墙的网关转换为内部主机的ip，下图是一个nat转换的例子。   
-![nat.png](/assets/images/hnat_img/nat.png)  
-- hnat是硬件网络地址转换的缩写，顾名思义，就是使用硬件进行数据的nat转换。当一条tcp或udp连接建立之后，系统会通过网络驱动接口，将该连接所需的nat转换信息下发到hnat模块，从而由hnat模块完成后续数据包的nat转换，从而达到千兆级的转换速度。  
+- nat是网络地址转换的缩写，是IP数据包在通过路由器或防火墙时重写来源IP地址或目的IP地址的技术。这种技术主要用于多台主机只通过一个公有IP地址访问互联网的情况。nat又分为SNAT和DNAT两种，其中SNAT是源地址转换，DNAT是目的地址转换。SNAT是当内部主机要访问公网上的服务时，内部主机会主动发起连接，并由路由器或防火墙将内部地址（源地址）转换成公有ip。DNAT是路由器或防火墙的网关接收到公网返回的数据，将目的地址从路由器或防火墙的网关转换为内部主机的ip，下图是一个nat转换的例子。
+![nat.png](/assets/images/hnat_img/nat.png)
+- hnat是硬件网络地址转换的缩写，顾名思义，就是使用硬件进行数据的nat转换。当一条tcp或udp连接建立之后，系统会通过网络驱动接口，将该连接所需的nat转换信息下发到hnat模块，从而由hnat模块完成后续数据包的nat转换，从而达到千兆级的转换速度。
 
-## 4 功能概述  
+## 4 功能概述
 
-本文主要描述了HNAT硬件上的结构位置，实现的功能和性能，对外开放的接口，对接调试方法和测试补充等.  
+本文主要描述了HNAT硬件上的结构位置，实现的功能和性能，对外开放的接口，对接调试方法和测试补充等.
 
-## 5 硬件结构  
+## 5 硬件结构
 
 HNAT整个子系统位于GMAC模块中，在芯片中的位置如下:
 ![hnat_strcuture.png](/assets/images/hnat_img/hnat_strcuture.png)
@@ -46,7 +46,7 @@ HNAT子系统主要针对GMAC外挂千兆交换芯片的应用场景，实现LAN
 支持的数据流向如下:
 ![hnat_flow.png](/assets/images/hnat_img/hnat_flow.png)
 
-- LAN（GE）<-->HOST ②<-->③<-->④ 
+- LAN（GE）<-->HOST ②<-->③<-->④
 - LAN（GE）<-->WAN（GE） ②<-->③<-->①  需要做SNAT和DNAT
 - LAN（GE）<-->WLAN ②<-->③<-->④<-->⑥
 - WAN（GE）<-->HOST ①<-->③<-->④
@@ -57,21 +57,22 @@ HNAT子系统主要针对GMAC外挂千兆交换芯片的应用场景，实现LAN
 * 支持以太网加速
   * hnat模块可以将转换后的数据包上送host或重新发出，通常情况下hnat在处理完来自switch的数据包之后（wan/lan），会转发回switch（lan/wan），这就是以太网部分的加速功能。
 * 支持wifi加速功能
-  * 根据配置，hnat模块同样可以对来自wifi侧的数据包进行snat加速，将wifi的数据包发送到wan。将wan->wifi的数据包dnat转换后从switch上送到host，再由host发送给wifi，这样可以hnat模块就可以实现对wifi的加速，提高wifi的性能。详细流程请参考：[以太网到wifi加速流程介绍](https://siflower.github.io/2022/03/11/hnat_snat_acceleration_guide/) 
+  * 根据配置，hnat模块同样可以对来自wifi侧的数据包进行snat加速，将wifi的数据包发送到wan。将wan->wifi的数据包dnat转换后从switch上送到host，再由host发送给wifi，这样可以hnat模块就可以实现对wifi的加速，提高wifi的性能。详细流程请参考：[以太网到wifi加速流程介绍](https://siflower.github.io/2022/03/11/hnat_snat_acceleration_guide/)
 * 支持不同HNAT模式；
-  * hnat模块通过全局设置可以支持不同模式的nat，包括Basic NAT、Symmetric NAT、Restricted cone NAT、Port-Restricted cone NAT、Full cone NAT，根据需求可以选择不同的nat模式，当前默认为Symmetric NAT。 
+  * hnat模块通过全局设置可以支持不同模式的nat，包括Basic NAT、Symmetric NAT、Restricted cone NAT、Port-Restricted cone NAT、Full cone NAT，根据需求可以选择不同的nat模式，当前默认为Symmetric NAT。
 * 支持最大1024条NAPT表；
   * HNAT子系统最大支持1024条NAPT表项，其中细分为512个不同的destination IP以及128条不同的MAC表项，由于NAPT和DIP数据采用hash压缩算法存储，因此由于hash冲突，存在较小的概率情况下，实际能支持的条目数小于1024条NAPT表项或512条destination IP表项。
 * 根据配置信息进行nat转换
   * hnat模块可以识别ETH II、VLAN、PPPOE、VLAN+PPPOE四种类型的数据包，从而可以支持不同场景下的应用。根据驱动配置的信息，hnat可以根据原数据包中的ip/port等信息判断是否需要进行SNAT或DNAT。当需要进行SNAT时，hnat模块会修改原数据包中sip、sport、dmac、smac信息，当需要进行DNAT时，hnat模块会修改原数据包中dip、dport、dmac、smac信息，从而与协议栈处理结果相同，可以做到正常通信与加速功能。
- 
+
 ## 7 性能测试
 
 HNAT性能测试包含日常Release版本的IxChariot/Iperf性能测试以及打流仪2544性能标定的测试，对应版本的测试报告见redmine#[9045](http://redmine.siflower.cn/redmine/issues/9045)，摘取部分测试结果如下：
-|　测试项　| 未加速 | hnat加速 | 
-| ------- | ------ | ----- | 
-| lan-wan吞吐 | 275Mbps | 932Mbps | 
-| wan-lan吞吐 | 203Mbps | 936Mbps | 
+
+|　测试项　| 未加速 | hnat加速 |
+| ------ | ------ | ------ |
+| lan-wan吞吐 | 275Mbps | 932Mbps |
+| wan-lan吞吐 | 203Mbps | 936Mbps |
 
 
 ## 8 对接接口
@@ -82,7 +83,7 @@ HNAT性能测试包含日常Release版本的IxChariot/Iperf性能测试以及打
 
 在Openwrt系统中可以通过修改firewall配置文件来使能/关闭HNAT（推荐使用），详细配置如下：
 ```
-root@OpenWrt:/# cat /etc/config/firewall 
+root@OpenWrt:/# cat /etc/config/firewall
 
 config defaults
         option syn_flood '1'
@@ -123,15 +124,15 @@ int sgmac_ndo_flow_offload(enum flow_offload_type type,
 				struct flow_offload_hw_path *src,
 				struct flow_offload_hw_path *dest) {
 			struct net_device * pndev = src->dev;
- 
+
 			struct sgmac_priv *priv = netdev_priv(pndev);
 			return priv->phnat_priv->ndo_flow_offload(priv->hnat_pdev, type, flow, src, dest);//将网卡驱动得到的nat信息传递给hnat模块
 }
 ```
 
-### 8.3 HNAT内核对接接口  
+### 8.3 HNAT内核对接接口
 
-### 8.3.1 LAN/WAN口IP发生变化时，HNAT配置自动更新  
+### 8.3.1 LAN/WAN口IP发生变化时，HNAT配置自动更新
 
 LAN/WAN口IP被用做hnat判断报文是否需要转发（内网到外网）的依据，也是在DNAT时用做替换报文的sip/dip．因此在LAN/WAN口IP发生变化时，HNAT配置信息需要同步更新。 这在内核中通过linux-4.14.90-dev/linux-4.14.90/net/ipv4/devinet.c文件中，devinet_ioctl函数中，检测到ip发生变化时调用hnat驱动提供的接口实现HNAT LAN/WAN网段配置的自动更新。
 接口详细实现如下:
@@ -143,17 +144,17 @@ static void sf_hnat_notify_ip_change(const unsigned int ipaddr, const char *ifna
     preempt_disable();
     if(is_new)
      sym = find_symbol("sf_hnat_monitor_newaddr", NULL, NULL, true, true);
-    else 
+    else
      sym = find_symbol("sf_hnat_monitor_deladdr", NULL, NULL, true, true);
 
     if (sym) {
         notify_hnat = (void *)sym->value;
-    }    
+    }
     preempt_enable();
 
     if(notify_hnat){
         notify_hnat(ipaddr,ifname, pf_len);
-    }    
+    }
 ```
 
 ## 8.3.2 Netfilter硬加速表项下发/老化
@@ -258,9 +259,9 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 
 **示例：**
 
-- 获取所有接口的帮助信息:  
+- 获取所有接口的帮助信息:
   命令:  ```echo help > /sys/kernel/debug/hnat_debug```
-  结果展示如下:  
+  结果展示如下:
   ```
   echo help > sys/kernel/debug/hnat_debug
   echo natmode <mode> >  /sys/kernel/debug/gmac_debug
@@ -270,7 +271,7 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
   echo writel [addr] [data] >  /sys/kernel/debug/hnat_debug
   echo tabread [tab_no] [depth] >  /sys/kernel/debug/hnat_debug
   echo tabwrite [tab_no] [depth] [data(5)] >  /sys/kernel/debug/hnat_debug
-  intro: dump all entry of table and crc table, 1 for napt, 0 for arp 
+  intro: dump all entry of table and crc table, 1 for napt, 0 for arp
   echo dump <napt/arp> >  /sys/kernel/debug/hnat_debug
   echo stat  >  /sys/kernel/debug/hnat_debug
   echo log mode  >  /sys/kernel/debug/hnat_debug
@@ -292,7 +293,7 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
   开启命令:  ```echo log mode(mode == 1/2/3) > /sys/kernel/debug/hnat_debug```
   关闭命令:  ```echo log 0 > /sys/kernel/debug/hnat_debug```
   结果展示如下:
-  ```	
+  ```
 	root@OpenWrt:/# echo log 1 > /sys/kernel/debug/hnat_debug
 	root@OpenWrt:/# [ 7870.644711] [hnat info] is_inat 1 add tbl 1 index 362 hash ptr 0
 	[ 7870.650846] [hnat info] is_inat 0 add tbl 1 index 100 hash ptr 0
@@ -300,8 +301,8 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 	root@OpenWrt:/# echo log 0 > /sys/kernel/debug/hnat_debug
 
 	root@OpenWrt:/# echo log 2 > /sys/kernel/debug/hnat_debug
-	root@OpenWrt:/# [ 7910.646568] hnat offload ADD type=0 
-	[ 7910.650178] !!!!!!!!!!!!!!!!!!!!!flow_offload flags=0x49 	timeout=0xba8a0 l4 proto= 0x6 l3proto=0x 
+	root@OpenWrt:/# [ 7910.646568] hnat offload ADD type=0
+	[ 7910.650178] !!!!!!!!!!!!!!!!!!!!!flow_offload flags=0x49 	timeout=0xba8a0 l4 proto= 0x6 l3proto=0x
 	[ 7910.659542] ORIGINAL: src:[192.168.6.100:44480] -> dest:[23.29.105.232:80]
 	[ 7910.666540] REPLY: src:[23.29.105.232:80] -> dest:[192.168.5.203:44480]
 	[ 7910.673156] src=========
@@ -309,7 +310,7 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 	[ 7910.685061]  src_mac=00:9d:7d:86:20:08 dst_mac=b0:83:fe:9a:2e:f4
 	[ 7910.691384] dest=========
 	[ 7910.694151] ==================hw path flags=0x3 vlan_proto=0x81 vlan_id=0x2 pppoe_sid=0x0 devname0
-	[ 7910.703711]  src_mac=00:9d:7d:86:20:09 dst_mac=a8:5a:f3:00:3a:98 
+	[ 7910.703711]  src_mac=00:9d:7d:86:20:09 dst_mac=a8:5a:f3:00:3a:98
 	[ 7910.710237] [hnat notice]sf_hnat_search_vlan search success index 0 is_add 1 vlan_id 1
 	[ 7910.718230] [hnat notice]sf_hnat_search_vlan search success index 1 is_add 1 vlan_id 2
 	[ 7910.726292] [hnat notice]sf_hnat_search_rt_pub_net search success index 0
@@ -331,7 +332,7 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
   命令:  ```echo stat > /sys/kernel/debug/hnat_debug```
   结果展示如下:
   ```
-    root@OpenWrt:/# echo stat > sys/kernel/debug/hnat_debug 
+    root@OpenWrt:/# echo stat > sys/kernel/debug/hnat_debug
     [99013.647334] napt full count 0 udp aging count 0 napt hash full 0 dip hash full 0
     [99013.654895] CSR REGISTERS START:
     [99013.658154] addr 0x4000:data 0x000d5550  addr 0x4004:data 0x0240004f  addr 0x4008:data 0x00000011  addr 0x400c:data 0x00400000
@@ -352,30 +353,30 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
     [99013.804146] addr 0x4180:data 0x00000000  addr 0x4184:data 0x00000000  addr 0x4188:data 0x00000000  addr 0x418c:data 0x00000000
     [99013.815745] addr 0x4190:data 0x00000000  addr 0x4194:data 0x00000099  addr 0x4198:data 0x00000000  addr 0x419c:data 0x00000000
     [99013.827324] COUNTER REGISTERS END:
-    [99013.842488]  GMAC reciv all 3192 pkts 
+    [99013.842488]  GMAC reciv all 3192 pkts
     [99013.846274]  rx 0 pkts need to snat
     [99013.849772]  rx 884 pkts need to dnat
     [99013.853610]  tx 30 pkts need to snat
     [99013.857239]  0 pkts are hit to GMAC
     [99013.860737]  host send 329 pkts to hnat
     [99013.864723] ===============RX=============
-    [99013.868866] rx_enter_sof_cnt        3192                , rx_enter_eof_cnt         3192                
-    [99013.878412] rx_2host_frame_sof_cnt  3192                , rx_2host_frame_eof_cnt   3192                
-    [99013.888005] rx_enter_drop_cnt       0                   , rx2tx_data_frame_cnt     0                   
-    [99013.897560] rx_enat_cnt             0                   , rx_inat_cnt              884                 
-    [99013.907173] rx2tx2host_cnt          0                   , rx2tx_drop_cnt           153                 
+    [99013.868866] rx_enter_sof_cnt        3192                , rx_enter_eof_cnt         3192
+    [99013.878412] rx_2host_frame_sof_cnt  3192                , rx_2host_frame_eof_cnt   3192
+    [99013.888005] rx_enter_drop_cnt       0                   , rx2tx_data_frame_cnt     0
+    [99013.897560] rx_enat_cnt             0                   , rx_inat_cnt              884
+    [99013.907173] rx2tx2host_cnt          0                   , rx2tx_drop_cnt           153
     [99013.916745] ===============TX=============
-    [99013.920892] tx_sof_frame_cnt        329                 , tx_eof_frame_cnt         329                 
-    [99013.930508] tx_exit_sof_cnt         329                 , tx_exit_eof_cnt          329                 
-    [99013.940132] tx_receive_rx_frame_cnt 0                   , tx_nohits_frame_cnt      14                  
-    [99013.949713] Hnat_rcv_status_cnt     329                 , Hnat_tx_status_cnt       0                   
-    [99013.959303] Hnat_rcv_txack_cnt      329                 , Hnat_gen_rxack_cnt       0                   
-    [99013.968899] Hnat2mtl_ack_cnt        329                 , Mtl_2hnat_rdyn_cnt       329                 
-    [99013.978454] Timeout_eof_cnt         0                   , Tx_enat_cnt              30                  
+    [99013.920892] tx_sof_frame_cnt        329                 , tx_eof_frame_cnt         329
+    [99013.930508] tx_exit_sof_cnt         329                 , tx_exit_eof_cnt          329
+    [99013.940132] tx_receive_rx_frame_cnt 0                   , tx_nohits_frame_cnt      14
+    [99013.949713] Hnat_rcv_status_cnt     329                 , Hnat_tx_status_cnt       0
+    [99013.959303] Hnat_rcv_txack_cnt      329                 , Hnat_gen_rxack_cnt       0
+    [99013.968899] Hnat2mtl_ack_cnt        329                 , Mtl_2hnat_rdyn_cnt       329
+    [99013.978454] Timeout_eof_cnt         0                   , Tx_enat_cnt              30
     [99013.988015] =============ERROR============
-    [99013.992324] rx2tx_errpkt_cnt        0                   , rx_total_err_cnt         0                   
-    [99014.001881] rx_gmii_err_cnt         0                   , rx_crc_err_cnt           0                   
-    [99014.011501] rx_length_err_cnt       0                   , rx_iphdr_err_cnt         0                   
+    [99013.992324] rx2tx_errpkt_cnt        0                   , rx_total_err_cnt         0
+    [99014.001881] rx_gmii_err_cnt         0                   , rx_crc_err_cnt           0
+    [99014.011501] rx_length_err_cnt       0                   , rx_iphdr_err_cnt         0
     [99014.020956] rx_payload_err_cnt      0
   ```
 
@@ -387,13 +388,13 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 	root@OpenWrt:/# echo dump 1 > /sys/kernel/debug/hnat_debug
 	[  925.355501] #current napt num 13 tcp 9 udp 4
 	[  925.359917] # hash full  0 dip hash full   0 add fail 0 update_flow 0  crc_clean 0
-	[  925.367512] nf dump total 13 tcp 9 udp 4 
+	[  925.367512] nf dump total 13 tcp 9 udp 4
 	[  925.371569] udp ageing  0  full ageing 0
 	[  925.375511] ####napt key, napt_index 1
 	[  925.379379] src:[192.168.6.100:55396] -> dest:[113.96.232.230:443]
-	[  925.385584] smac b0:83:fe:9a:2e:f4 vlanid 1 
+	[  925.385584] smac b0:83:fe:9a:2e:f4 vlanid 1
 	[  925.385584]  router src  mac 00:9d:7d:86:20:08
-	[  925.394391] dmac a8:5a:f3:00:3a:98  vlanid 2 
+	[  925.394391] dmac a8:5a:f3:00:3a:98  vlanid 2
 	[  925.394391]  router dest mac 00:9d:7d:86:20:09
 	[  925.403284] router:[192.168.5.203:55396]
 	[  925.407228] pppoe sid  0x0  proto 0 cur_ppoe_en 0
@@ -451,7 +452,7 @@ Siflower通过debugfs节点暴露出去了一套私有Debugfs接口，专门用�
 
 **根因：**
 当udp checksum=0的数据进入时是不需要校验会被协议栈bypass，然而硬件做的是增量计算，如果只改动port，会在原有正确的checksum进行差分值计算并且添加上去，而我们硬件没有对udp checksum=0的数据做特殊处理，导致了硬件没有考虑到udp checksum =0 的数据而进行了增量计算，使得checksum=0变成了checksum!=0，所以接收不到来自server发送过来的报文。
-解决：通过软件进行过滤过掉 udp checksum=0的状态，只有udp checksum != 0的状态的时候，当收到了来自client和server发送的报文，才会进入硬件加速，如果只接受到了一端的报文则不进入硬加速，预留了一个可以进行UDP checksum==0进入的5001端口，用于进行iperf跑流。具体问题分析请参考：[淘宝消消网络延迟问题](https://www.tapd.cn/51395132/markdown_wikis/show/#1151395132001000100) 
+解决：通过软件进行过滤过掉 udp checksum=0的状态，只有udp checksum != 0的状态的时候，当收到了来自client和server发送的报文，才会进入硬件加速，如果只接受到了一端的报文则不进入硬加速，预留了一个可以进行UDP checksum==0进入的5001端口，用于进行iperf跑流。具体问题分析请参考：[淘宝消消网络延迟问题](https://www.tapd.cn/51395132/markdown_wikis/show/#1151395132001000100)
 
 
 **问题三：硬件在进行NAT转化时，不支持UDP 分片报文**
