@@ -59,17 +59,7 @@ mermaid: false
 
 ## 新建虚拟机及ubuntu安装
 
-
-- 如果不想从头开始安装虚拟机及设置ubuntu
-
-    这里提供一个已配置好的虚拟机和对应使用的ubuntu iso镜像，可以直接在VMware中打开使用，无需设置  
-    [点击下载已配置好的虚拟机](https://pan.baidu.com/s/1oD9oUzOmidX7pLGZ76Vg9Q) 提取码：g4po    
-    此虚拟机对应的ubuntu iso镜像  
-    [点击下载搭配虚拟机的ubuntu版本](https://pan.baidu.com/s/1hW9ZSpNkHx8FD967P-ZnNA) 提取码：upym   
-
-    **注：提供的默认虚拟机密码为1**
-
-- 如果想要从头开始新建虚拟机和安装一遍Ubuntu，请参考下文步骤新建虚拟机，在虚拟机中安装Ubuntu
+如果想要从头开始新建虚拟机和安装一遍Ubuntu，请参考下文步骤新建虚拟机，在虚拟机中安装Ubuntu
 
 ### 下载ubuntu版本
 

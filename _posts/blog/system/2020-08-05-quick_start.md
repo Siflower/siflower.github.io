@@ -68,7 +68,7 @@ graph TB;
   
   ![quick_1](/assets/images/quick_image/quick_1.png)
 
-  - 点击code按键选择下载方式
+  - 选择release2.0.0分支，点击code按键选择下载方式
 
     为了方便代码更新和管理，推荐使用git clone方式下载  
   
@@ -242,7 +242,7 @@ graph TB;
 
 - uboot镜像
   
-  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动(ddr/flash/switch等),请联系XC获取
+  uboot镜像一般烧录好后不会轻易更改，除非硬件配置有改动(ddr/flash/switch等)
 
 - openwrt镜像 
   
@@ -354,21 +354,13 @@ graph TB;
   
   ![update_uboot_log](/assets/images/quick_image/update_uboot_log.png)
 
-##### 2.1.6.3 IROM download更新
+##### 2.1.6.3 烧录器更新
 
-在板子硬件配置上**有usb otg接口**时，如果出现以下情况  
-1，uboot镜像损坏，导致uboot无法正常启动  
-2，flash为空，里面没有任何内容，需要烧录镜像  
-可以通过Siflower的irom usb download下载工具将文件下载到FLASH中
-
-此方法需要专业人员进行操作，获取irom下载工具以及具体操作方法请联系邮箱(irving.luo@siflower.com.cn) 
-
-##### 2.1.6.4 烧录器更新
-
-在板子硬件配置上**无usb otg接口**时，如果出现以下情况  
+在第一次硬件打样或者生产贴片之前，都需要通过烧录器烧写flash芯片。  
+如果出现以下情况，也需要通过烧录器烧录镜像到flash芯片。  
 1，uboot镜像损坏，导致uboot无法正常启动  
 2，flash为空，未烧录过任何镜像  
-需要根据flash型号大小以及ddr型号，制作完整的flash镜像或者uboot镜像，通过FLASH烧录器对flash芯片进行烧录  
+需要根据flash型号大小以及ddr型号，制作完整的flash镜像或者uboot镜像，通过flash烧录器对flash芯片进行烧录  
 
 
 #### 2.1.7 串口调试
